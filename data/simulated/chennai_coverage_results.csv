@@ -1,0 +1,7 @@
+zone_id,risk_score,nearest_hospital_any,nearest_hospital_any_min,nearest_capable_hospital,nearest_capable_min,hidden_delay_min,coverage_status
+ZONE-04,205.5,"Fortis Malar Hospital, Adyar",10.4,"Fortis Malar Hospital, Adyar",10.4,0.0,COVERED
+ZONE-02,197.5,"Government Hospital, Tambaram",0.0,"Government Hospital, Tambaram",0.0,0.0,COVERED
+ZONE-05,193.5,"Chettinad Hospital, Kelambakkam",0.0,"Chettinad Hospital, Kelambakkam",0.0,0.0,COVERED
+ZONE-03,189.0,"Fortis Malar Hospital, Adyar",9.3,"Fortis Malar Hospital, Adyar",9.3,0.0,COVERED
+ZONE-01,158.5,Stanley Medical College Hospital,14.0,Stanley Medical College Hospital,14.0,0.0,COVERED
+ZONE-06,149.0,"Fortis Malar Hospital, Adyar",3.3,"Fortis Malar Hospital, Adyar",3.3,0.0,COVERED

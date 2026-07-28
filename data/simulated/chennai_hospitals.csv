@@ -1,0 +1,13 @@
+hospital_id,name,latitude,longitude,trauma_tier,has_icu,has_cath_lab,has_ventilator_bank,icu_beds,general_beds
+HOSP01,"Apollo Hospitals, Greams Road",13.0604,80.2496,1,True,True,True,60,500
+HOSP02,"MIOT International, Manapakkam",13.0088,80.1657,1,True,True,True,55,1000
+HOSP03,"Kauvery Hospital, Alwarpet",13.0343,80.2545,1,True,True,True,40,300
+HOSP04,Rajiv Gandhi Govt. General Hospital,13.0878,80.2785,1,True,True,True,70,1600
+HOSP05,Stanley Medical College Hospital,13.1097,80.2886,2,True,False,True,30,800
+HOSP06,Sri Ramachandra Medical Centre,13.0355,80.1565,1,True,True,True,50,1800
+HOSP07,"Fortis Malar Hospital, Adyar",13.0067,80.257,2,True,True,False,25,200
+HOSP08,"Tulips Multispeciality, OMR",12.901,80.227,3,True,False,False,10,80
+HOSP09,"Chettinad Hospital, Kelambakkam",12.7965,80.221,2,True,True,True,35,700
+HOSP10,"Government Hospital, Tambaram",12.923,80.118,2,True,False,True,20,350
+HOSP11,"Prashanth Hospitals, Chromepet",12.95,80.142,2,True,True,False,20,150
+HOSP12,"SIMS Hospital, Vadapalani",13.05,80.213,1,True,True,True,45,400

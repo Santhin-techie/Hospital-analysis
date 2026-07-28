@@ -1,0 +1,7 @@
+zone_id,dominant_area,risk_score,nearest_hospital_any,nearest_any_min_APPROX,nearest_capable_hospital,nearest_capable_min_APPROX,coverage_status
+ZONE-04,Perungudi (OMR),205.5,"Fortis Malar Hospital, Adyar",19.9,"Fortis Malar Hospital, Adyar",19.9,COVERED
+ZONE-02,Tambaram (GST Road),197.5,"Government Hospital, Tambaram",3.8,"Government Hospital, Tambaram",3.8,COVERED
+ZONE-05,Kelambakkam (ECR/OMR),193.5,"Chettinad Hospital, Kelambakkam",2.9,"Chettinad Hospital, Kelambakkam",2.9,COVERED
+ZONE-03,Kathipara Junction,189.0,"MIOT International, Manapakkam",15.9,"MIOT International, Manapakkam",15.9,COVERED
+ZONE-01,Retteri Junction,158.5,Stanley Medical College Hospital,32.0,Stanley Medical College Hospital,32.0,GAP
+ZONE-06,Madhya Kailash Junction,149.0,"Fortis Malar Hospital, Adyar",4.2,"Fortis Malar Hospital, Adyar",4.2,COVERED

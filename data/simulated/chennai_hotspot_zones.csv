@@ -1,0 +1,7 @@
+zone_id,centroid_lat,centroid_lon,accident_count,fatal_count,risk_score,dominant_area,priority_rank
+ZONE-04,12.962068,80.242584,84,23,205.5,Perungudi (OMR),1
+ZONE-02,12.925038,80.127021,77,23,197.5,Tambaram (GST Road),2
+ZONE-05,12.789734,80.219496,72,20,193.5,Kelambakkam (ECR/OMR),3
+ZONE-03,13.007122,80.203998,78,16,189.0,Kathipara Junction,4
+ZONE-01,13.13042,80.214123,66,17,158.5,Retteri Junction,5
+ZONE-06,13.006737,80.246957,60,15,149.0,Madhya Kailash Junction,6

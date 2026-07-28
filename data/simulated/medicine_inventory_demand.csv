@@ -1,0 +1,21 @@
+medicine_id,medicine_name,category,batch_number,manufacture_date,expiry_date,days_to_expiry,unit_cost_inr,current_stock_units,reorder_level,base_daily_demand,icmr_surge_season,icmr_surge_factor,forecasted_daily_demand,projected_stock_left_at_expiry,expiry_urgency,stock_status,value_at_risk_inr
+MED-001,Paracetamol 650mg,Analgesic / Antipyretic,BAT-2025-199,2024-11-19,2026-11-19,115,2.5,1890,5096,450,Monsoon (Dengue/Flu),1.6,728.1,-81841.5,SAFE,SHORTAGE RISK,0.0
+MED-002,Amoxicillin + Clav 625mg,Antibacterial,BAT-2025-216,2024-12-18,2026-12-18,144,18.0,41110,2236,220,Winter (Respiratory),1.4,319.5,-4898.0,SAFE,SHORTAGE RISK,0.0
+MED-003,Metformin 500mg SR,Antidiabetic,BAT-2025-493,2024-10-30,2026-10-30,95,3.8,11382,3970,550,Chronic (Stable),1.05,567.2,-42502.0,SAFE,SHORTAGE RISK,0.0
+MED-004,Atorvastatin 10mg,Cardiovascular,BAT-2025-948,2024-08-24,2026-08-24,28,6.5,4440,2993,400,Chronic (Stable),1.05,427.6,-7532.8,CRITICAL,SHORTAGE RISK,0.0
+MED-005,Pantoprazole 40mg,Gastrointestinal,BAT-2025-479,2025-03-06,2027-03-06,222,7.2,44386,3354,380,Summer (Gastro),1.3,479.2,-61996.4,SAFE,SHORTAGE RISK,0.0
+MED-006,Azithromycin 500mg,Antibacterial,BAT-2025-929,2024-09-19,2026-09-19,54,22.0,1240,1917,180,Winter (Respiratory),1.5,273.9,-13550.6,WARNING,SHORTAGE RISK,0.0
+MED-007,Cetirizine 10mg,Anti-allergy,BAT-2025-417,2025-04-25,2027-04-25,272,1.8,13462,2971,310,Spring / Pollen,1.35,424.5,-102002.0,SAFE,SHORTAGE RISK,0.0
+MED-008,Oral Rehydration Salts (ORS),Electrolyte Replenisher,BAT-2025-326,2024-08-08,2026-08-08,12,4.5,8735,7273,600,Summer (Dehydration),1.8,1039.1,-3734.2,CRITICAL,SHORTAGE RISK,0.0
+MED-009,Salbutamol Inhaler 100mcg,Respiratory,BAT-2025-271,2024-07-08,2026-07-08,-19,115.0,996,1453,120,Winter (Asthma/Smog),1.7,207.6,996.0,EXPIRED,EXPIRED WASTAGE,114540.0
+MED-010,Artemether + Lumefantrine,Antimalarial,BAT-2025-574,2024-08-30,2026-08-30,34,65.0,7782,1374,90,Monsoon (Malaria),2.1,196.3,1107.8,WARNING,WASTAGE RISK,72007.0
+MED-011,Amlodipine 5mg,Antihypertensive,BAT-2025-542,2024-09-20,2026-09-20,55,2.2,5832,3288,480,Chronic (Stable),1.02,469.8,-20007.0,WARNING,SHORTAGE RISK,0.0
+MED-012,Dicyclomine + Paracetamol,Antispasmodic,BAT-2025-747,2024-11-28,2026-11-28,124,5.4,39224,1271,140,Summer (Gastro),1.25,181.6,16705.6,SAFE,STABLE STOCK,0.0
+MED-013,Insulin Glargine 100IU/ml,Antidiabetic,BAT-2025-214,2024-07-25,2026-07-25,-2,480.0,1736,583,75,Chronic (Stable),1.08,83.3,1736.0,EXPIRED,EXPIRED WASTAGE,833280.0
+MED-014,Cefixime 200mg,Antibacterial,BAT-2025-128,2024-09-11,2026-09-11,46,14.5,13255,1603,160,Monsoon (Waterborne),1.45,229.0,2721.0,WARNING,WASTAGE RISK,39454.5
+MED-015,Ibuprofen 400mg,NSAID / Anti-inflammatory,BAT-2025-663,2025-02-07,2027-02-07,195,3.1,41492,2064,260,General,1.15,294.9,-16013.5,SAFE,SHORTAGE RISK,0.0
+MED-016,Telmisartan 40mg,Antihypertensive,BAT-2025-275,2024-08-24,2026-08-24,28,8.0,8286,2964,390,Chronic (Stable),1.04,423.5,-3572.0,CRITICAL,SHORTAGE RISK,0.0
+MED-017,Domperidone 10mg,Antiemetic,BAT-2025-516,2024-08-05,2026-08-05,9,3.6,8363,2093,230,Summer (Gastro),1.3,299.0,5672.0,CRITICAL,WASTAGE RISK,20419.2
+MED-018,Ascorbic Acid (Vit C) 500mg,Nutritional Supplement,BAT-2025-324,2024-08-05,2026-08-05,9,1.5,7950,2954,340,Monsoon / Winter,1.25,422.1,4151.1,CRITICAL,WASTAGE RISK,6226.65
+MED-019,Levothyroxine 50mcg,Endocrine,BAT-2025-826,2024-09-13,2026-09-13,48,2.8,13008,2130,310,Chronic (Stable),1.02,304.4,-1603.2,WARNING,SHORTAGE RISK,0.0
+MED-020,Oseltamivir 75mg (Tamiflu),Antiviral,BAT-2025-695,2024-07-22,2026-07-22,-5,45.0,867,779,45,Monsoon/Winter (H1N1),2.4,111.3,867.0,EXPIRED,EXPIRED WASTAGE,39015.0
