@@ -48,6 +48,9 @@ def find_module_file(fname):
             return p
     return None
 
+ZONES_PATH = find_module_file("chennai_hotspot_zones.csv")
+HOSPITALS_PATH = find_module_file("chennai_hospitals.csv")
+
 if "active_page" not in st.session_state:
     st.session_state.active_page = "overview"
 
@@ -116,6 +119,30 @@ table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-b
 .empty-box{background:var(--panel); border:1px dashed var(--panel-border); border-radius:16px; padding:50px; text-align:center; color:var(--ink-dim);}
 .empty-title{font-size:15px; font-weight:700; color:var(--ink-mid); margin-bottom:8px;}
 .empty-code{font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:8px; display:inline-block; margin-top:10px;}
+.ticker-wrap{background:rgba(0,0,0,0.25); border:1px solid var(--panel-border); border-radius:12px; overflow:hidden; white-space:nowrap; padding:9px 0; margin-bottom:18px;}
+.ticker-track{display:inline-flex; animation:scroll-left 26s linear infinite;}
+.ticker-item{font-family:var(--mono); font-size:11px; padding:0 26px; display:inline-flex; align-items:center; gap:8px; color:var(--ink-mid); border-right:1px solid var(--panel-border);}
+.ticker-item.crit{color:var(--red);}
+@keyframes scroll-left{0%{transform:translateX(0);} 100%{transform:translateX(-50%);}}
+.console-body{display:grid; grid-template-columns:200px 1fr; gap:0;}
+.radar-box{padding:10px 20px 10px 4px; border-right:1px solid var(--panel-border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;}
+.radar{width:150px; height:150px; border-radius:50%; border:1px solid var(--panel-border); position:relative; background:repeating-radial-gradient(circle, transparent 0, transparent 24px, var(--panel-border) 25px);}
+.radar-sweep{position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(53,224,161,0.4), transparent 60deg); animation:sweep 3.2s linear infinite;}
+@keyframes sweep{100%{transform:rotate(360deg);}}
+.radar-dot{position:absolute; width:7px; height:7px; border-radius:50%;}
+.radar-center{position:absolute; top:50%; left:50%; width:6px; height:6px; background:var(--green); border-radius:50%; transform:translate(-50%,-50%);}
+.radar-caption{font-family:var(--mono); font-size:9.5px; color:var(--ink-dim);}
+.console-main{padding:14px 22px;}
+.cc-line{font-family:var(--mono); font-size:12px; margin-bottom:9px;}
+.cc-label{color:var(--ink-dim);} .cc-val{color:var(--ink); font-weight:700;}
+.alert-grid{display:flex; flex-direction:column; gap:9px;}
+.a-card{background:rgba(0,0,0,0.15); border:1px solid var(--panel-border); border-left:3px solid var(--panel-border); border-radius:10px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px;}
+.a-card.crit{border-left-color:var(--red);} .a-card.ok{border-left-color:var(--green);}
+.a-left{display:flex; gap:12px; align-items:flex-start;}
+.a-rank{font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--ink-dim); background:rgba(255,255,255,0.05); border:1px solid var(--panel-border); border-radius:6px; padding:2px 7px; align-self:flex-start; margin-top:1px;}
+.a-title{font-weight:700; font-size:12.5px; margin-bottom:3px;}
+.a-detail{font-size:11px; color:var(--ink-mid);}
+.a-action{font-family:var(--mono); font-size:9.5px; padding:6px 10px; border-radius:6px; border:1px solid var(--panel-border); color:var(--ink-mid); white-space:nowrap;}
 """
 
 # ---------------------------------------------------------------------------
@@ -221,10 +248,131 @@ def render_module(key):
     components.html(html, height=650, scrolling=True)
 
 # ---------------------------------------------------------------------------
+# PAGE: COVERAGE & REFERRAL INTELLIGENCE (rich version — ticker, radar, map)
+# ---------------------------------------------------------------------------
+def render_coverage_rich():
+    m = MODULE_FILES["coverage"]
+    coverage_path = find_module_file(m["file"])
+
+    if not (coverage_path and ZONES_PATH and HOSPITALS_PATH):
+        render_module("coverage")  # fall back to the plain "waiting for data" card
+        return
+
+    coverage = pd.read_csv(coverage_path)
+    zones = pd.read_csv(ZONES_PATH)
+    hospitals = pd.read_csv(HOSPITALS_PATH)
+
+    nearest_col = "nearest_capable_min" if "nearest_capable_min" in coverage.columns else "nearest_capable_min_APPROX"
+    zones_lookup = zones.set_index("zone_id")[["dominant_area", "centroid_lat", "centroid_lon"]]
+    cov = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True).join(zones_lookup, on="zone_id")
+    cov.insert(0, "priority_rank", range(1, len(cov) + 1))
+
+    n_gap = int((cov["coverage_status"] == "GAP").sum())
+    n_covered = int((cov["coverage_status"] == "COVERED").sum())
+
+    # ticker
+    ticker_html = ""
+    for _, row in cov.head(5).iterrows():
+        css = "crit" if row["coverage_status"] == "GAP" else ""
+        dot = "🔴" if row["coverage_status"] == "GAP" else "🟢"
+        ticker_html += f'<span class="ticker-item {css}">{dot} <b>#{row["priority_rank"]} {row["zone_id"]}</b> — {row["dominant_area"]} · {row["coverage_status"]} · {row[nearest_col]} min</span>'
+    ticker_html *= 2
+
+    # radar dots
+    radar_dots_html = ""
+    positions = [(30,60),(65,30),(45,75),(75,55),(25,35),(55,45)]
+    for i, (_, row) in enumerate(cov.iterrows()):
+        if i >= len(positions):
+            break
+        top, left = positions[i]
+        color = "var(--red)" if row["coverage_status"] == "GAP" else "var(--green)"
+        radar_dots_html += f'<div class="radar-dot" style="top:{top}%; left:{left}%; background:{color}; box-shadow:0 0 8px {color};"></div>'
+
+    # alert cards
+    alert_cards_html = ""
+    for _, row in cov.iterrows():
+        is_gap = row["coverage_status"] == "GAP"
+        css_class = "crit" if is_gap else "ok"
+        icon = "🔴" if is_gap else "🟢"
+        alert_cards_html += f"""
+        <div class="a-card {css_class}">
+          <div class="a-left">
+            <div class="a-rank">#{row['priority_rank']}</div>
+            <div>{icon}</div>
+            <div>
+              <div class="a-title">{row['zone_id']} — {row['dominant_area']}</div>
+              <div class="a-detail">{row['coverage_status']} · Risk score <b>{row['risk_score']}</b> · Nearest: <b>{row.get('nearest_capable_hospital','N/A')}</b></div>
+            </div>
+          </div>
+          <div class="a-action">{row[nearest_col]} MIN</div>
+        </div>"""
+
+    top = cov.iloc[0]
+    html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
+      <div class="ticker-wrap"><div class="ticker-track">{ticker_html}</div></div>
+      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b></div>
+      <div class="page-title">🚨 Coverage & Referral Intelligence</div>
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-label">Zones — Gap</div><div class="stat-value" style="color:var(--red);">{n_gap}</div></div>
+        <div class="stat-card"><div class="stat-label">Zones — Covered</div><div class="stat-value" style="color:var(--green);">{n_covered}</div></div>
+        <div class="stat-card"><div class="stat-label">Hospitals</div><div class="stat-value">{len(hospitals)}</div></div>
+        <div class="stat-card"><div class="stat-label">Total Accidents</div><div class="stat-value">{int(zones['accident_count'].sum())}</div></div>
+      </div>
+      <div class="glass-panel">
+        <div class="panel-title">Zone Radar</div>
+        <div class="console-body">
+          <div class="radar-box">
+            <div class="radar"><div class="radar-sweep"></div><div class="radar-center"></div>{radar_dots_html}</div>
+            <div class="radar-caption">{len(zones)} zones scanned</div>
+          </div>
+          <div class="console-main">
+            <div class="cc-line"><span class="cc-label">highest_risk_zone:</span> <span class="cc-val">{top['zone_id']} — {top['dominant_area']}</span></div>
+            <div class="cc-line"><span class="cc-label">risk_score:</span> <span class="cc-val">{top['risk_score']}</span></div>
+            <div class="cc-line"><span class="cc-label">nearest_capable_hospital:</span> <span class="cc-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
+            <div class="cc-line"><span class="cc-label">travel_time:</span> <span class="cc-val">{top[nearest_col]} min</span></div>
+            <div class="cc-line"><span class="cc-label">status:</span> <span class="cc-val">{top['coverage_status']}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-panel">
+        <div class="panel-title">Active Zone Alerts</div>
+        <div class="alert-grid">{alert_cards_html}</div>
+      </div>
+    </body></html>"""
+    components.html(html, height=1150, scrolling=True)
+
+    # --- real interactive map (native Streamlit, can't easily go inside the iframe) ---
+    st.markdown("### 🗺️ Zone & Hospital Map")
+    st.caption("Red = coverage gap · Green = covered · Blue = hospital")
+    try:
+        import pydeck as pdk
+        zone_map_df = cov.copy()
+        zone_map_df["color"] = zone_map_df["coverage_status"].apply(lambda s: [255,75,75,200] if s=="GAP" else [52,224,161,200])
+        zone_map_df["radius"] = zone_map_df["risk_score"] * 8
+        hosp_map_df = hospitals.copy()
+        hosp_map_df["color"] = [[74,163,255,200]] * len(hosp_map_df)
+
+        zone_layer = pdk.Layer("ScatterplotLayer", data=zone_map_df,
+            get_position="[centroid_lon, centroid_lat]", get_fill_color="color",
+            get_radius="radius", radius_min_pixels=8, radius_max_pixels=40, pickable=True)
+        hosp_layer = pdk.Layer("ScatterplotLayer", data=hosp_map_df,
+            get_position="[longitude, latitude]", get_fill_color="color", get_radius=180,
+            radius_min_pixels=6, radius_max_pixels=20, pickable=True,
+            stroked=True, get_line_color=[255,255,255,180], line_width_min_pixels=1)
+        view_state = pdk.ViewState(latitude=float(zones["centroid_lat"].mean()),
+                                    longitude=float(zones["centroid_lon"].mean()), zoom=10, pitch=0)
+        st.pydeck_chart(pdk.Deck(layers=[zone_layer, hosp_layer], initial_view_state=view_state,
+                                  map_style="dark", tooltip={"text": "{dominant_area}"}))
+    except ImportError:
+        st.warning("pydeck not installed — run `pip install pydeck` to enable the map.")
+
+# ---------------------------------------------------------------------------
 # ROUTER
 # ---------------------------------------------------------------------------
 page = st.session_state.active_page
 if page == "overview":
     render_overview()
+elif page == "coverage":
+    render_coverage_rich()
 else:
     render_module(page)
