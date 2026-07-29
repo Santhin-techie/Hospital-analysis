@@ -241,6 +241,8 @@ zone_layer = pdk.Layer(
     get_position="[centroid_lon, centroid_lat]",
     get_fill_color="color",
     get_radius="radius",
+    radius_min_pixels=8,
+    radius_max_pixels=40,
     pickable=True,
 )
 
@@ -250,7 +252,12 @@ hosp_layer = pdk.Layer(
     get_position="[longitude, latitude]",
     get_fill_color="color",
     get_radius=180,
+    radius_min_pixels=6,
+    radius_max_pixels=20,
     pickable=True,
+    stroked=True,
+    get_line_color=[255, 255, 255, 180],
+    line_width_min_pixels=1,
 )
 
 view_state = pdk.ViewState(
