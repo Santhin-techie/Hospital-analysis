@@ -21,7 +21,8 @@ import streamlit.components.v1 as components
 # ---------------------------------------------------------------------------
 # PATHS
 # ---------------------------------------------------------------------------
-DATA_DIR = r"C:\Users\santhin kumar k\mini\data\simulated"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
 ZONES_PATH = f"{DATA_DIR}\\chennai_hotspot_zones.csv"
 HOSPITALS_PATH = f"{DATA_DIR}\\chennai_hospitals.csv"
 REAL_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
