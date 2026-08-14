@@ -25,10 +25,22 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
 ZONES_PATH = f"{DATA_DIR}\\chennai_hotspot_zones.csv"
 HOSPITALS_PATH = f"{DATA_DIR}\\chennai_hospitals.csv"
-REAL_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
+LIVE_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results_LIVE.csv"
+STATIC_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
 APPROX_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results_APPROX.csv"
-COVERAGE_PATH = REAL_COVERAGE_PATH if os.path.exists(REAL_COVERAGE_PATH) else APPROX_COVERAGE_PATH
-USING_APPROX = COVERAGE_PATH == APPROX_COVERAGE_PATH
+
+# Priority: LIVE (TomTom, real-time traffic) > STATIC (OSM, no live traffic) > APPROX (straight-line fallback)
+if os.path.exists(LIVE_COVERAGE_PATH):
+    COVERAGE_PATH = LIVE_COVERAGE_PATH
+    DATA_MODE = "LIVE"
+elif os.path.exists(STATIC_COVERAGE_PATH):
+    COVERAGE_PATH = STATIC_COVERAGE_PATH
+    DATA_MODE = "STATIC"
+else:
+    COVERAGE_PATH = APPROX_COVERAGE_PATH
+    DATA_MODE = "APPROX"
+
+USING_APPROX = DATA_MODE == "APPROX"
 
 st.set_page_config(page_title="Emergency Readiness Console", layout="wide")
 
@@ -170,7 +182,7 @@ html = f"""
     <div>
       <div class="h-eyebrow">Module 04 · Coverage & Referral Intelligence</div>
       <div class="h-title">Emergency Readiness Console</div>
-      <div class="h-sub">{'REAL road-network routing' if not USING_APPROX else 'APPROXIMATE routing — run compute_travel_time.py for real results'} · {len(hospitals)} hospitals · {len(zones)} zones</div>
+      <div class="h-sub">{ {"LIVE": "LIVE traffic-aware routing (TomTom)", "STATIC": "Static road-network routing (OSM, no live traffic)", "APPROX": "APPROXIMATE routing — run compute_travel_time.py for real results"}[DATA_MODE] } · {len(hospitals)} hospitals · {len(zones)} zones{' · pulled ' + str(coverage['data_pulled_at'].iloc[0]) if DATA_MODE == "LIVE" and "data_pulled_at" in coverage.columns else ''}</div>
     </div>
     <div class="status-pill"><span class="status-dot"></span>LIVE DATA</div>
   </div>
