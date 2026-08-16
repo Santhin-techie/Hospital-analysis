@@ -17,6 +17,9 @@ import streamlit as st
 import pandas as pd
 import os
 import streamlit.components.v1 as components
+import time
+import random
+from datetime import datetime
 
 # ---------------------------------------------------------------------------
 # PATHS
@@ -25,24 +28,55 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
 ZONES_PATH = f"{DATA_DIR}\\chennai_hotspot_zones.csv"
 HOSPITALS_PATH = f"{DATA_DIR}\\chennai_hospitals.csv"
-LIVE_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results_LIVE.csv"
-STATIC_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
+REAL_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
 APPROX_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results_APPROX.csv"
-
-# Priority: LIVE (TomTom, real-time traffic) > STATIC (OSM, no live traffic) > APPROX (straight-line fallback)
-if os.path.exists(LIVE_COVERAGE_PATH):
-    COVERAGE_PATH = LIVE_COVERAGE_PATH
-    DATA_MODE = "LIVE"
-elif os.path.exists(STATIC_COVERAGE_PATH):
-    COVERAGE_PATH = STATIC_COVERAGE_PATH
-    DATA_MODE = "STATIC"
-else:
-    COVERAGE_PATH = APPROX_COVERAGE_PATH
-    DATA_MODE = "APPROX"
-
-USING_APPROX = DATA_MODE == "APPROX"
+COVERAGE_PATH = REAL_COVERAGE_PATH if os.path.exists(REAL_COVERAGE_PATH) else APPROX_COVERAGE_PATH
+USING_APPROX = COVERAGE_PATH == APPROX_COVERAGE_PATH
 
 st.set_page_config(page_title="Emergency Readiness Console", layout="wide")
+
+# ---------------------------------------------------------------------------
+# LIVE SIMULATION MODE
+# ---------------------------------------------------------------------------
+# IMPORTANT — read this before demoing "live" mode to anyone:
+# There is no public API where hospitals broadcast real-time bed/traffic
+# data -- that data is private and not accessible for a student project.
+# This mode instead SIMULATES realistic live fluctuation (like traffic
+# conditions shifting minute to minute) on top of your real base data,
+# so the dashboard behaves like a live system for demo purposes. It is
+# clearly labeled as simulated, not real hospital telemetry.
+# ---------------------------------------------------------------------------
+live_col1, live_col2 = st.columns([1, 5])
+with live_col1:
+    live_mode = st.toggle("🔴 Live Simulation Mode", value=False)
+with live_col2:
+    if live_mode:
+        st.caption("Simulating live traffic/condition fluctuation on top of real base data — refreshes every 6s. Not real hospital telemetry.")
+    else:
+        st.caption("Static view of your real computed results. Turn on Live Simulation Mode to see a demo-style auto-updating console.")
+
+if live_mode:
+    try:
+        from streamlit_autorefresh import st_autorefresh
+        refresh_count = st_autorefresh(interval=6000, limit=None, key="live_refresh_counter")
+    except ImportError:
+        st.warning("Live mode needs one extra package. Run: `pip install streamlit-autorefresh` then reload this page.")
+        refresh_count = 0
+else:
+    refresh_count = 0
+
+def apply_live_jitter(df, nearest_col_name, seed):
+    """Simulate small realistic fluctuations in travel time and risk score,
+    as if live traffic conditions were shifting -- seeded by refresh count
+    so each refresh gives a different but bounded, believable variation."""
+    rng = random.Random(seed)
+    df = df.copy()
+    df[nearest_col_name] = df[nearest_col_name].apply(
+        lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1)
+    )
+    return df
+
+
 
 # ---------------------------------------------------------------------------
 # LOAD DATA
@@ -57,6 +91,13 @@ except FileNotFoundError as e:
 
 coverage_sorted = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True)
 nearest_col = "nearest_capable_min" if "nearest_capable_min" in coverage.columns else "nearest_capable_min_APPROX"
+
+if live_mode:
+    coverage_sorted = apply_live_jitter(coverage_sorted, nearest_col, seed=refresh_count)
+    SAFE_WINDOW = 20
+    coverage_sorted["coverage_status"] = coverage_sorted[nearest_col].apply(
+        lambda t: "COVERED" if t <= SAFE_WINDOW else "GAP"
+    )
 
 # Bring in the human-readable region name + coordinates from the zones table
 zones_lookup = zones.set_index("zone_id")[["dominant_area", "centroid_lat", "centroid_lon"]]
@@ -182,9 +223,9 @@ html = f"""
     <div>
       <div class="h-eyebrow">Module 04 · Coverage & Referral Intelligence</div>
       <div class="h-title">Emergency Readiness Console</div>
-      <div class="h-sub">{ {"LIVE": "LIVE traffic-aware routing (TomTom)", "STATIC": "Static road-network routing (OSM, no live traffic)", "APPROX": "APPROXIMATE routing — run compute_travel_time.py for real results"}[DATA_MODE] } · {len(hospitals)} hospitals · {len(zones)} zones{' · pulled ' + str(coverage['data_pulled_at'].iloc[0]) if DATA_MODE == "LIVE" and "data_pulled_at" in coverage.columns else ''}</div>
+      <div class="h-sub">{'REAL road-network routing' if not USING_APPROX else 'APPROXIMATE routing — run compute_travel_time.py for real results'} · {len(hospitals)} hospitals · {len(zones)} zones</div>
     </div>
-    <div class="status-pill"><span class="status-dot"></span>LIVE DATA</div>
+    <div class="status-pill"><span class="status-dot"></span>{'LIVE SIM · ' + datetime.now().strftime('%H:%M:%S') if live_mode else 'STATIC DATA'}</div>
   </div>
   <div class="wrap">
     <div class="counters">
@@ -248,6 +289,21 @@ hosp_map_df = hospitals.copy()
 hosp_map_df["color"] = [[74, 163, 255, 200]] * len(hosp_map_df)
 hosp_map_df["label"] = hosp_map_df["name"]
 
+# --- Build route lines: each zone -> its nearest capable hospital ---
+hosp_lookup = hospitals.set_index("name")[["latitude", "longitude"]]
+route_rows = []
+for _, row in zone_map_df.iterrows():
+    hosp_name = row.get("nearest_capable_hospital")
+    if hosp_name in hosp_lookup.index:
+        h = hosp_lookup.loc[hosp_name]
+        route_rows.append({
+            "from_lon": row["centroid_lon"], "from_lat": row["centroid_lat"],
+            "to_lon": h["longitude"], "to_lat": h["latitude"],
+            "color": row["color"],
+            "label": f"{row['zone_id']} → {hosp_name} ({row[nearest_col]} min)",
+        })
+route_df = pd.DataFrame(route_rows)
+
 zone_layer = pdk.Layer(
     "ScatterplotLayer",
     data=zone_map_df,
@@ -273,19 +329,30 @@ hosp_layer = pdk.Layer(
     line_width_min_pixels=1,
 )
 
+route_layer = pdk.Layer(
+    "LineLayer",
+    data=route_df,
+    get_source_position="[from_lon, from_lat]",
+    get_target_position="[to_lon, to_lat]",
+    get_color="color",
+    get_width=2.5,
+    pickable=True,
+)
+
 view_state = pdk.ViewState(
     latitude=float(zones["centroid_lat"].mean()),
     longitude=float(zones["centroid_lon"].mean()),
-    zoom=10,
+    zoom=10.3,
     pitch=0,
 )
 
 st.pydeck_chart(pdk.Deck(
-    layers=[zone_layer, hosp_layer],
+    layers=[route_layer, zone_layer, hosp_layer],
     initial_view_state=view_state,
     map_style="dark",
     tooltip={"text": "{label}"},
 ))
+st.caption("Lines show each zone's route to its nearest *capable* hospital (straight-line for now — swap in real road-path coordinates from compute_travel_time.py for road-accurate lines). Hover any dot to see its name — overlapping hospitals separate as you zoom in.")
 
 # ---------------------------------------------------------------------------
 # READABLE ZONE -> REGION LOOKUP TABLE (answers "what area is ZONE-04?")
