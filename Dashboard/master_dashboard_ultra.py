@@ -17,14 +17,72 @@ import streamlit as st
 import pandas as pd
 import os
 import streamlit.components.v1 as components
+import random
+from datetime import datetime
+from datetime import datetime
 
 st.set_page_config(page_title="HRI System — Master Console", layout="wide")
 
 # ---------------------------------------------------------------------------
+# GLOBAL SHELL STYLING — makes the OUTER Streamlit app (sidebar, page
+# background, native widgets like the map) match the embedded HTML's dark
+# glass theme exactly. Without this, the embedded console looks fine but
+# everything native (map, toggle, captions) sits on a plain white/default
+# background — that mismatch is what makes it feel "bolted on" instead of
+# one continuous product.
+# ---------------------------------------------------------------------------
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    .stApp {
+        background:
+            radial-gradient(circle at 15% 0%, rgba(124,92,255,0.18), transparent 40%),
+            radial-gradient(circle at 85% 15%, rgba(62,166,255,0.14), transparent 45%),
+            linear-gradient(180deg, #0B0E23, #131735) !important;
+    }
+
+    /* Sidebar matches the same dark theme instead of default light/gray */
+    section[data-testid="stSidebar"] {
+        background: rgba(255,255,255,0.03);
+        border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    section[data-testid="stSidebar"] * { color: #F1F3FA !important; }
+    section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] small { color: #8891B5 !important; }
+
+    /* Remove the default big top padding so content sits flush like a real dashboard */
+    .block-container { padding-top: 1.6rem; padding-bottom: 2rem; }
+
+    /* Native widgets (toggle, captions, warnings) restyled to match the dark theme */
+    .stMarkdown, .stCaption, p, label, span { color: #DCE3EC; }
+    .stToggle label { color: #F1F3FA !important; }
+    div[data-testid="stMetricValue"] { color: #F1F3FA; }
+
+    /* Native map container gets a matching dark card frame instead of floating on blank space */
+    div[data-testid="stDeckGlJsonChart"] {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Kill the harsh white flash of default Streamlit alert/warning boxes */
+    div[data-testid="stAlert"] {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #DCE3EC;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------------------------
 # PATHS + DATA CONTRACT
 # ---------------------------------------------------------------------------
-FINAL_DIR = r"C:\Users\santhin kumar k\mini\data\final"
-SIM_DIR = r"C:\Users\santhin kumar k\mini\data\simulated"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FINAL_DIR = os.path.join(BASE_DIR, "..", "data", "final")
+SIM_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
+os.makedirs(FINAL_DIR, exist_ok=True)
 
 MODULE_FILES = {
     "bed":      {"name": "Bed Occupancy Forecasting",       "file": "bed_occupancy_forecast.csv",
@@ -267,83 +325,79 @@ def render_coverage_rich():
     cov = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True).join(zones_lookup, on="zone_id")
     cov.insert(0, "priority_rank", range(1, len(cov) + 1))
 
+    # ---- Live Simulation Mode -- native Streamlit controls, styled to match the sidebar ----
+    lc1, lc2 = st.columns([1, 4])
+    with lc1:
+        live_mode = st.toggle("🔴 Live Simulation", value=False, key="coverage_live_toggle")
+    with lc2:
+        st.caption("Simulates live traffic fluctuation on real base data — not real hospital telemetry (no public API exists for this)." if live_mode
+                   else "Static view of computed results. Toggle on for an auto-updating demo view.")
+
+    if live_mode:
+        try:
+            from streamlit_autorefresh import st_autorefresh
+            refresh_count = st_autorefresh(interval=6000, limit=None, key="coverage_live_refresh")
+        except ImportError:
+            st.warning("Run `pip install streamlit-autorefresh` to enable Live Simulation Mode.")
+            refresh_count = 0
+        rng = random.Random(refresh_count)
+        cov[nearest_col] = cov[nearest_col].apply(lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1))
+        cov["coverage_status"] = cov[nearest_col].apply(lambda t: "COVERED" if t <= 20 else "GAP")
+
     n_gap = int((cov["coverage_status"] == "GAP").sum())
     n_covered = int((cov["coverage_status"] == "COVERED").sum())
+    top = cov.iloc[0]
 
-    # ticker
-    ticker_html = ""
-    for _, row in cov.head(5).iterrows():
-        css = "crit" if row["coverage_status"] == "GAP" else ""
-        dot = "🔴" if row["coverage_status"] == "GAP" else "🟢"
-        ticker_html += f'<span class="ticker-item {css}">{dot} <b>#{row["priority_rank"]} {row["zone_id"]}</b> — {row["dominant_area"]} · {row["coverage_status"]} · {row[nearest_col]} min</span>'
-    ticker_html *= 2
-
-    # radar dots
-    radar_dots_html = ""
-    positions = [(30,60),(65,30),(45,75),(75,55),(25,35),(55,45)]
-    for i, (_, row) in enumerate(cov.iterrows()):
-        if i >= len(positions):
-            break
-        top, left = positions[i]
-        color = "var(--red)" if row["coverage_status"] == "GAP" else "var(--green)"
-        radar_dots_html += f'<div class="radar-dot" style="top:{top}%; left:{left}%; background:{color}; box-shadow:0 0 8px {color};"></div>'
-
-    # alert cards
-    alert_cards_html = ""
+    # ---- alert rows, styled exactly like the Overview module-status rows ----
+    rows_html = ""
     for _, row in cov.iterrows():
         is_gap = row["coverage_status"] == "GAP"
-        css_class = "crit" if is_gap else "ok"
-        icon = "🔴" if is_gap else "🟢"
-        alert_cards_html += f"""
-        <div class="a-card {css_class}">
-          <div class="a-left">
-            <div class="a-rank">#{row['priority_rank']}</div>
-            <div>{icon}</div>
-            <div>
-              <div class="a-title">{row['zone_id']} — {row['dominant_area']}</div>
-              <div class="a-detail">{row['coverage_status']} · Risk score <b>{row['risk_score']}</b> · Nearest: <b>{row.get('nearest_capable_hospital','N/A')}</b></div>
-            </div>
+        badge_class = "pending" if is_gap else "ready"  # reuse existing badge colors (amber/green)
+        badge_label = "GAP" if is_gap else "COVERED"
+        icon_bg = ("#FF5C7A","#FF5CA8") if is_gap else ("#35E0A1","#1BA97A")
+        rows_html += f"""
+        <div class="mod-row">
+          <div class="mod-left">
+            <div class="mod-icon" style="background:linear-gradient(135deg,{icon_bg[0]},{icon_bg[1]});">#{row['priority_rank']}</div>
+            <div><div class="mod-name">{row['zone_id']} — {row['dominant_area']}</div>
+                 <div class="mod-desc">Risk {row['risk_score']} · Nearest: {row.get('nearest_capable_hospital','N/A')}</div></div>
           </div>
-          <div class="a-action">{row[nearest_col]} MIN</div>
+          <div style="text-align:right;">
+            <div class="mod-status {badge_class}">{badge_label}</div>
+            <div style="font-size:9.5px; color:var(--ink-dim); margin-top:4px;">{row[nearest_col]} min</div>
+          </div>
         </div>"""
 
-    top = cov.iloc[0]
+    live_badge = f"🔴 LIVE · {datetime.now().strftime('%H:%M:%S')}" if live_mode else "STATIC"
+
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
-      <div class="ticker-wrap"><div class="ticker-track">{ticker_html}</div></div>
-      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b></div>
+      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b>  ·  {live_badge}</div>
       <div class="page-title">🚨 Coverage & Referral Intelligence</div>
-      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
-        <div class="stat-card"><div class="stat-label">Zones — Gap</div><div class="stat-value" style="color:var(--red);">{n_gap}</div></div>
-        <div class="stat-card"><div class="stat-label">Zones — Covered</div><div class="stat-value" style="color:var(--green);">{n_covered}</div></div>
-        <div class="stat-card"><div class="stat-label">Hospitals</div><div class="stat-value">{len(hospitals)}</div></div>
-        <div class="stat-card"><div class="stat-label">Total Accidents</div><div class="stat-value">{int(zones['accident_count'].sum())}</div></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value">{n_gap}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">✅</div><div class="stat-label">Zones — Covered</div><div class="stat-value">{n_covered}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals</div><div class="stat-value">{len(hospitals)}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">📊</div><div class="stat-label">Total Accidents</div><div class="stat-value">{int(zones['accident_count'].sum())}</div></div>
       </div>
       <div class="glass-panel">
-        <div class="panel-title">Zone Radar</div>
-        <div class="console-body">
-          <div class="radar-box">
-            <div class="radar"><div class="radar-sweep"></div><div class="radar-center"></div>{radar_dots_html}</div>
-            <div class="radar-caption">{len(zones)} zones scanned</div>
-          </div>
-          <div class="console-main">
-            <div class="cc-line"><span class="cc-label">highest_risk_zone:</span> <span class="cc-val">{top['zone_id']} — {top['dominant_area']}</span></div>
-            <div class="cc-line"><span class="cc-label">risk_score:</span> <span class="cc-val">{top['risk_score']}</span></div>
-            <div class="cc-line"><span class="cc-label">nearest_capable_hospital:</span> <span class="cc-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
-            <div class="cc-line"><span class="cc-label">travel_time:</span> <span class="cc-val">{top[nearest_col]} min</span></div>
-            <div class="cc-line"><span class="cc-label">status:</span> <span class="cc-val">{top['coverage_status']}</span></div>
-          </div>
-        </div>
+        <div class="panel-title">Highest Priority Zone</div>
+        <div class="panel-sub">{top['zone_id']} — {top['dominant_area']} · risk score {top['risk_score']} · {top[nearest_col]} min to {top.get('nearest_capable_hospital','N/A')} · status {top['coverage_status']}</div>
       </div>
       <div class="glass-panel">
-        <div class="panel-title">Active Zone Alerts</div>
-        <div class="alert-grid">{alert_cards_html}</div>
+        <div class="panel-title">Zone Alerts — Ranked by Risk</div>
+        <div class="panel-sub">shared data contract · same hospital_id list as other modules</div>
+        {rows_html}
       </div>
     </body></html>"""
-    components.html(html, height=1150, scrolling=True)
+    components.html(html, height=850, scrolling=True)
 
-    # --- real interactive map (native Streamlit, can't easily go inside the iframe) ---
-    st.markdown("### 🗺️ Zone & Hospital Map")
-    st.caption("Red = coverage gap · Green = covered · Blue = hospital")
+    # --- real interactive map (native Streamlit — can't easily go inside the iframe) ---
+    st.markdown("""
+    <div style="margin-top:18px; margin-bottom:10px;">
+        <div style="font-size:14.5px; font-weight:700; color:#F1F3FA;">🗺️ Zone & Hospital Map</div>
+        <div style="font-size:11px; color:#8891B5; margin-top:3px;">Red = coverage gap · Green = covered · Blue = hospital · lines = route to nearest capable hospital</div>
+    </div>
+    """, unsafe_allow_html=True)
     try:
         import pydeck as pdk
         zone_map_df = cov.copy()
@@ -351,7 +405,26 @@ def render_coverage_rich():
         zone_map_df["radius"] = zone_map_df["risk_score"] * 8
         hosp_map_df = hospitals.copy()
         hosp_map_df["color"] = [[74,163,255,200]] * len(hosp_map_df)
+        hosp_map_df["label"] = hosp_map_df["name"]
+        zone_map_df["label"] = zone_map_df["zone_id"] + " — " + zone_map_df["dominant_area"]
 
+        hosp_lookup = hospitals.set_index("name")[["latitude", "longitude"]]
+        route_rows = []
+        for _, row in zone_map_df.iterrows():
+            hosp_name = row.get("nearest_capable_hospital")
+            if hosp_name in hosp_lookup.index:
+                h = hosp_lookup.loc[hosp_name]
+                route_rows.append({
+                    "from_lon": row["centroid_lon"], "from_lat": row["centroid_lat"],
+                    "to_lon": h["longitude"], "to_lat": h["latitude"],
+                    "color": row["color"],
+                    "label": f"{row['zone_id']} → {hosp_name} ({row[nearest_col]} min)",
+                })
+        route_df = pd.DataFrame(route_rows)
+
+        route_layer = pdk.Layer("LineLayer", data=route_df,
+            get_source_position="[from_lon, from_lat]", get_target_position="[to_lon, to_lat]",
+            get_color="color", get_width=2.5, pickable=True)
         zone_layer = pdk.Layer("ScatterplotLayer", data=zone_map_df,
             get_position="[centroid_lon, centroid_lat]", get_fill_color="color",
             get_radius="radius", radius_min_pixels=8, radius_max_pixels=40, pickable=True)
@@ -360,9 +433,9 @@ def render_coverage_rich():
             radius_min_pixels=6, radius_max_pixels=20, pickable=True,
             stroked=True, get_line_color=[255,255,255,180], line_width_min_pixels=1)
         view_state = pdk.ViewState(latitude=float(zones["centroid_lat"].mean()),
-                                    longitude=float(zones["centroid_lon"].mean()), zoom=10, pitch=0)
-        st.pydeck_chart(pdk.Deck(layers=[zone_layer, hosp_layer], initial_view_state=view_state,
-                                  map_style="dark", tooltip={"text": "{dominant_area}"}))
+                                    longitude=float(zones["centroid_lon"].mean()), zoom=10.3, pitch=0)
+        st.pydeck_chart(pdk.Deck(layers=[route_layer, zone_layer, hosp_layer], initial_view_state=view_state,
+                                  map_style="dark", tooltip={"text": "{label}"}))
     except ImportError:
         st.warning("pydeck not installed — run `pip install pydeck` to enable the map.")
 
