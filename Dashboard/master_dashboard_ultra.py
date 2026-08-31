@@ -201,6 +201,14 @@ table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-b
 .a-title{font-weight:700; font-size:12.5px; margin-bottom:3px;}
 .a-detail{font-size:11px; color:var(--ink-mid);}
 .a-action{font-family:var(--mono); font-size:9.5px; padding:6px 10px; border-radius:6px; border:1px solid var(--panel-border); color:var(--ink-mid); white-space:nowrap;}
+.hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px;}
+.hero-map-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:16px; height:260px; position:relative; overflow:hidden;}
+.hero-map-label{position:absolute; top:14px; left:14px; font-family:var(--mono); font-size:10px; color:var(--ink-mid); background:rgba(0,0,0,0.35); padding:6px 12px; border-radius:10px; z-index:2;}
+.hero-info-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:20px 22px; display:flex; flex-direction:column; justify-content:center;}
+.hero-stat-line{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--panel-border); font-size:12px;}
+.hero-stat-line:last-child{border-bottom:none;}
+.hero-stat-label{color:var(--ink-dim);}
+.hero-stat-val{font-weight:700; color:var(--ink);}
 """
 
 # ---------------------------------------------------------------------------
@@ -209,6 +217,45 @@ table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-b
 def render_overview():
     ready = {k: find_module_file(m["file"]) is not None for k, m in MODULE_FILES.items()}
     ready_count = sum(ready.values())
+
+    # ---- Real zone-map hero (replaces any decorative image with actual data) ----
+    hero_map_svg = ""
+    hero_stats_html = ""
+    if ZONES_PATH and HOSPITALS_PATH:
+        zones_df = pd.read_csv(ZONES_PATH)
+        coverage_path = find_module_file(MODULE_FILES["coverage"]["file"])
+        if coverage_path:
+            cov_df = pd.read_csv(coverage_path)
+            nearest_col = "nearest_capable_min" if "nearest_capable_min" in cov_df.columns else "nearest_capable_min_APPROX"
+            cov_sorted = cov_df.sort_values("risk_score", ascending=False).reset_index(drop=True)
+
+            lat_min, lat_max = zones_df["centroid_lat"].min(), zones_df["centroid_lat"].max()
+            lon_min, lon_max = zones_df["centroid_lon"].min(), zones_df["centroid_lon"].max()
+
+            def norm(lat, lon):
+                x = 30 + (lon - lon_min) / (lon_max - lon_min + 1e-9) * 260
+                y = 25 + (1 - (lat - lat_min) / (lat_max - lat_min + 1e-9)) * 220
+                return round(x, 1), round(y, 1)
+
+            dots = ""
+            for _, row in zones_df.iterrows():
+                x, y = norm(row["centroid_lat"], row["centroid_lon"])
+                status_row = cov_sorted[cov_sorted["zone_id"] == row["zone_id"]]
+                is_gap = len(status_row) and status_row["coverage_status"].values[0] == "GAP"
+                color = "var(--red)" if is_gap else "var(--green)"
+                size = 5 + min(9, row["risk_score"] / 28)
+                dots += f'<circle cx="{x}" cy="{y}" r="{size+7:.1f}" fill="{color}" opacity="0.15"/><circle cx="{x}" cy="{y}" r="{size:.1f}" fill="{color}" opacity="0.9"/>'
+            hero_map_svg = f'<svg viewBox="0 0 320 270" width="100%" height="100%">{dots}</svg>'
+
+            top = cov_sorted.iloc[0]
+            n_covered = int((cov_sorted["coverage_status"] == "COVERED").sum())
+            n_total = len(cov_sorted)
+            hero_stats_html = f"""
+            <div class="hero-stat-line"><span class="hero-stat-label">Highest risk zone</span><span class="hero-stat-val">{top['zone_id']} — {top.get('dominant_area','')}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">Risk score</span><span class="hero-stat-val">{top['risk_score']}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">Zones covered</span><span class="hero-stat-val">{n_covered} / {n_total}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">Nearest capable hospital</span><span class="hero-stat-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
+            """
 
     rows_html = ""
     colors = {"bed": ("#7C5CFF","#3EA6FF"), "medicine": ("#3EA6FF","#35E0A1"),
@@ -226,9 +273,24 @@ def render_overview():
           <div class="mod-status {status_class}">{status_label}</div>
         </div>"""
 
+    hero_section = ""
+    if hero_map_svg:
+        hero_section = f"""
+        <div class="hero-grid">
+          <div class="hero-map-card">
+            <div class="hero-map-label">Live Zone Network · Chennai Metro</div>
+            {hero_map_svg}
+          </div>
+          <div class="hero-info-card">
+            <div class="panel-title">Network Snapshot</div>
+            {hero_stats_html}
+          </div>
+        </div>"""
+
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
       <div class="breadcrumb">Dashboards / <b>Master Overview</b></div>
       <div class="page-title">Emergency Readiness Overview</div>
+      {hero_section}
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals Monitored</div><div class="stat-value">12</div></div>
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5CA8,#FF5C7A);">📍</div><div class="stat-label">Modules Ready</div><div class="stat-value">{ready_count}/4</div></div>
@@ -241,7 +303,7 @@ def render_overview():
         {rows_html}
       </div>
     </body></html>"""
-    components.html(html, height=520, scrolling=False)
+    components.html(html, height=520 + (260 if hero_map_svg else 0), scrolling=False)
 
 # ---------------------------------------------------------------------------
 # PAGE: MODULE DETAIL (works for all 4 module keys)
@@ -306,14 +368,20 @@ def render_module(key):
     components.html(html, height=650, scrolling=True)
 
 # ---------------------------------------------------------------------------
-# PAGE: COVERAGE & REFERRAL INTELLIGENCE (rich version — ticker, radar, map)
+# PAGE: COVERAGE & REFERRAL INTELLIGENCE
+# Lightweight summary here + a link out to the FULL original console,
+# which runs as its own separate Streamlit app (module4_dashboard_full.py)
+# so your exact original design renders untouched, with zero interference
+# from the master dashboard's shared theme.
 # ---------------------------------------------------------------------------
+MODULE4_APP_URL = "http://localhost:8502"  # change this if you run it on a different port
+
 def render_coverage_rich():
     m = MODULE_FILES["coverage"]
     coverage_path = find_module_file(m["file"])
 
     if not (coverage_path and ZONES_PATH and HOSPITALS_PATH):
-        render_module("coverage")  # fall back to the plain "waiting for data" card
+        render_module("coverage")
         return
 
     coverage = pd.read_csv(coverage_path)
@@ -325,53 +393,12 @@ def render_coverage_rich():
     cov = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True).join(zones_lookup, on="zone_id")
     cov.insert(0, "priority_rank", range(1, len(cov) + 1))
 
-    # ---- Live Simulation Mode -- native Streamlit controls, styled to match the sidebar ----
-    lc1, lc2 = st.columns([1, 4])
-    with lc1:
-        live_mode = st.toggle("🔴 Live Simulation", value=False, key="coverage_live_toggle")
-    with lc2:
-        st.caption("Simulates live traffic fluctuation on real base data — not real hospital telemetry (no public API exists for this)." if live_mode
-                   else "Static view of computed results. Toggle on for an auto-updating demo view.")
-
-    if live_mode:
-        try:
-            from streamlit_autorefresh import st_autorefresh
-            refresh_count = st_autorefresh(interval=6000, limit=None, key="coverage_live_refresh")
-        except ImportError:
-            st.warning("Run `pip install streamlit-autorefresh` to enable Live Simulation Mode.")
-            refresh_count = 0
-        rng = random.Random(refresh_count)
-        cov[nearest_col] = cov[nearest_col].apply(lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1))
-        cov["coverage_status"] = cov[nearest_col].apply(lambda t: "COVERED" if t <= 20 else "GAP")
-
     n_gap = int((cov["coverage_status"] == "GAP").sum())
     n_covered = int((cov["coverage_status"] == "COVERED").sum())
     top = cov.iloc[0]
 
-    # ---- alert rows, styled exactly like the Overview module-status rows ----
-    rows_html = ""
-    for _, row in cov.iterrows():
-        is_gap = row["coverage_status"] == "GAP"
-        badge_class = "pending" if is_gap else "ready"  # reuse existing badge colors (amber/green)
-        badge_label = "GAP" if is_gap else "COVERED"
-        icon_bg = ("#FF5C7A","#FF5CA8") if is_gap else ("#35E0A1","#1BA97A")
-        rows_html += f"""
-        <div class="mod-row">
-          <div class="mod-left">
-            <div class="mod-icon" style="background:linear-gradient(135deg,{icon_bg[0]},{icon_bg[1]});">#{row['priority_rank']}</div>
-            <div><div class="mod-name">{row['zone_id']} — {row['dominant_area']}</div>
-                 <div class="mod-desc">Risk {row['risk_score']} · Nearest: {row.get('nearest_capable_hospital','N/A')}</div></div>
-          </div>
-          <div style="text-align:right;">
-            <div class="mod-status {badge_class}">{badge_label}</div>
-            <div style="font-size:9.5px; color:var(--ink-dim); margin-top:4px;">{row[nearest_col]} min</div>
-          </div>
-        </div>"""
-
-    live_badge = f"🔴 LIVE · {datetime.now().strftime('%H:%M:%S')}" if live_mode else "STATIC"
-
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
-      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b>  ·  {live_badge}</div>
+      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b></div>
       <div class="page-title">🚨 Coverage & Referral Intelligence</div>
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value">{n_gap}</div></div>
@@ -380,64 +407,46 @@ def render_coverage_rich():
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">📊</div><div class="stat-label">Total Accidents</div><div class="stat-value">{int(zones['accident_count'].sum())}</div></div>
       </div>
       <div class="glass-panel">
-        <div class="panel-title">Highest Priority Zone</div>
+        <div class="panel-title">Highest Priority Zone (quick preview)</div>
         <div class="panel-sub">{top['zone_id']} — {top['dominant_area']} · risk score {top['risk_score']} · {top[nearest_col]} min to {top.get('nearest_capable_hospital','N/A')} · status {top['coverage_status']}</div>
       </div>
-      <div class="glass-panel">
-        <div class="panel-title">Zone Alerts — Ranked by Risk</div>
-        <div class="panel-sub">shared data contract · same hospital_id list as other modules</div>
-        {rows_html}
-      </div>
     </body></html>"""
-    components.html(html, height=850, scrolling=True)
+    components.html(html, height=430, scrolling=False)
 
-    # --- real interactive map (native Streamlit — can't easily go inside the iframe) ---
-    st.markdown("""
-    <div style="margin-top:18px; margin-bottom:10px;">
-        <div style="font-size:14.5px; font-weight:700; color:#F1F3FA;">🗺️ Zone & Hospital Map</div>
-        <div style="font-size:11px; color:#8891B5; margin-top:3px;">Red = coverage gap · Green = covered · Blue = hospital · lines = route to nearest capable hospital</div>
+    # ---- Link out to the full, original, untouched Module 4 console ----
+    st.markdown(f"""
+    <div style="background:linear-gradient(160deg, rgba(124,92,255,0.18), rgba(62,166,255,0.10));
+                border:1px solid rgba(124,92,255,0.35); border-radius:18px;
+                padding:26px 30px; margin-top:18px; display:flex;
+                justify-content:space-between; align-items:center;">
+        <div>
+            <div style="font-size:15px; font-weight:700; color:#F1F3FA; margin-bottom:6px;">
+                🖥️ Full Module 4 Console — Live Radar, Ticker & Route Map
+            </div>
+            <div style="font-size:12px; color:#B4BADB; max-width:520px; line-height:1.5;">
+                Your original design (animated radar sweep, scrolling alert ticker, live
+                simulation mode, and real travel-time route lines) runs as its own
+                dedicated app, exactly as built — not compressed to fit this theme.
+            </div>
+        </div>
+        <a href="{MODULE4_APP_URL}" target="_blank" style="text-decoration:none;">
+            <div style="background:#F1F3FA; color:#0B0E23; font-weight:700; font-size:13px;
+                        padding:13px 22px; border-radius:12px; white-space:nowrap;">
+                Open Full Console →
+            </div>
+        </a>
     </div>
     """, unsafe_allow_html=True)
-    try:
-        import pydeck as pdk
-        zone_map_df = cov.copy()
-        zone_map_df["color"] = zone_map_df["coverage_status"].apply(lambda s: [255,75,75,200] if s=="GAP" else [52,224,161,200])
-        zone_map_df["radius"] = zone_map_df["risk_score"] * 8
-        hosp_map_df = hospitals.copy()
-        hosp_map_df["color"] = [[74,163,255,200]] * len(hosp_map_df)
-        hosp_map_df["label"] = hosp_map_df["name"]
-        zone_map_df["label"] = zone_map_df["zone_id"] + " — " + zone_map_df["dominant_area"]
 
-        hosp_lookup = hospitals.set_index("name")[["latitude", "longitude"]]
-        route_rows = []
-        for _, row in zone_map_df.iterrows():
-            hosp_name = row.get("nearest_capable_hospital")
-            if hosp_name in hosp_lookup.index:
-                h = hosp_lookup.loc[hosp_name]
-                route_rows.append({
-                    "from_lon": row["centroid_lon"], "from_lat": row["centroid_lat"],
-                    "to_lon": h["longitude"], "to_lat": h["latitude"],
-                    "color": row["color"],
-                    "label": f"{row['zone_id']} → {hosp_name} ({row[nearest_col]} min)",
-                })
-        route_df = pd.DataFrame(route_rows)
+    st.caption(f"Opens in a new tab at {MODULE4_APP_URL} — make sure module4_dashboard_full.py is running separately (see instructions below).")
 
-        route_layer = pdk.Layer("LineLayer", data=route_df,
-            get_source_position="[from_lon, from_lat]", get_target_position="[to_lon, to_lat]",
-            get_color="color", get_width=2.5, pickable=True)
-        zone_layer = pdk.Layer("ScatterplotLayer", data=zone_map_df,
-            get_position="[centroid_lon, centroid_lat]", get_fill_color="color",
-            get_radius="radius", radius_min_pixels=8, radius_max_pixels=40, pickable=True)
-        hosp_layer = pdk.Layer("ScatterplotLayer", data=hosp_map_df,
-            get_position="[longitude, latitude]", get_fill_color="color", get_radius=180,
-            radius_min_pixels=6, radius_max_pixels=20, pickable=True,
-            stroked=True, get_line_color=[255,255,255,180], line_width_min_pixels=1)
-        view_state = pdk.ViewState(latitude=float(zones["centroid_lat"].mean()),
-                                    longitude=float(zones["centroid_lon"].mean()), zoom=10.3, pitch=0)
-        st.pydeck_chart(pdk.Deck(layers=[route_layer, zone_layer, hosp_layer], initial_view_state=view_state,
-                                  map_style="dark", tooltip={"text": "{label}"}))
-    except ImportError:
-        st.warning("pydeck not installed — run `pip install pydeck` to enable the map.")
+    with st.expander("How to run the full console alongside this dashboard"):
+        st.code(
+            "# In a second terminal, from your Dashboard folder:\n"
+            "streamlit run module4_dashboard_full.py --server.port 8502",
+            language="bash"
+        )
+        st.markdown("Keep both terminals running — this master dashboard on port **8501**, and the full Module 4 console on port **8502**. The button above links directly to it.")
 
 # ---------------------------------------------------------------------------
 # ROUTER
