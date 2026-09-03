@@ -19,7 +19,6 @@ import os
 import streamlit.components.v1 as components
 import random
 from datetime import datetime
-from datetime import datetime
 
 st.set_page_config(page_title="HRI System — Master Console", layout="wide")
 
@@ -113,11 +112,23 @@ if "active_page" not in st.session_state:
     st.session_state.active_page = "overview"
 
 # ---------------------------------------------------------------------------
-# SIDEBAR — plain functional nav (this part stays native Streamlit)
+# GLOBAL LIVE SIMULATION MODE (10-min refresh)
+# ---------------------------------------------------------------------------
+# IMPORTANT: this simulates realistic fluctuation on top of your real base
+# data -- it does NOT connect to a real hospital server. No public API exists
+# for live hospital occupancy/stock data in India; a genuine version would
+# require official data-sharing partnership with a hospital network or state
+# health department, which is out of scope here. This is the honest,
+# disclosed stand-in: same numbers you'd see live, refreshed periodically,
+# clearly labeled as simulated.
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("## 🏥 HRI SYSTEM")
     st.caption("Master Console")
+    st.markdown("---")
+    live_mode = st.toggle("🔴 Live Simulation (10 min)", value=False, key="global_live_mode")
+    if live_mode:
+        st.caption("Simulating periodic live fluctuation on real base data. Not a real hospital feed.")
     st.markdown("---")
     if st.button("◈  Dashboard", width='stretch'):
         st.session_state.active_page = "overview"
@@ -125,6 +136,22 @@ with st.sidebar:
     for key, m in MODULE_FILES.items():
         if st.button(f"{m['icon']}  {m['name']}", width='stretch', key=f"nav_{key}"):
             st.session_state.active_page = key
+
+if live_mode:
+    try:
+        from streamlit_autorefresh import st_autorefresh
+        refresh_count = st_autorefresh(interval=600_000, limit=None, key="master_live_refresh")  # 10 min
+    except ImportError:
+        st.sidebar.warning("Run `pip install streamlit-autorefresh` to enable Live Simulation.")
+        refresh_count = 0
+else:
+    refresh_count = 0
+
+def jitter_value(value, pct=0.08, seed=0):
+    """Small bounded random fluctuation, seeded by refresh count so it's
+    stable between reruns but changes each 10-min refresh cycle."""
+    rng = random.Random(seed + int(value * 100))
+    return round(value * (1 + rng.uniform(-pct, pct)), 1)
 
 # ---------------------------------------------------------------------------
 # SHARED HTML HEAD/CSS -- reused by every page for visual consistency
@@ -250,9 +277,10 @@ def render_overview():
             top = cov_sorted.iloc[0]
             n_covered = int((cov_sorted["coverage_status"] == "COVERED").sum())
             n_total = len(cov_sorted)
+            display_risk = jitter_value(float(top['risk_score']), seed=refresh_count) if live_mode else top['risk_score']
             hero_stats_html = f"""
             <div class="hero-stat-line"><span class="hero-stat-label">Highest risk zone</span><span class="hero-stat-val">{top['zone_id']} — {top.get('dominant_area','')}</span></div>
-            <div class="hero-stat-line"><span class="hero-stat-label">Risk score</span><span class="hero-stat-val">{top['risk_score']}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">Risk score</span><span class="hero-stat-val">{display_risk}{' 🔴' if live_mode else ''}</span></div>
             <div class="hero-stat-line"><span class="hero-stat-label">Zones covered</span><span class="hero-stat-val">{n_covered} / {n_total}</span></div>
             <div class="hero-stat-line"><span class="hero-stat-label">Nearest capable hospital</span><span class="hero-stat-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
             """
@@ -396,9 +424,10 @@ def render_coverage_rich():
     n_gap = int((cov["coverage_status"] == "GAP").sum())
     n_covered = int((cov["coverage_status"] == "COVERED").sum())
     top = cov.iloc[0]
+    display_travel = jitter_value(float(top[nearest_col]), seed=refresh_count) if live_mode else top[nearest_col]
 
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
-      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b></div>
+      <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b>{'  ·  🔴 LIVE SIM' if live_mode else ''}</div>
       <div class="page-title">🚨 Coverage & Referral Intelligence</div>
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value">{n_gap}</div></div>
@@ -408,7 +437,7 @@ def render_coverage_rich():
       </div>
       <div class="glass-panel">
         <div class="panel-title">Highest Priority Zone (quick preview)</div>
-        <div class="panel-sub">{top['zone_id']} — {top['dominant_area']} · risk score {top['risk_score']} · {top[nearest_col]} min to {top.get('nearest_capable_hospital','N/A')} · status {top['coverage_status']}</div>
+        <div class="panel-sub">{top['zone_id']} — {top['dominant_area']} · risk score {top['risk_score']} · {display_travel} min to {top.get('nearest_capable_hospital','N/A')} · status {top['coverage_status']}</div>
       </div>
     </body></html>"""
     components.html(html, height=430, scrolling=False)

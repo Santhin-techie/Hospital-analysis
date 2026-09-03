@@ -1,8 +1,6 @@
 """
 LIVE Travel-Time Routing (Hotspot -> Nearest Capable Hospital)
 -------------------------------------------------------------------
-RUN THIS ON YOUR OWN LAPTOP -- IT NEEDS INTERNET.
-
 Unlike compute_travel_time.py (static OSM road graph, no real-time
 traffic), this version calls the TomTom Routing API for EVERY
 zone->hospital pair, with traffic=true. That means the travel time
@@ -31,21 +29,26 @@ from datetime import datetime
 
 import pandas as pd
 import requests
+import os
 
 # ---------------------------------------------------------------------------
 # 0. CONFIG -- put your TomTom API key here
 # ---------------------------------------------------------------------------
-TOMTOM_API_KEY = "JFxdWes04WdBXCLFA9JgkbGz7CyUtcZD"
+TOMTOM_API_KEY = "PUT_YOUR_KEY_HERE"
 
 REQUIRED_MAX_TIER = 2       # "capable" = trauma tier 1 or 2
 SAFE_WINDOW_MINUTES = 20    # your coverage threshold
 REQUEST_DELAY_SEC = 0.25    # be polite to the free tier / avoid rate limits
 
 # ---------------------------------------------------------------------------
-# 1. Load your zone + hospital data
+# 1. Load your zone + hospital data (relative paths, same convention as
+#    your other scripts)
 # ---------------------------------------------------------------------------
-zones = pd.read_csv(r"C:\Users\santhin kumar k\mini\data\simulated\chennai_hotspot_zones.csv")
-hospitals = pd.read_csv(r"C:\Users\santhin kumar k\mini\data\simulated\chennai_hospitals.csv")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
+
+zones = pd.read_csv(os.path.join(DATA_DIR, "chennai_hotspot_zones.csv"))
+hospitals = pd.read_csv(os.path.join(DATA_DIR, "chennai_hospitals.csv"))
 
 print(f"Loaded {len(zones)} hotspot zones and {len(hospitals)} hospitals")
 print(f"Total live routing calls needed this run: {len(zones) * len(hospitals)}\n")
@@ -133,7 +136,7 @@ for _, zone in zones.iterrows():
           f"({best_capable['time']} min, live traffic)")
 
 results_df = pd.DataFrame(results).sort_values("risk_score", ascending=False)
-out_path = r"C:\Users\santhin kumar k\mini\data\simulated\chennai_coverage_results_LIVE.csv"
+out_path = os.path.join(DATA_DIR, "chennai_coverage_results_LIVE.csv")
 results_df.to_csv(out_path, index=False)
 
 print(f"\nMade {calls_made} live routing calls (free tier limit: 2,500/day)")
