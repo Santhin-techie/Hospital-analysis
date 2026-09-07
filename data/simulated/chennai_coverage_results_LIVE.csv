@@ -1,0 +1,7 @@
+zone_id,risk_score,nearest_hospital_any,nearest_hospital_any_min,nearest_capable_hospital,nearest_capable_min,hidden_delay_min,coverage_status,data_pulled_at
+ZONE-04,205.5,"Tulips Multispeciality, OMR",23.4,"Fortis Malar Hospital, Adyar",29.8,6.4,GAP,2026-09-07 09:38:55
+ZONE-02,197.5,"Government Hospital, Tambaram",5.1,"Government Hospital, Tambaram",5.1,0.0,COVERED,2026-09-07 09:38:55
+ZONE-05,193.5,"Chettinad Hospital, Kelambakkam",5.5,"Chettinad Hospital, Kelambakkam",5.5,0.0,COVERED,2026-09-07 09:38:55
+ZONE-03,189.0,"SIMS Hospital, Vadapalani",18.1,"SIMS Hospital, Vadapalani",18.1,0.0,COVERED,2026-09-07 09:38:55
+ZONE-01,158.5,"SIMS Hospital, Vadapalani",31.9,"SIMS Hospital, Vadapalani",31.9,0.0,GAP,2026-09-07 09:38:55
+ZONE-06,149.0,"Fortis Malar Hospital, Adyar",2.6,"Fortis Malar Hospital, Adyar",2.6,0.0,COVERED,2026-09-07 09:38:55

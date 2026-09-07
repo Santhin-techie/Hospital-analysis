@@ -34,7 +34,7 @@ import os
 # ---------------------------------------------------------------------------
 # 0. CONFIG -- put your TomTom API key here
 # ---------------------------------------------------------------------------
-TOMTOM_API_KEY = "PUT_YOUR_KEY_HERE"
+TOMTOM_API_KEY = "YOUR_ACTUAL_KEY_HERE"
 
 REQUIRED_MAX_TIER = 2       # "capable" = trauma tier 1 or 2
 SAFE_WINDOW_MINUTES = 20    # your coverage threshold
@@ -53,11 +53,7 @@ hospitals = pd.read_csv(os.path.join(DATA_DIR, "chennai_hospitals.csv"))
 print(f"Loaded {len(zones)} hotspot zones and {len(hospitals)} hospitals")
 print(f"Total live routing calls needed this run: {len(zones) * len(hospitals)}\n")
 
-if TOMTOM_API_KEY == "JFxdWes04WdBXCLFA9JgkbGz7CyUtcZD":
-    raise SystemExit(
-        "Set TOMTOM_API_KEY at the top of this script before running.\n"
-        "Get a free key at https://developer.tomtom.com/"
-    )
+TOMTOM_API_KEY = "JFxdWes04WdBXCLFA9JgkbGz7CyUtcZD"
 
 # ---------------------------------------------------------------------------
 # 2. Helper: live traffic-aware travel time (minutes) between two points

@@ -167,6 +167,10 @@ BASE_CSS = """
   --sans:'Plus Jakarta Sans',sans-serif; --mono:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
+@keyframes fadeInUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+@keyframes pulseGlow{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.55; transform:scale(1.15);} }
+@keyframes shimmer{ 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+@keyframes countBar{ from{width:0;} }
 body{
   font-family:var(--sans); color:var(--ink);
   background:
@@ -175,33 +179,58 @@ body{
     linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
   padding:26px 30px;
 }
-.page-title{font-size:24px; font-weight:800; margin-bottom:4px;}
-.breadcrumb{font-size:11.5px; color:var(--ink-dim); margin-bottom:18px;}
+.page-title{font-size:24px; font-weight:800; margin-bottom:4px; animation:fadeInUp 0.5s ease both;}
+.breadcrumb{font-size:11.5px; color:var(--ink-dim); margin-bottom:18px; animation:fadeInUp 0.4s ease both;}
 .breadcrumb b{color:var(--ink);}
 .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;}
-.stat-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:16px; padding:20px; position:relative; overflow:hidden;}
+.stat-card{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:16px; padding:20px;
+  position:relative; overflow:hidden; animation:fadeInUp 0.5s ease both;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.stat-card:hover{ transform:translateY(-4px); box-shadow:0 10px 26px rgba(0,0,0,0.35); border-color:rgba(124,92,255,0.35); }
+.stat-grid .stat-card:nth-child(1){animation-delay:0.02s;}
+.stat-grid .stat-card:nth-child(2){animation-delay:0.08s;}
+.stat-grid .stat-card:nth-child(3){animation-delay:0.14s;}
+.stat-grid .stat-card:nth-child(4){animation-delay:0.20s;}
 .stat-label{font-size:11px; color:var(--ink-dim); margin-bottom:6px;}
 .stat-value{font-size:22px; font-weight:800;}
-.stat-icon{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; float:right;}
-.glass-panel{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:22px; margin-bottom:18px;}
+.stat-icon{
+  width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+  font-size:16px; float:right; animation:pulseGlow 2.6s ease-in-out infinite;
+}
+.glass-panel{
+  background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:22px; margin-bottom:18px;
+  animation:fadeInUp 0.55s ease both; animation-delay:0.1s;
+  transition:border-color 0.25s ease;
+}
+.glass-panel:hover{ border-color:rgba(124,92,255,0.28); }
 .panel-title{font-size:14.5px; font-weight:700; margin-bottom:4px;}
 .panel-sub{font-size:11px; color:var(--ink-dim); margin-bottom:14px;}
-.mod-row{display:flex; align-items:center; justify-content:space-between; padding:13px 4px; border-bottom:1px solid var(--panel-border);}
+.mod-row{
+  display:flex; align-items:center; justify-content:space-between; padding:13px 4px;
+  border-bottom:1px solid var(--panel-border); transition:background 0.2s ease, padding-left 0.2s ease;
+  animation:fadeInUp 0.4s ease both;
+}
+.mod-row:hover{ background:rgba(255,255,255,0.02); padding-left:8px; }
 .mod-row:last-child{border-bottom:none;}
 .mod-left{display:flex; align-items:center; gap:13px;}
-.mod-icon{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px;}
+.mod-icon{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; transition:transform 0.25s ease;}
+.mod-row:hover .mod-icon{ transform:scale(1.08) rotate(-3deg); }
 .mod-name{font-size:13px; font-weight:700;}
 .mod-desc{font-size:10.5px; color:var(--ink-dim); margin-top:2px;}
 .mod-status{font-family:var(--mono); font-size:9.5px; font-weight:700; padding:5px 10px; border-radius:7px;}
-.mod-status.ready{background:rgba(53,224,161,0.15); color:var(--green);}
+.mod-status.ready{background:rgba(53,224,161,0.15); color:var(--green); position:relative;}
+.mod-status.ready::before{content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); margin-right:5px; animation:pulseGlow 1.8s ease-in-out infinite;}
 .mod-status.pending{background:rgba(255,178,56,0.15); color:var(--amber);}
 table.data-tbl{width:100%; border-collapse:collapse; font-size:12px;}
 table.data-tbl th{text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-dim); padding-bottom:10px; border-bottom:1px solid var(--panel-border); font-weight:600;}
 table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-border);}
+table.data-tbl tr{animation:fadeInUp 0.4s ease both;}
 .badge{font-family:var(--mono); font-size:9.5px; padding:3px 9px; border-radius:12px; font-weight:700;}
 .badge.green{background:rgba(53,224,161,0.15); color:var(--green);}
 .badge.red{background:rgba(255,92,122,0.15); color:var(--red);}
-.empty-box{background:var(--panel); border:1px dashed var(--panel-border); border-radius:16px; padding:50px; text-align:center; color:var(--ink-dim);}
+.empty-box{background:var(--panel); border:1px dashed var(--panel-border); border-radius:16px; padding:50px; text-align:center; color:var(--ink-dim); animation:fadeInUp 0.5s ease both;}
 .empty-title{font-size:15px; font-weight:700; color:var(--ink-mid); margin-bottom:8px;}
 .empty-code{font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:8px; display:inline-block; margin-top:10px;}
 .ticker-wrap{background:rgba(0,0,0,0.25); border:1px solid var(--panel-border); border-radius:12px; overflow:hidden; white-space:nowrap; padding:9px 0; margin-bottom:18px;}
@@ -221,7 +250,8 @@ table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-b
 .cc-line{font-family:var(--mono); font-size:12px; margin-bottom:9px;}
 .cc-label{color:var(--ink-dim);} .cc-val{color:var(--ink); font-weight:700;}
 .alert-grid{display:flex; flex-direction:column; gap:9px;}
-.a-card{background:rgba(0,0,0,0.15); border:1px solid var(--panel-border); border-left:3px solid var(--panel-border); border-radius:10px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px;}
+.a-card{background:rgba(0,0,0,0.15); border:1px solid var(--panel-border); border-left:3px solid var(--panel-border); border-radius:10px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:transform 0.2s ease, background 0.2s ease; animation:fadeInUp 0.4s ease both;}
+.a-card:hover{ transform:translateX(4px); background:rgba(255,255,255,0.03); }
 .a-card.crit{border-left-color:var(--red);} .a-card.ok{border-left-color:var(--green);}
 .a-left{display:flex; gap:12px; align-items:flex-start;}
 .a-rank{font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--ink-dim); background:rgba(255,255,255,0.05); border:1px solid var(--panel-border); border-radius:6px; padding:2px 7px; align-self:flex-start; margin-top:1px;}
@@ -229,13 +259,36 @@ table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-b
 .a-detail{font-size:11px; color:var(--ink-mid);}
 .a-action{font-family:var(--mono); font-size:9.5px; padding:6px 10px; border-radius:6px; border:1px solid var(--panel-border); color:var(--ink-mid); white-space:nowrap;}
 .hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px;}
-.hero-map-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:16px; height:260px; position:relative; overflow:hidden;}
+.hero-map-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:16px; height:260px; position:relative; overflow:hidden; animation:fadeInUp 0.55s ease both; transition:border-color 0.25s ease;}
+.hero-map-card:hover{ border-color:rgba(124,92,255,0.3); }
+.hero-map-card svg circle{ animation:pulseGlow 2.2s ease-in-out infinite; transform-origin:center; transform-box:fill-box; }
 .hero-map-label{position:absolute; top:14px; left:14px; font-family:var(--mono); font-size:10px; color:var(--ink-mid); background:rgba(0,0,0,0.35); padding:6px 12px; border-radius:10px; z-index:2;}
-.hero-info-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:20px 22px; display:flex; flex-direction:column; justify-content:center;}
+.hero-info-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:20px 22px; display:flex; flex-direction:column; justify-content:center; animation:fadeInUp 0.6s ease both; animation-delay:0.08s; transition:border-color 0.25s ease;}
+.hero-info-card:hover{ border-color:rgba(124,92,255,0.3); }
 .hero-stat-line{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--panel-border); font-size:12px;}
 .hero-stat-line:last-child{border-bottom:none;}
 .hero-stat-label{color:var(--ink-dim);}
 .hero-stat-val{font-weight:700; color:var(--ink);}
+"""
+
+COUNT_UP_JS = """
+<script>
+  document.querySelectorAll('.count-up').forEach(function(el){
+    var target = parseFloat(el.getAttribute('data-target'));
+    if (isNaN(target)) return;
+    var decimals = (el.getAttribute('data-target').split('.')[1] || '').length;
+    var duration = 800, start = null;
+    function step(ts){
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = (target * eased).toFixed(decimals);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = target.toFixed(decimals);
+    }
+    requestAnimationFrame(step);
+  });
+</script>
 """
 
 # ---------------------------------------------------------------------------
@@ -320,8 +373,8 @@ def render_overview():
       <div class="page-title">Emergency Readiness Overview</div>
       {hero_section}
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals Monitored</div><div class="stat-value">12</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5CA8,#FF5C7A);">📍</div><div class="stat-label">Modules Ready</div><div class="stat-value">{ready_count}/4</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals Monitored</div><div class="stat-value"><span class="count-up" data-target="12">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5CA8,#FF5C7A);">📍</div><div class="stat-label">Modules Ready</div><div class="stat-value"><span class="count-up" data-target="{ready_count}">0</span>/4</div></div>
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">📋</div><div class="stat-label">Data Contract</div><div class="stat-value">Locked</div></div>
         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">⚡</div><div class="stat-label">Sync Status</div><div class="stat-value">Live</div></div>
       </div>
@@ -330,7 +383,7 @@ def render_overview():
         <div class="panel-sub">shared data contract · hospital_id linked across all 4</div>
         {rows_html}
       </div>
-    </body></html>"""
+    {COUNT_UP_JS}</body></html>"""
     components.html(html, height=520 + (260 if hero_map_svg else 0), scrolling=False)
 
 # ---------------------------------------------------------------------------
@@ -376,8 +429,8 @@ def render_module(key):
         n_covered = int((df["coverage_status"] == "COVERED").sum())
         stat_html = f"""
         <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);">
-          <div class="stat-card"><div class="stat-label">Zones — Gap</div><div class="stat-value" style="color:var(--red);">{n_gap}</div></div>
-          <div class="stat-card"><div class="stat-label">Zones — Covered</div><div class="stat-value" style="color:var(--green);">{n_covered}</div></div>
+          <div class="stat-card"><div class="stat-label">Zones — Gap</div><div class="stat-value" style="color:var(--red);"><span class="count-up" data-target="{n_gap}">0</span></div></div>
+          <div class="stat-card"><div class="stat-label">Zones — Covered</div><div class="stat-value" style="color:var(--green);"><span class="count-up" data-target="{n_covered}">0</span></div></div>
         </div>"""
 
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
@@ -392,7 +445,7 @@ def render_module(key):
           <tbody>{body_html}</tbody>
         </table>
       </div>
-    </body></html>"""
+    {COUNT_UP_JS}</body></html>"""
     components.html(html, height=650, scrolling=True)
 
 # ---------------------------------------------------------------------------
@@ -430,16 +483,16 @@ def render_coverage_rich():
       <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b>{'  ·  🔴 LIVE SIM' if live_mode else ''}</div>
       <div class="page-title">🚨 Coverage & Referral Intelligence</div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value">{n_gap}</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">✅</div><div class="stat-label">Zones — Covered</div><div class="stat-value">{n_covered}</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals</div><div class="stat-value">{len(hospitals)}</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">📊</div><div class="stat-label">Total Accidents</div><div class="stat-value">{int(zones['accident_count'].sum())}</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value"><span class="count-up" data-target="{n_gap}">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">✅</div><div class="stat-label">Zones — Covered</div><div class="stat-value"><span class="count-up" data-target="{n_covered}">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals</div><div class="stat-value"><span class="count-up" data-target="{len(hospitals)}">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">📊</div><div class="stat-label">Total Accidents</div><div class="stat-value"><span class="count-up" data-target="{int(zones['accident_count'].sum())}">0</span></div></div>
       </div>
       <div class="glass-panel">
         <div class="panel-title">Highest Priority Zone (quick preview)</div>
         <div class="panel-sub">{top['zone_id']} — {top['dominant_area']} · risk score {top['risk_score']} · {display_travel} min to {top.get('nearest_capable_hospital','N/A')} · status {top['coverage_status']}</div>
       </div>
-    </body></html>"""
+    {COUNT_UP_JS}</body></html>"""
     components.html(html, height=430, scrolling=False)
 
     # ---- Link out to the full, original, untouched Module 4 console ----
