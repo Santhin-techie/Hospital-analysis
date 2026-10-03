@@ -32,45 +32,78 @@ st.set_page_config(page_title="HRI System — Master Console", layout="wide")
 # ---------------------------------------------------------------------------
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
-    html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
+    html, body, [class*="css"] { font-family: 'IBM Plex Sans', sans-serif; }
 
     .stApp {
         background:
-            radial-gradient(circle at 15% 0%, rgba(124,92,255,0.18), transparent 40%),
-            radial-gradient(circle at 85% 15%, rgba(62,166,255,0.14), transparent 45%),
-            linear-gradient(180deg, #0B0E23, #131735) !important;
+            repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.012) 40px),
+            repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.012) 40px),
+            #1E2420 !important;
     }
 
-    /* Sidebar matches the same dark theme instead of default light/gray */
+    /* Sidebar -- same flat board color, no violet gradient */
     section[data-testid="stSidebar"] {
-        background: rgba(255,255,255,0.03);
-        border-right: 1px solid rgba(255,255,255,0.08);
+        background: #191F1B;
+        border-right: 1px solid #3A423C;
     }
-    section[data-testid="stSidebar"] * { color: #F1F3FA !important; }
-    section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] small { color: #8891B5 !important; }
+    section[data-testid="stSidebar"] * { color: #EDE7D9 !important; font-family: 'IBM Plex Sans', sans-serif; }
+    section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] small {
+        color: #8B9187 !important; font-family: 'IBM Plex Mono', monospace !important;
+        letter-spacing: 0.6px; text-transform: uppercase; font-size: 10px !important;
+    }
+    section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3 {
+        font-family: 'Big Shoulders Stencil', sans-serif !important; letter-spacing: 0.5px;
+    }
+    section[data-testid="stSidebar"] hr { border-color: #3A423C; }
 
-    /* Remove the default big top padding so content sits flush like a real dashboard */
+    /* Sidebar nav buttons -- bordered plates with left accent, feel clickable */
+    section[data-testid="stSidebar"] div.stButton > button {
+        background: #20261F;
+        border: 1px solid #3A423C;
+        border-left: 3px solid #5C9484;
+        border-radius: 0;
+        color: #EDE7D9 !important;
+        font-family: 'IBM Plex Mono', monospace !important;
+        font-size: 12.5px;
+        text-align: left;
+        padding: 11px 14px;
+        transition: background 0.15s ease, border-left-color 0.15s ease, transform 0.1s ease;
+    }
+    section[data-testid="stSidebar"] div.stButton > button:hover {
+        background: #2A322A;
+        border-left-color: #D69A3E;
+        transform: translateX(2px);
+    }
+    section[data-testid="stSidebar"] div.stButton > button:active {
+        border-left-color: #C1443A;
+    }
+
+    /* Toggle switch recolored to match the amber/board accent instead of blue */
+    section[data-testid="stSidebar"] [data-baseweb="toggle"] { background-color: #3A423C !important; }
+    section[data-testid="stSidebar"] [aria-checked="true"][data-baseweb="toggle"] { background-color: #D69A3E !important; }
+
     .block-container { padding-top: 1.6rem; padding-bottom: 2rem; }
 
-    /* Native widgets (toggle, captions, warnings) restyled to match the dark theme */
-    .stMarkdown, .stCaption, p, label, span { color: #DCE3EC; }
-    .stToggle label { color: #F1F3FA !important; }
-    div[data-testid="stMetricValue"] { color: #F1F3FA; }
+    .stMarkdown, .stCaption, p, label, span { color: #EDE7D9; }
+    div[data-testid="stMetricValue"] { color: #EDE7D9; font-family: 'Big Shoulders Stencil', sans-serif; }
 
-    /* Native map container gets a matching dark card frame instead of floating on blank space */
+    /* Native map container -- flat border, no rounded glass look */
     div[data-testid="stDeckGlJsonChart"] {
-        border-radius: 16px;
+        border-radius: 0;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid #3A423C;
     }
 
-    /* Kill the harsh white flash of default Streamlit alert/warning boxes */
+    /* Alert/warning boxes match the board's flat panel style */
     div[data-testid="stAlert"] {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        color: #DCE3EC;
+        background: #252C26;
+        border: 1px solid #3A423C;
+        border-radius: 0;
+        color: #EDE7D9;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12.5px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -157,118 +190,129 @@ def jitter_value(value, pct=0.08, seed=0):
 # SHARED HTML HEAD/CSS -- reused by every page for visual consistency
 # ---------------------------------------------------------------------------
 BASE_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
 :root{
-  --bg-deep:#0B0E23; --bg-mid:#131735;
-  --panel:rgba(255,255,255,0.04); --panel-border:rgba(255,255,255,0.08);
-  --ink:#F1F3FA; --ink-dim:#8891B5; --ink-mid:#B4BADB;
-  --violet:#7C5CFF; --violet-glow:rgba(124,92,255,0.45);
-  --blue:#3EA6FF; --green:#35E0A1; --amber:#FFB238; --red:#FF5C7A; --pink:#FF5CA8;
-  --sans:'Plus Jakarta Sans',sans-serif; --mono:'JetBrains Mono',monospace;
+  --board:#1E2420; --board-raised:#252C26; --board-line:#3A423C;
+  --chalk:#EDE7D9; --chalk-dim:#8B9187; --chalk-mid:#B6BCAF;
+  --red:#C1443A; --amber:#D69A3E; --green:#5C9484;
+  --stencil:'Big Shoulders Stencil',sans-serif; --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box; margin:0; padding:0;}
-@keyframes fadeInUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
-@keyframes pulseGlow{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.55; transform:scale(1.15);} }
-@keyframes shimmer{ 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
-@keyframes countBar{ from{width:0;} }
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes tickFlicker{ 0%,100%{opacity:1;} 92%{opacity:1;} 94%{opacity:0.6;} 96%{opacity:1;} }
 body{
-  font-family:var(--sans); color:var(--ink);
+  font-family:var(--sans); color:var(--chalk);
   background:
-    radial-gradient(circle at 15% 0%, rgba(124,92,255,0.18), transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(62,166,255,0.14), transparent 45%),
-    linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
-  padding:26px 30px;
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+    var(--board);
+  padding:28px 34px;
 }
-.page-title{font-size:24px; font-weight:800; margin-bottom:4px; animation:fadeInUp 0.5s ease both;}
-.breadcrumb{font-size:11.5px; color:var(--ink-dim); margin-bottom:18px; animation:fadeInUp 0.4s ease both;}
-.breadcrumb b{color:var(--ink);}
-.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:22px;}
-.stat-card{
-  background:var(--panel); border:1px solid var(--panel-border); border-radius:16px; padding:20px;
-  position:relative; overflow:hidden; animation:fadeInUp 0.5s ease both;
-  transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+.page-title{
+  font-family:var(--stencil); font-weight:700; font-size:34px; letter-spacing:1.5px;
+  text-transform:uppercase; margin-bottom:2px; color:var(--chalk);
 }
-.stat-card:hover{ transform:translateY(-4px); box-shadow:0 10px 26px rgba(0,0,0,0.35); border-color:rgba(124,92,255,0.35); }
-.stat-grid .stat-card:nth-child(1){animation-delay:0.02s;}
-.stat-grid .stat-card:nth-child(2){animation-delay:0.08s;}
-.stat-grid .stat-card:nth-child(3){animation-delay:0.14s;}
-.stat-grid .stat-card:nth-child(4){animation-delay:0.20s;}
-.stat-label{font-size:11px; color:var(--ink-dim); margin-bottom:6px;}
-.stat-value{font-size:22px; font-weight:800;}
-.stat-icon{
-  width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
-  font-size:16px; float:right; animation:pulseGlow 2.6s ease-in-out infinite;
+.breadcrumb{font-family:var(--mono); font-size:11px; color:var(--chalk-dim); margin-bottom:20px; letter-spacing:0.3px;}
+.breadcrumb b{color:var(--chalk);}
+
+/* ===== MANIFEST STAT ROW (replaces card grid) ===== */
+.stat-grid{
+  display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:1px;
+  background:var(--board-line); border:1px solid var(--board-line); margin-bottom:20px;
 }
-.glass-panel{
-  background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:22px; margin-bottom:18px;
-  animation:fadeInUp 0.55s ease both; animation-delay:0.1s;
-  transition:border-color 0.25s ease;
-}
-.glass-panel:hover{ border-color:rgba(124,92,255,0.28); }
-.panel-title{font-size:14.5px; font-weight:700; margin-bottom:4px;}
-.panel-sub{font-size:11px; color:var(--ink-dim); margin-bottom:14px;}
+.stat-card{ background:var(--board-raised); padding:20px 22px; position:relative; transition:background 0.15s ease; }
+.stat-card:hover{ background:#2A322A; }
+.stat-card:first-child{ display:flex; flex-direction:column; justify-content:center; }
+.stat-label{ font-family:var(--mono); font-size:10px; color:var(--chalk-dim); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+.stat-value{ font-family:var(--stencil); font-size:38px; font-weight:700; line-height:1; color:var(--chalk); }
+.stat-icon{ display:none; }
+
+/* ===== SUPPLY MANIFEST PANEL (replaces glass-panel card) ===== */
+.glass-panel{ background:var(--board-raised); border:1px solid var(--board-line); padding:24px 26px; margin-bottom:18px; }
+.panel-title{ font-family:var(--stencil); font-size:17px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:3px; }
+.panel-sub{ font-family:var(--mono); font-size:10.5px; color:var(--chalk-dim); margin-bottom:16px; }
+
 .mod-row{
-  display:flex; align-items:center; justify-content:space-between; padding:13px 4px;
-  border-bottom:1px solid var(--panel-border); transition:background 0.2s ease, padding-left 0.2s ease;
-  animation:fadeInUp 0.4s ease both;
+  display:flex; align-items:center; justify-content:space-between; padding:12px 4px;
+  border-bottom:1px dotted var(--board-line); transition:background 0.15s ease;
 }
-.mod-row:hover{ background:rgba(255,255,255,0.02); padding-left:8px; }
+.mod-row:hover{ background:rgba(255,255,255,0.02); }
 .mod-row:last-child{border-bottom:none;}
-.mod-left{display:flex; align-items:center; gap:13px;}
-.mod-icon{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; transition:transform 0.25s ease;}
-.mod-row:hover .mod-icon{ transform:scale(1.08) rotate(-3deg); }
-.mod-name{font-size:13px; font-weight:700;}
-.mod-desc{font-size:10.5px; color:var(--ink-dim); margin-top:2px;}
-.mod-status{font-family:var(--mono); font-size:9.5px; font-weight:700; padding:5px 10px; border-radius:7px;}
-.mod-status.ready{background:rgba(53,224,161,0.15); color:var(--green); position:relative;}
-.mod-status.ready::before{content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); margin-right:5px; animation:pulseGlow 1.8s ease-in-out infinite;}
-.mod-status.pending{background:rgba(255,178,56,0.15); color:var(--amber);}
-table.data-tbl{width:100%; border-collapse:collapse; font-size:12px;}
-table.data-tbl th{text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ink-dim); padding-bottom:10px; border-bottom:1px solid var(--panel-border); font-weight:600;}
-table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px solid var(--panel-border);}
-table.data-tbl tr{animation:fadeInUp 0.4s ease both;}
-.badge{font-family:var(--mono); font-size:9.5px; padding:3px 9px; border-radius:12px; font-weight:700;}
-.badge.green{background:rgba(53,224,161,0.15); color:var(--green);}
-.badge.red{background:rgba(255,92,122,0.15); color:var(--red);}
-.empty-box{background:var(--panel); border:1px dashed var(--panel-border); border-radius:16px; padding:50px; text-align:center; color:var(--ink-dim); animation:fadeInUp 0.5s ease both;}
-.empty-title{font-size:15px; font-weight:700; color:var(--ink-mid); margin-bottom:8px;}
-.empty-code{font-family:var(--mono); font-size:11px; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:8px; display:inline-block; margin-top:10px;}
-.ticker-wrap{background:rgba(0,0,0,0.25); border:1px solid var(--panel-border); border-radius:12px; overflow:hidden; white-space:nowrap; padding:9px 0; margin-bottom:18px;}
+.mod-left{ display:flex; align-items:center; gap:14px; flex:1; }
+.mod-icon{
+  width:32px; height:32px; border:1px solid var(--board-line); background:var(--board);
+  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+}
+.mod-name{ font-size:13.5px; font-weight:600; }
+.mod-name::after{ content:''; display:inline-block; flex:1; margin:0 8px; border-bottom:1px dotted var(--board-line); min-width:40px; }
+.mod-desc{ font-family:var(--mono); font-size:10px; color:var(--chalk-dim); }
+.mod-status{ font-family:var(--mono); font-size:10px; font-weight:600; padding:3px 10px; letter-spacing:0.5px; border:1px solid; flex-shrink:0; }
+.mod-status.ready{ color:var(--green); border-color:var(--green); }
+.mod-status.pending{ color:var(--amber); border-color:var(--amber); }
+
+table.data-tbl{width:100%; border-collapse:collapse; font-size:12.5px;}
+table.data-tbl th{text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--chalk-dim); padding-bottom:10px; border-bottom:1px solid var(--board-line); font-weight:600;}
+table.data-tbl td{padding:10px 8px 10px 0; border-bottom:1px dotted var(--board-line);}
+.badge{font-family:var(--mono); font-size:9.5px; padding:3px 9px; font-weight:600; border:1px solid;}
+.badge.green{color:var(--green); border-color:var(--green);}
+.badge.red{color:var(--red); border-color:var(--red);}
+.empty-box{background:var(--board-raised); border:1px dashed var(--board-line); padding:50px; text-align:center; color:var(--chalk-dim);}
+.empty-title{font-family:var(--stencil); font-size:18px; text-transform:uppercase; color:var(--chalk-mid); margin-bottom:8px;}
+.empty-code{font-family:var(--mono); font-size:11px; background:rgba(0,0,0,0.3); padding:10px 14px; display:inline-block; margin-top:10px;}
+
+/* ===== STATUS TICKER (styled like a teletype line, not a rounded pill strip) ===== */
+.ticker-wrap{background:rgba(0,0,0,0.35); border-top:1px solid var(--board-line); border-bottom:1px solid var(--board-line); overflow:hidden; white-space:nowrap; padding:8px 0; margin-bottom:20px;}
 .ticker-track{display:inline-flex; animation:scroll-left 26s linear infinite;}
-.ticker-item{font-family:var(--mono); font-size:11px; padding:0 26px; display:inline-flex; align-items:center; gap:8px; color:var(--ink-mid); border-right:1px solid var(--panel-border);}
-.ticker-item.crit{color:var(--red);}
+.ticker-item{font-family:var(--mono); font-size:10.5px; padding:0 24px; display:inline-flex; align-items:center; gap:8px; color:var(--chalk-dim); border-right:1px solid var(--board-line);}
+.ticker-item.crit{color:var(--red); animation:tickFlicker 3s infinite;}
 @keyframes scroll-left{0%{transform:translateX(0);} 100%{transform:translateX(-50%);}}
+
 .console-body{display:grid; grid-template-columns:200px 1fr; gap:0;}
-.radar-box{padding:10px 20px 10px 4px; border-right:1px solid var(--panel-border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;}
-.radar{width:150px; height:150px; border-radius:50%; border:1px solid var(--panel-border); position:relative; background:repeating-radial-gradient(circle, transparent 0, transparent 24px, var(--panel-border) 25px);}
-.radar-sweep{position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(53,224,161,0.4), transparent 60deg); animation:sweep 3.2s linear infinite;}
+.radar-box{padding:10px 20px 10px 4px; border-right:1px solid var(--board-line); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;}
+.radar{width:150px; height:150px; border-radius:50%; border:1px solid var(--board-line); position:relative; background:repeating-radial-gradient(circle, transparent 0, transparent 24px, var(--board-line) 25px);}
+.radar-sweep{position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(92,148,132,0.4), transparent 60deg); animation:sweep 3.2s linear infinite;}
 @keyframes sweep{100%{transform:rotate(360deg);}}
 .radar-dot{position:absolute; width:7px; height:7px; border-radius:50%;}
 .radar-center{position:absolute; top:50%; left:50%; width:6px; height:6px; background:var(--green); border-radius:50%; transform:translate(-50%,-50%);}
-.radar-caption{font-family:var(--mono); font-size:9.5px; color:var(--ink-dim);}
+.radar-caption{font-family:var(--mono); font-size:9.5px; color:var(--chalk-dim);}
 .console-main{padding:14px 22px;}
 .cc-line{font-family:var(--mono); font-size:12px; margin-bottom:9px;}
-.cc-label{color:var(--ink-dim);} .cc-val{color:var(--ink); font-weight:700;}
-.alert-grid{display:flex; flex-direction:column; gap:9px;}
-.a-card{background:rgba(0,0,0,0.15); border:1px solid var(--panel-border); border-left:3px solid var(--panel-border); border-radius:10px; padding:13px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:transform 0.2s ease, background 0.2s ease; animation:fadeInUp 0.4s ease both;}
-.a-card:hover{ transform:translateX(4px); background:rgba(255,255,255,0.03); }
-.a-card.crit{border-left-color:var(--red);} .a-card.ok{border-left-color:var(--green);}
+.cc-label{color:var(--chalk-dim);} .cc-val{color:var(--chalk); font-weight:600;}
+
+/* ===== ALERT LOG (teletype list, not rounded cards) ===== */
+.alert-grid{display:flex; flex-direction:column;}
+.a-card{
+  background:transparent; border:none; border-bottom:1px dotted var(--board-line);
+  padding:12px 2px; display:flex; justify-content:space-between; align-items:center; gap:16px;
+}
+.a-card.crit .a-title::before{ content:'! '; color:var(--red); }
+.a-card.ok .a-title::before{ content:'· '; color:var(--green); }
 .a-left{display:flex; gap:12px; align-items:flex-start;}
-.a-rank{font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--ink-dim); background:rgba(255,255,255,0.05); border:1px solid var(--panel-border); border-radius:6px; padding:2px 7px; align-self:flex-start; margin-top:1px;}
-.a-title{font-weight:700; font-size:12.5px; margin-bottom:3px;}
-.a-detail{font-size:11px; color:var(--ink-mid);}
-.a-action{font-family:var(--mono); font-size:9.5px; padding:6px 10px; border-radius:6px; border:1px solid var(--panel-border); color:var(--ink-mid); white-space:nowrap;}
-.hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:20px;}
-.hero-map-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:16px; height:260px; position:relative; overflow:hidden; animation:fadeInUp 0.55s ease both; transition:border-color 0.25s ease;}
-.hero-map-card:hover{ border-color:rgba(124,92,255,0.3); }
-.hero-map-card svg circle{ animation:pulseGlow 2.2s ease-in-out infinite; transform-origin:center; transform-box:fill-box; }
-.hero-map-label{position:absolute; top:14px; left:14px; font-family:var(--mono); font-size:10px; color:var(--ink-mid); background:rgba(0,0,0,0.35); padding:6px 12px; border-radius:10px; z-index:2;}
-.hero-info-card{background:var(--panel); border:1px solid var(--panel-border); border-radius:18px; padding:20px 22px; display:flex; flex-direction:column; justify-content:center; animation:fadeInUp 0.6s ease both; animation-delay:0.08s; transition:border-color 0.25s ease;}
-.hero-info-card:hover{ border-color:rgba(124,92,255,0.3); }
-.hero-stat-line{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--panel-border); font-size:12px;}
+.a-rank{font-family:var(--mono); font-size:10px; color:var(--chalk-dim); padding-top:2px;}
+.a-title{font-family:var(--mono); font-weight:600; font-size:12.5px; margin-bottom:2px;}
+.a-detail{font-size:11px; color:var(--chalk-mid);}
+.a-action{font-family:var(--mono); font-size:9.5px; padding:4px 10px; border:1px solid var(--board-line); color:var(--chalk-dim); white-space:nowrap;}
+
+/* ===== INCIDENT PLATE (hero) + PINNED ZONE TAGS ===== */
+.hero-grid{display:grid; grid-template-columns:1fr 1.4fr; gap:1px; margin-bottom:20px; background:var(--board-line); border:1px solid var(--board-line);}
+.hero-map-card{background:var(--board-raised); padding:22px; position:relative; overflow:visible; display:flex; flex-wrap:wrap; align-content:flex-start; gap:14px 10px;}
+.hero-map-label{width:100%; font-family:var(--mono); font-size:10px; color:var(--chalk-dim); letter-spacing:0.5px; margin-bottom:6px;}
+.hero-map-card svg{ display:none; } /* map dots replaced by pinned tags below, generated separately */
+.zone-tag{
+  background:var(--board); border:1px solid var(--board-line); border-left:4px solid var(--tag-color, var(--green));
+  padding:10px 14px; min-width:118px; font-family:var(--mono);
+  transform:rotate(var(--tilt, 0deg)); transition:transform 0.15s ease, border-color 0.15s ease;
+}
+.zone-tag:hover{ transform:rotate(0deg) scale(1.03); border-color:var(--tag-color, var(--green)); }
+.zone-tag .zt-id{ font-size:12px; font-weight:600; color:var(--chalk); }
+.zone-tag .zt-area{ font-size:9.5px; color:var(--chalk-dim); margin-top:2px; }
+.zone-tag .zt-status{ font-size:9px; margin-top:6px; color:var(--tag-color, var(--green)); letter-spacing:0.4px; }
+
+.hero-info-card{background:var(--board-raised); padding:24px 26px; display:flex; flex-direction:column; justify-content:center;}
+.hero-stat-line{display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px dotted var(--board-line); font-size:12.5px;}
 .hero-stat-line:last-child{border-bottom:none;}
-.hero-stat-label{color:var(--ink-dim);}
-.hero-stat-val{font-weight:700; color:var(--ink);}
+.hero-stat-label{color:var(--chalk-dim); font-family:var(--mono); font-size:10.5px;}
+.hero-stat-val{font-weight:600; color:var(--chalk);}
 """
 
 COUNT_UP_JS = """
@@ -298,9 +342,10 @@ def render_overview():
     ready = {k: find_module_file(m["file"]) is not None for k, m in MODULE_FILES.items()}
     ready_count = sum(ready.values())
 
-    # ---- Real zone-map hero (replaces any decorative image with actual data) ----
-    hero_map_svg = ""
+    # ---- Zone tags (pinned index-card style, replaces the SVG map dots) ----
+    zone_tags_html = ""
     hero_stats_html = ""
+    n_gap = 0
     if ZONES_PATH and HOSPITALS_PATH:
         zones_df = pd.read_csv(ZONES_PATH)
         coverage_path = find_module_file(MODULE_FILES["coverage"]["file"])
@@ -309,58 +354,52 @@ def render_overview():
             nearest_col = "nearest_capable_min" if "nearest_capable_min" in cov_df.columns else "nearest_capable_min_APPROX"
             cov_sorted = cov_df.sort_values("risk_score", ascending=False).reset_index(drop=True)
 
-            lat_min, lat_max = zones_df["centroid_lat"].min(), zones_df["centroid_lat"].max()
-            lon_min, lon_max = zones_df["centroid_lon"].min(), zones_df["centroid_lon"].max()
-
-            def norm(lat, lon):
-                x = 30 + (lon - lon_min) / (lon_max - lon_min + 1e-9) * 260
-                y = 25 + (1 - (lat - lat_min) / (lat_max - lat_min + 1e-9)) * 220
-                return round(x, 1), round(y, 1)
-
-            dots = ""
-            for _, row in zones_df.iterrows():
-                x, y = norm(row["centroid_lat"], row["centroid_lon"])
+            tilts = [-2, 1.5, -1, 2, -1.5, 1]
+            for i, row in zones_df.iterrows():
                 status_row = cov_sorted[cov_sorted["zone_id"] == row["zone_id"]]
                 is_gap = len(status_row) and status_row["coverage_status"].values[0] == "GAP"
-                color = "var(--red)" if is_gap else "var(--green)"
-                size = 5 + min(9, row["risk_score"] / 28)
-                dots += f'<circle cx="{x}" cy="{y}" r="{size+7:.1f}" fill="{color}" opacity="0.15"/><circle cx="{x}" cy="{y}" r="{size:.1f}" fill="{color}" opacity="0.9"/>'
-            hero_map_svg = f'<svg viewBox="0 0 320 270" width="100%" height="100%">{dots}</svg>'
+                color_var = "var(--red)" if is_gap else "var(--green)"
+                status_text = "UNCOVERED" if is_gap else "COVERED"
+                tilt = tilts[i % len(tilts)]
+                zone_tags_html += f"""
+                <div class="zone-tag" style="--tag-color:{color_var}; --tilt:{tilt}deg;">
+                  <div class="zt-id">{row['zone_id']}</div>
+                  <div class="zt-area">{row.get('dominant_area','')}</div>
+                  <div class="zt-status">{status_text}</div>
+                </div>"""
 
             top = cov_sorted.iloc[0]
             n_covered = int((cov_sorted["coverage_status"] == "COVERED").sum())
             n_total = len(cov_sorted)
+            n_gap = n_total - n_covered
             display_risk = jitter_value(float(top['risk_score']), seed=refresh_count) if live_mode else top['risk_score']
             hero_stats_html = f"""
-            <div class="hero-stat-line"><span class="hero-stat-label">Highest risk zone</span><span class="hero-stat-val">{top['zone_id']} — {top.get('dominant_area','')}</span></div>
-            <div class="hero-stat-line"><span class="hero-stat-label">Risk score</span><span class="hero-stat-val">{display_risk}{' 🔴' if live_mode else ''}</span></div>
-            <div class="hero-stat-line"><span class="hero-stat-label">Zones covered</span><span class="hero-stat-val">{n_covered} / {n_total}</span></div>
-            <div class="hero-stat-line"><span class="hero-stat-label">Nearest capable hospital</span><span class="hero-stat-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">HIGHEST RISK ZONE</span><span class="hero-stat-val">{top['zone_id']} — {top.get('dominant_area','')}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">RISK SCORE</span><span class="hero-stat-val">{display_risk}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">ZONES COVERED</span><span class="hero-stat-val">{n_covered} / {n_total}</span></div>
+            <div class="hero-stat-line"><span class="hero-stat-label">NEAREST CAPABLE HOSPITAL</span><span class="hero-stat-val">{top.get('nearest_capable_hospital','N/A')}</span></div>
             """
 
     rows_html = ""
-    colors = {"bed": ("#7C5CFF","#3EA6FF"), "medicine": ("#3EA6FF","#35E0A1"),
-              "blood": ("#FF5C7A","#FF5CA8"), "coverage": ("#35E0A1","#1BA97A")}
     for key, m in MODULE_FILES.items():
-        c1, c2 = colors[key]
         status_class = "ready" if ready[key] else "pending"
-        status_label = "✓ READY" if ready[key] else "PENDING"
+        status_label = "READY" if ready[key] else "PENDING"
         rows_html += f"""
         <div class="mod-row">
           <div class="mod-left">
-            <div class="mod-icon" style="background:linear-gradient(135deg,{c1},{c2});">{m['icon']}</div>
-            <div><div class="mod-name">{m['name']}</div><div class="mod-desc">{m['file']}</div></div>
+            <div class="mod-icon">{m['icon']}</div>
+            <div class="mod-name">{m['name']}</div>
           </div>
           <div class="mod-status {status_class}">{status_label}</div>
         </div>"""
 
     hero_section = ""
-    if hero_map_svg:
+    if zone_tags_html:
         hero_section = f"""
         <div class="hero-grid">
           <div class="hero-map-card">
-            <div class="hero-map-label">Live Zone Network · Chennai Metro</div>
-            {hero_map_svg}
+            <div class="hero-map-label">ZONE MANIFEST — CHENNAI METRO</div>
+            {zone_tags_html}
           </div>
           <div class="hero-info-card">
             <div class="panel-title">Network Snapshot</div>
@@ -368,23 +407,32 @@ def render_overview():
           </div>
         </div>"""
 
+    all_clear = n_gap == 0
+    incident_label = "ALL CLEAR" if all_clear else "ZONES UNCOVERED"
+    incident_value = "0" if all_clear else str(n_gap)
+    incident_color = "var(--green)" if all_clear else "var(--red)"
+
     html = f"""<!DOCTYPE html><html><head><style>{BASE_CSS}</style></head><body>
       <div class="breadcrumb">Dashboards / <b>Master Overview</b></div>
-      <div class="page-title">Emergency Readiness Overview</div>
+      <div class="page-title">Emergency Readiness Board</div>
       {hero_section}
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals Monitored</div><div class="stat-value"><span class="count-up" data-target="12">0</span></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5CA8,#FF5C7A);">📍</div><div class="stat-label">Modules Ready</div><div class="stat-value"><span class="count-up" data-target="{ready_count}">0</span>/4</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">📋</div><div class="stat-label">Data Contract</div><div class="stat-value">Locked</div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">⚡</div><div class="stat-label">Sync Status</div><div class="stat-value">Live</div></div>
+        <div class="stat-card">
+          <div class="stat-label">INCIDENT STATUS</div>
+          <div class="stat-value" style="color:{incident_color};"><span class="count-up" data-target="{incident_value}">0</span></div>
+          <div style="font-family:var(--mono); font-size:10px; color:var(--chalk-dim); margin-top:4px; letter-spacing:0.5px;">{incident_label}</div>
+        </div>
+        <div class="stat-card"><div class="stat-label">HOSPITALS MONITORED</div><div class="stat-value"><span class="count-up" data-target="12">0</span></div></div>
+        <div class="stat-card"><div class="stat-label">MODULES READY</div><div class="stat-value"><span class="count-up" data-target="{ready_count}">0</span>/4</div></div>
+        <div class="stat-card"><div class="stat-label">DATA CONTRACT</div><div class="stat-value" style="font-size:18px;">LOCKED</div></div>
       </div>
       <div class="glass-panel">
-        <div class="panel-title">Module Integration Status</div>
-        <div class="panel-sub">shared data contract · hospital_id linked across all 4</div>
+        <div class="panel-title">Module Manifest</div>
+        <div class="panel-sub">shared data contract — hospital_id linked across all 4</div>
         {rows_html}
       </div>
     {COUNT_UP_JS}</body></html>"""
-    components.html(html, height=520 + (260 if hero_map_svg else 0), scrolling=False)
+    components.html(html, height=560 + (240 if zone_tags_html else 0), scrolling=False)
 
 # ---------------------------------------------------------------------------
 # PAGE: MODULE DETAIL (works for all 4 module keys)
@@ -483,10 +531,10 @@ def render_coverage_rich():
       <div class="breadcrumb">Dashboards / Modules / <b>Coverage & Referral Intelligence</b>{'  ·  🔴 LIVE SIM' if live_mode else ''}</div>
       <div class="page-title">🚨 Coverage & Referral Intelligence</div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FF5C7A,#FF5CA8);">📍</div><div class="stat-label">Zones — Gap</div><div class="stat-value"><span class="count-up" data-target="{n_gap}">0</span></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#35E0A1,#1BA97A);">✅</div><div class="stat-label">Zones — Covered</div><div class="stat-value"><span class="count-up" data-target="{n_covered}">0</span></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#7C5CFF,#3EA6FF);">🏥</div><div class="stat-label">Hospitals</div><div class="stat-value"><span class="count-up" data-target="{len(hospitals)}">0</span></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FFB238,#E08A1E);">📊</div><div class="stat-label">Total Accidents</div><div class="stat-value"><span class="count-up" data-target="{int(zones['accident_count'].sum())}">0</span></div></div>
+        <div class="stat-card"><div class="stat-label">ZONES — GAP</div><div class="stat-value" style="color:var(--red);"><span class="count-up" data-target="{n_gap}">0</span></div></div>
+        <div class="stat-card"><div class="stat-label">ZONES — COVERED</div><div class="stat-value" style="color:var(--green);"><span class="count-up" data-target="{n_covered}">0</span></div></div>
+        <div class="stat-card"><div class="stat-label">HOSPITALS</div><div class="stat-value"><span class="count-up" data-target="{len(hospitals)}">0</span></div></div>
+        <div class="stat-card"><div class="stat-label">TOTAL ACCIDENTS</div><div class="stat-value"><span class="count-up" data-target="{int(zones['accident_count'].sum())}">0</span></div></div>
       </div>
       <div class="glass-panel">
         <div class="panel-title">Highest Priority Zone (quick preview)</div>
