@@ -1,16 +1,23 @@
 """
 Module 4 — Emergency Coverage & Referral Intelligence — FULL CONSOLE DASHBOARD
 --------------------------------------------------------------------------------
-This version embeds the full animated HTML/CSS design (radar sweep, ticker,
-styled alert cards) inside Streamlit using components.html, with your REAL
-data from the CSVs injected into it -- so it looks like the original mockup
-but shows real numbers.
+Embeds the animated HTML/CSS console (radar sweep, ticker, alert cards) inside
+Streamlit with REAL data from your CSVs.
+
+CHANGES in this version:
+  1. Reads chennai_coverage_results_LIVE.csv (TomTom live traffic) first,
+     falls back to the APPROX file. The old chennai_coverage_results.csv
+     (with the bad 0.0 min values) is no longer used.
+  2. New panel: "Recommended Fixes — Gap Zones", read from
+     chennai_recommendations.csv (made by recommend_actions.py).
+  3. Fixed a column-overlap crash when the APPROX file is used.
+  4. Paths use os.path.join instead of Windows-only backslashes.
 
 Run with:
     streamlit run module4_dashboard_full.py
 
 Requires:
-    pip install streamlit pandas
+    pip install streamlit pandas pydeck
 """
 
 import streamlit as st
@@ -26,12 +33,14 @@ from datetime import datetime
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
-ZONES_PATH = f"{DATA_DIR}\\chennai_hotspot_zones.csv"
-HOSPITALS_PATH = f"{DATA_DIR}\\chennai_hospitals.csv"
-REAL_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results.csv"
-APPROX_COVERAGE_PATH = f"{DATA_DIR}\\chennai_coverage_results_APPROX.csv"
-COVERAGE_PATH = REAL_COVERAGE_PATH if os.path.exists(REAL_COVERAGE_PATH) else APPROX_COVERAGE_PATH
-USING_APPROX = COVERAGE_PATH == APPROX_COVERAGE_PATH
+ZONES_PATH = os.path.join(DATA_DIR, "chennai_hotspot_zones.csv")
+HOSPITALS_PATH = os.path.join(DATA_DIR, "chennai_hospitals.csv")
+LIVE_COVERAGE_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_LIVE.csv")
+APPROX_COVERAGE_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_APPROX.csv")
+RECS_PATH = os.path.join(DATA_DIR, "chennai_recommendations.csv")
+
+USING_LIVE = os.path.exists(LIVE_COVERAGE_PATH)
+COVERAGE_PATH = LIVE_COVERAGE_PATH if USING_LIVE else APPROX_COVERAGE_PATH
 
 st.set_page_config(page_title="Emergency Readiness Console", layout="wide")
 
@@ -41,7 +50,7 @@ st.set_page_config(page_title="Emergency Readiness Console", layout="wide")
 # IMPORTANT — read this before demoing "live" mode to anyone:
 # There is no public API where hospitals broadcast real-time bed/traffic
 # data -- that data is private and not accessible for a student project.
-# This mode instead SIMULATES realistic live fluctuation (like traffic
+# This mode instead SIMULATES realistic fluctuation (like traffic
 # conditions shifting minute to minute) on top of your real base data,
 # so the dashboard behaves like a live system for demo purposes. It is
 # clearly labeled as simulated, not real hospital telemetry.
@@ -53,7 +62,7 @@ with live_col2:
     if live_mode:
         st.caption("Simulating live traffic/condition fluctuation on top of real base data — refreshes every 6s. Not real hospital telemetry.")
     else:
-        st.caption("Static view of your real computed results. Turn on Live Simulation Mode to see a demo-style auto-updating console.")
+        st.caption("Static view of your computed results. Turn on Live Simulation Mode to see a demo-style auto-updating console.")
 
 if live_mode:
     try:
@@ -66,17 +75,15 @@ else:
     refresh_count = 0
 
 def apply_live_jitter(df, nearest_col_name, seed):
-    """Simulate small realistic fluctuations in travel time and risk score,
-    as if live traffic conditions were shifting -- seeded by refresh count
-    so each refresh gives a different but bounded, believable variation."""
+    """Simulate small realistic fluctuations in travel time,
+    seeded by refresh count so each refresh gives a different but
+    bounded, believable variation."""
     rng = random.Random(seed)
     df = df.copy()
     df[nearest_col_name] = df[nearest_col_name].apply(
         lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1)
     )
     return df
-
-
 
 # ---------------------------------------------------------------------------
 # LOAD DATA
@@ -89,6 +96,8 @@ except FileNotFoundError as e:
     st.error(f"Missing data file: {e}")
     st.stop()
 
+recs = pd.read_csv(RECS_PATH) if os.path.exists(RECS_PATH) else None
+
 coverage_sorted = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True)
 nearest_col = "nearest_capable_min" if "nearest_capable_min" in coverage.columns else "nearest_capable_min_APPROX"
 
@@ -100,6 +109,10 @@ if live_mode:
     )
 
 # Bring in the human-readable region name + coordinates from the zones table
+# (drop any overlapping columns first so the join never crashes)
+coverage_sorted = coverage_sorted.drop(
+    columns=[c for c in ["dominant_area", "centroid_lat", "centroid_lon"] if c in coverage_sorted.columns]
+)
 zones_lookup = zones.set_index("zone_id")[["dominant_area", "centroid_lat", "centroid_lon"]]
 coverage_sorted = coverage_sorted.join(zones_lookup, on="zone_id")
 coverage_sorted.insert(0, "priority_rank", range(1, len(coverage_sorted) + 1))
@@ -146,6 +159,43 @@ for _, row in coverage_sorted.iterrows():
     """
 
 # ---------------------------------------------------------------------------
+# BUILD RECOMMENDATION CARDS (gap zones only) from chennai_recommendations.csv
+# ---------------------------------------------------------------------------
+recs_html = ""
+if recs is None:
+    recs_html = '<div class="fix-note">No recommendations file yet. Run <b>python recommend_actions.py</b> from the scripts folder, then reload.</div>'
+else:
+    gap_recs = recs[recs["current_status"] == "GAP"]
+    if gap_recs.empty:
+        recs_html = '<div class="fix-note">No gap zones, so no fixes are needed.</div>'
+    for _, r in gap_recs.iterrows():
+        status = str(r["projected_status"])
+        if status == "COVERED":
+            cls = "ok"
+        elif status == "IMPROVED":
+            cls = "warn"
+        else:
+            cls = "crit"
+        post_txt = ""
+        if pd.notna(r.get("post_first_care_min")) and str(r.get("post_first_care_min")) != "":
+            post_txt = f' · Ambulance post first-care ≈ <b>{int(float(r["post_first_care_min"]))} min</b> (assumed)'
+        recs_html += f"""
+        <div class="a-card {cls}">
+          <div class="a-left">
+            <div class="a-rank">#{int(r['priority'])}</div>
+            <div>
+              <div class="a-title">{r['zone_id']} — {r['area']}</div>
+              <div class="a-detail">{r['recommended_action']}</div>
+              <div class="a-detail">Now <b>{r['current_min']} min</b> → after fix <b>{r['projected_definitive_min']} min</b> · {status}{post_txt}</div>
+            </div>
+          </div>
+          <div class="a-right">
+            <div class="a-action">SAVES {r['minutes_saved']} MIN</div>
+          </div>
+        </div>
+        """
+
+# ---------------------------------------------------------------------------
 # BUILD RADAR DOTS -- place gap zones as red dots, covered as green dots
 # ---------------------------------------------------------------------------
 radar_dots_html = ""
@@ -156,6 +206,8 @@ for i, (_, row) in enumerate(coverage_sorted.iterrows()):
     top, left = positions[i]
     color = "var(--red)" if row["coverage_status"] == "GAP" else "var(--green)"
     radar_dots_html += f'<div class="radar-dot" style="top:{top}%; left:{left}%; background:{color}; box-shadow:0 0 8px {color};"></div>'
+
+routing_label = "LIVE traffic routing (TomTom)" if USING_LIVE else "APPROXIMATE routing — run compute_travel_time.py for live results"
 
 # ---------------------------------------------------------------------------
 # FULL HTML (design system reused from the original mockup, values injected)
@@ -210,12 +262,13 @@ html = f"""
   .cc-label{{color:var(--ink-dim);}} .cc-val{{color:var(--ink); font-weight:600;}}
   .alert-grid{{display:flex; flex-direction:column; gap:10px;}}
   .a-card{{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--line); border-radius:8px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px;}}
-  .a-card.crit{{border-left-color:var(--red);}} .a-card.ok{{border-left-color:var(--green);}}
+  .a-card.crit{{border-left-color:var(--red);}} .a-card.ok{{border-left-color:var(--green);}} .a-card.warn{{border-left-color:var(--amber);}}
   .a-left{{display:flex; gap:12px; align-items:flex-start;}}
   .a-title{{font-weight:700; font-size:13px; margin-bottom:3px;}}
-  .a-detail{{font-size:11.5px; color:var(--ink-mid);}}
+  .a-detail{{font-size:11.5px; color:var(--ink-mid); margin-bottom:2px;}}
   .a-action{{font-family:var(--mono); font-size:10px; padding:6px 10px; border-radius:5px; border:1px solid var(--line-bright); color:var(--ink-mid); white-space:nowrap;}}
   .a-rank{{font-family:var(--mono); font-size:11px; font-weight:700; color:var(--ink-dim); background:var(--panel-raised); border:1px solid var(--line-bright); border-radius:5px; padding:2px 7px; align-self:flex-start; margin-top:1px;}}
+  .fix-note{{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); margin-top:10px; line-height:1.6;}}
 </style></head>
 <body>
   <div class="ticker-wrap"><div class="ticker-track">{ticker_html}</div></div>
@@ -223,7 +276,7 @@ html = f"""
     <div>
       <div class="h-eyebrow">Module 04 · Coverage & Referral Intelligence</div>
       <div class="h-title">Emergency Readiness Console</div>
-      <div class="h-sub">{'REAL road-network routing' if not USING_APPROX else 'APPROXIMATE routing — run compute_travel_time.py for real results'} · {len(hospitals)} hospitals · {len(zones)} zones</div>
+      <div class="h-sub">{routing_label} · {len(hospitals)} hospitals · {len(zones)} zones</div>
     </div>
     <div class="status-pill"><span class="status-dot"></span>{'LIVE SIM · ' + datetime.now().strftime('%H:%M:%S') if live_mode else 'STATIC DATA'}</div>
   </div>
@@ -262,16 +315,20 @@ html = f"""
       <div class="section-title">Active Zone Alerts</div>
       <div class="alert-grid">{alert_cards_html}</div>
     </div>
+
+    <div class="section">
+      <div class="section-title">Recommended Fixes — Gap Zones</div>
+      <div class="alert-grid">{recs_html}</div>
+      <div class="fix-note">Green = fix closes the gap · Amber = improved but still above the 20 min window · Red = no existing hospital can fix it, a new facility is needed. Ambulance-post first-care time is an assumption, not measured data. Recommendations reflect the last run of recommend_actions.py.</div>
+    </div>
   </div>
 </body></html>
 """
 
-components.html(html, height=1300, scrolling=True)
+components.html(html, height=1650, scrolling=True)
 
 # ---------------------------------------------------------------------------
 # REAL MAP -- actual hospital + zone locations, color-coded by status
-# (rendered natively by Streamlit, below the console, since components.html
-#  can't host an interactive map inside its iframe easily)
 # ---------------------------------------------------------------------------
 st.markdown("### 🗺️ Zone & Hospital Map")
 st.caption("Red = coverage gap zone · Green = covered zone · Blue = hospital")
@@ -352,7 +409,7 @@ st.pydeck_chart(pdk.Deck(
     map_style="dark",
     tooltip={"text": "{label}"},
 ))
-st.caption("Lines show each zone's route to its nearest *capable* hospital (straight-line for now — swap in real road-path coordinates from compute_travel_time.py for road-accurate lines). Hover any dot to see its name — overlapping hospitals separate as you zoom in.")
+st.caption("Lines show each zone's route to its nearest *capable* hospital (straight-line, not the real road path). Hover any dot to see its name — overlapping hospitals separate as you zoom in.")
 
 # ---------------------------------------------------------------------------
 # READABLE ZONE -> REGION LOOKUP TABLE (answers "what area is ZONE-04?")
@@ -368,3 +425,21 @@ st.dataframe(
     }),
     width='stretch', hide_index=True
 )
+
+# ---------------------------------------------------------------------------
+# FULL RECOMMENDATIONS TABLE (downloadable detail view)
+# ---------------------------------------------------------------------------
+if recs is not None:
+    st.markdown("### 🛠️ Recommendations — Full Detail")
+    st.dataframe(
+        recs[["priority", "zone_id", "area", "current_status", "current_min",
+              "recommended_action", "projected_definitive_min", "projected_status", "minutes_saved"]]
+        .rename(columns={
+            "priority": "Priority", "zone_id": "Zone", "area": "Area",
+            "current_status": "Now", "current_min": "Now (min)",
+            "recommended_action": "Recommended Action",
+            "projected_definitive_min": "After Fix (min)",
+            "projected_status": "After Fix", "minutes_saved": "Saved (min)"
+        }),
+        width='stretch', hide_index=True
+    )

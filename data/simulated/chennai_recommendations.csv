@@ -1,0 +1,7 @@
+priority,zone_id,area,risk_score,current_status,current_capable_hospital,current_min,upgrade_candidate,upgrade_min,post_first_care_min,recommended_action,projected_definitive_min,projected_status,minutes_saved
+1,ZONE-04,Perungudi (OMR),205.5,GAP,"Fortis Malar Hospital, Adyar",29.8,"Tulips Multispeciality, OMR",23.4,8,"Upgrade Tulips Multispeciality, OMR to trauma tier 2 + ambulance post near Perungudi (OMR)",23.4,IMPROVED,6.4
+2,ZONE-01,Retteri Junction,158.5,GAP,"SIMS Hospital, Vadapalani",31.9,,,8,Ambulance post near Retteri Junction + new trauma-capable facility needed,31.9,GAP (needs new facility),0.0
+3,ZONE-02,Tambaram (GST Road),197.5,COVERED,"Government Hospital, Tambaram",5.1,,,,No action needed,5.1,COVERED,0.0
+4,ZONE-05,Kelambakkam (ECR/OMR),193.5,COVERED,"Chettinad Hospital, Kelambakkam",5.5,,,,No action needed,5.5,COVERED,0.0
+5,ZONE-03,Kathipara Junction,189.0,COVERED,"SIMS Hospital, Vadapalani",18.1,,,,No action needed,18.1,COVERED,0.0
+6,ZONE-06,Madhya Kailash Junction,149.0,COVERED,"Fortis Malar Hospital, Adyar",2.6,,,,No action needed,2.6,COVERED,0.0
