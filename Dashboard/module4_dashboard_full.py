@@ -1,89 +1,81 @@
 """
-Module 4 — Emergency Coverage & Referral Intelligence — FULL CONSOLE DASHBOARD
+Module 4 - Emergency Coverage & Referral Intelligence - DASHBOARD (redesigned)
 --------------------------------------------------------------------------------
-Embeds the animated HTML/CSS console (radar sweep, ticker, alert cards) inside
-Streamlit with REAL data from your CSVs.
+What's new in this design:
+  * Interactive map (Leaflet) is the main view. Click a zone in the list and the
+    map flies to it. Needs internet for the map tiles.
+  * Each zone shows its travel time as a bar against the 20-minute limit.
+  * Tabs: Recommended fixes, Hospitals, About the data.
+  * Light clinical theme instead of the dark console look.
 
-CHANGES in this version:
-  1. Reads chennai_coverage_results_LIVE.csv (TomTom live traffic) first,
-     falls back to the APPROX file. The old chennai_coverage_results.csv
-     (with the bad 0.0 min values) is no longer used.
-  2. New panel: "Recommended Fixes — Gap Zones", read from
-     chennai_recommendations.csv (made by recommend_actions.py).
-  3. Fixed a column-overlap crash when the APPROX file is used.
-  4. Paths use os.path.join instead of Windows-only backslashes.
+Data it reads (all in ../data/simulated/):
+  chennai_hotspot_zones.csv, chennai_hospitals.csv,
+  chennai_coverage_results_LIVE.csv  (falls back to _APPROX.csv),
+  chennai_recommendations.csv        (made by recommend_actions.py)
 
-Run with:
+Run:
     streamlit run module4_dashboard_full.py
-
 Requires:
-    pip install streamlit pandas pydeck
+    pip install streamlit pandas
+    pip install streamlit-autorefresh      (only for Live Simulation Mode)
 """
 
-import streamlit as st
-import pandas as pd
+import html as html_lib
+import json
+import math
 import os
-import streamlit.components.v1 as components
-import time
 import random
-from datetime import datetime
+
+import pandas as pd
+import streamlit as st
+import streamlit.components.v1 as components
 
 # ---------------------------------------------------------------------------
-# PATHS
+# PATHS + SETTINGS
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
 ZONES_PATH = os.path.join(DATA_DIR, "chennai_hotspot_zones.csv")
 HOSPITALS_PATH = os.path.join(DATA_DIR, "chennai_hospitals.csv")
-LIVE_COVERAGE_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_LIVE.csv")
-APPROX_COVERAGE_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_APPROX.csv")
+LIVE_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_LIVE.csv")
+APPROX_PATH = os.path.join(DATA_DIR, "chennai_coverage_results_APPROX.csv")
 RECS_PATH = os.path.join(DATA_DIR, "chennai_recommendations.csv")
 
-USING_LIVE = os.path.exists(LIVE_COVERAGE_PATH)
-COVERAGE_PATH = LIVE_COVERAGE_PATH if USING_LIVE else APPROX_COVERAGE_PATH
+SAFE_WINDOW = 20
+USING_LIVE = os.path.exists(LIVE_PATH)
+COVERAGE_PATH = LIVE_PATH if USING_LIVE else APPROX_PATH
 
-st.set_page_config(page_title="Emergency Readiness Console", layout="wide")
+st.set_page_config(page_title="Emergency coverage - Chennai", layout="wide")
+
+# Make the Streamlit shell match the light theme and remove its chrome
+st.markdown("""
+<style>
+  .stApp { background:#EEF1EF; }
+  header[data-testid="stHeader"], #MainMenu, footer { display:none !important; }
+  .block-container { padding:1rem 1.5rem 2rem; max-width:1320px; }
+  .stApp label, .stApp p, .stApp span { color:#12262D; }
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# LIVE SIMULATION MODE
+# LIVE SIMULATION TOGGLE
+# (Simulated fluctuation on top of real base data. No public API gives live
+#  hospital telemetry, so this is a demo feature, labeled as such.)
 # ---------------------------------------------------------------------------
-# IMPORTANT — read this before demoing "live" mode to anyone:
-# There is no public API where hospitals broadcast real-time bed/traffic
-# data -- that data is private and not accessible for a student project.
-# This mode instead SIMULATES realistic fluctuation (like traffic
-# conditions shifting minute to minute) on top of your real base data,
-# so the dashboard behaves like a live system for demo purposes. It is
-# clearly labeled as simulated, not real hospital telemetry.
-# ---------------------------------------------------------------------------
-live_col1, live_col2 = st.columns([1, 5])
-with live_col1:
-    live_mode = st.toggle("🔴 Live Simulation Mode", value=False)
-with live_col2:
-    if live_mode:
-        st.caption("Simulating live traffic/condition fluctuation on top of real base data — refreshes every 6s. Not real hospital telemetry.")
-    else:
-        st.caption("Static view of your computed results. Turn on Live Simulation Mode to see a demo-style auto-updating console.")
+c1, c2 = st.columns([1.2, 5])
+with c1:
+    live_mode = st.toggle("Live simulation", value=False)
+with c2:
+    st.caption("Adds small random changes to travel times every 6 seconds for demos. It is not real hospital data."
+               if live_mode else "Showing your saved results. Turn on live simulation for a demo-style auto-refresh.")
 
+refresh_count = 0
 if live_mode:
     try:
         from streamlit_autorefresh import st_autorefresh
-        refresh_count = st_autorefresh(interval=6000, limit=None, key="live_refresh_counter")
+        refresh_count = st_autorefresh(interval=6000, limit=None, key="m4_refresh")
     except ImportError:
-        st.warning("Live mode needs one extra package. Run: `pip install streamlit-autorefresh` then reload this page.")
-        refresh_count = 0
-else:
-    refresh_count = 0
-
-def apply_live_jitter(df, nearest_col_name, seed):
-    """Simulate small realistic fluctuations in travel time,
-    seeded by refresh count so each refresh gives a different but
-    bounded, believable variation."""
-    rng = random.Random(seed)
-    df = df.copy()
-    df[nearest_col_name] = df[nearest_col_name].apply(
-        lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1)
-    )
-    return df
+        st.warning("Live simulation needs one extra package: pip install streamlit-autorefresh")
 
 # ---------------------------------------------------------------------------
 # LOAD DATA
@@ -92,354 +84,479 @@ try:
     zones = pd.read_csv(ZONES_PATH)
     hospitals = pd.read_csv(HOSPITALS_PATH)
     coverage = pd.read_csv(COVERAGE_PATH)
-except FileNotFoundError as e:
-    st.error(f"Missing data file: {e}")
+except FileNotFoundError as err:
+    st.error(f"Missing data file: {err}")
     st.stop()
 
 recs = pd.read_csv(RECS_PATH) if os.path.exists(RECS_PATH) else None
 
-coverage_sorted = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True)
 nearest_col = "nearest_capable_min" if "nearest_capable_min" in coverage.columns else "nearest_capable_min_APPROX"
+any_col = next((c for c in ("nearest_hospital_any_min", "nearest_any_min_APPROX") if c in coverage.columns), None)
 
+cov = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True)
 if live_mode:
-    coverage_sorted = apply_live_jitter(coverage_sorted, nearest_col, seed=refresh_count)
-    SAFE_WINDOW = 20
-    coverage_sorted["coverage_status"] = coverage_sorted[nearest_col].apply(
-        lambda t: "COVERED" if t <= SAFE_WINDOW else "GAP"
-    )
+    rng = random.Random(refresh_count)
+    cov[nearest_col] = cov[nearest_col].apply(lambda t: round(max(1, t + rng.uniform(-2.5, 2.5)), 1))
+    cov["coverage_status"] = cov[nearest_col].apply(lambda t: "COVERED" if t <= SAFE_WINDOW else "GAP")
 
-# Bring in the human-readable region name + coordinates from the zones table
-# (drop any overlapping columns first so the join never crashes)
-coverage_sorted = coverage_sorted.drop(
-    columns=[c for c in ["dominant_area", "centroid_lat", "centroid_lon"] if c in coverage_sorted.columns]
-)
-zones_lookup = zones.set_index("zone_id")[["dominant_area", "centroid_lat", "centroid_lon"]]
-coverage_sorted = coverage_sorted.join(zones_lookup, on="zone_id")
-coverage_sorted.insert(0, "priority_rank", range(1, len(coverage_sorted) + 1))
-
-n_gap = (coverage["coverage_status"] == "GAP").sum()
-n_covered = (coverage["coverage_status"] == "COVERED").sum()
-total_accidents = int(zones["accident_count"].sum())
-total_fatal = int(zones["fatal_count"].sum())
 
 # ---------------------------------------------------------------------------
-# BUILD TICKER ITEMS from real zone data (top 5 by risk)
+# HELPERS
 # ---------------------------------------------------------------------------
-ticker_html = ""
-for _, row in coverage_sorted.head(5).iterrows():
-    css = "crit" if row["coverage_status"] == "GAP" else ""
-    dot = "🔴" if row["coverage_status"] == "GAP" else "🟢"
-    ticker_html += f'<span class="ticker-item {css}">{dot} <b>#{row["priority_rank"]} {row["zone_id"]}</b> — {row["dominant_area"]} · {row["coverage_status"]} · {row[nearest_col]} min</span>'
-# duplicate for seamless scroll loop
-ticker_html = ticker_html + ticker_html
+def esc(x):
+    return html_lib.escape("" if x is None else str(x))
+
+def py(v):
+    """Make pandas/numpy values JSON-safe; NaN -> None."""
+    if v is None:
+        return None
+    if hasattr(v, "item"):
+        v = v.item()
+    if isinstance(v, float) and math.isnan(v):
+        return None
+    return v
+
 
 # ---------------------------------------------------------------------------
-# BUILD ALERT CARDS from real zone data
+# BUILD ZONE RECORDS
 # ---------------------------------------------------------------------------
-alert_cards_html = ""
-for _, row in coverage_sorted.iterrows():
-    is_gap = row["coverage_status"] == "GAP"
-    css_class = "crit" if is_gap else "ok"
-    icon = "🔴" if is_gap else "🟢"
-    nearest_hosp = row.get("nearest_capable_hospital", "N/A")
-    alert_cards_html += f"""
-    <div class="a-card {css_class}">
-      <div class="a-left">
-        <div class="a-rank">#{row['priority_rank']}</div>
-        <div class="a-icon">{icon}</div>
-        <div>
-          <div class="a-title">{row['zone_id']} — {row['dominant_area']}</div>
-          <div class="a-detail">{row['coverage_status']} · Risk score <b>{row['risk_score']}</b> · Nearest capable: <b>{nearest_hosp}</b></div>
-        </div>
-      </div>
-      <div class="a-right">
-        <div class="a-action">{row[nearest_col]} MIN TRAVEL</div>
-      </div>
-    </div>
-    """
+zone_info = zones.set_index("zone_id")
+hosp_xy = hospitals.set_index("name")[["latitude", "longitude"]]
+recs_by_zone = {}
+if recs is not None:
+    for _, r in recs.iterrows():
+        recs_by_zone[r["zone_id"]] = {k: py(v) for k, v in r.items()}
+
+zone_list = []
+for _, row in cov.iterrows():
+    zid = row["zone_id"]
+    zi = zone_info.loc[zid]
+    capable = py(row.get("nearest_capable_hospital"))
+    hlat = hlon = None
+    if capable in hosp_xy.index:
+        hlat, hlon = float(hosp_xy.loc[capable, "latitude"]), float(hosp_xy.loc[capable, "longitude"])
+    any_min = py(row[any_col]) if any_col else None
+    zone_list.append({
+        "id": zid,
+        "area": str(zi["dominant_area"]),
+        "lat": float(zi["centroid_lat"]), "lon": float(zi["centroid_lon"]),
+        "risk": float(row["risk_score"]),
+        "accidents": int(zi["accident_count"]), "fatal": int(zi["fatal_count"]),
+        "status": row["coverage_status"],
+        "mins": float(row[nearest_col]),
+        "hosp": capable, "hlat": hlat, "hlon": hlon,
+        "any_hosp": py(row.get("nearest_hospital_any")),
+        "any_min": any_min,
+        "rec": recs_by_zone.get(zid),
+    })
+
+n_total = len(zone_list)
+n_gap = sum(1 for z in zone_list if z["status"] == "GAP")
+all_mins = [z["mins"] for z in zone_list]
+for z in zone_list:
+    if z["rec"] and z["rec"].get("projected_definitive_min") is not None:
+        all_mins.append(float(z["rec"]["projected_definitive_min"]))
+SCALE = max(40, int(math.ceil(max(all_mins) / 10.0) * 10))
+
+def pct(m):
+    return min(100.0, float(m) / SCALE * 100.0)
+
+LIMIT_POS = pct(SAFE_WINDOW)
+
+# Hospital records (+ how many zones each one serves, + upgrade candidates)
+serves = {}
+for z in zone_list:
+    if z["hosp"]:
+        serves[z["hosp"]] = serves.get(z["hosp"], 0) + 1
+upgrade_names = {z["rec"]["upgrade_candidate"] for z in zone_list
+                 if z["rec"] and z["rec"].get("upgrade_candidate")}
+
+hosp_records = []
+for _, h in hospitals.iterrows():
+    hosp_records.append({
+        "name": h["name"], "lat": float(h["latitude"]), "lon": float(h["longitude"]),
+        "tier": int(h["trauma_tier"]), "icu": int(h["icu_beds"]),
+        "cath": bool(h["has_cath_lab"]), "vent": bool(h["has_ventilator_bank"]),
+        "serves": serves.get(h["name"], 0), "upgrade": h["name"] in upgrade_names,
+    })
 
 # ---------------------------------------------------------------------------
-# BUILD RECOMMENDATION CARDS (gap zones only) from chennai_recommendations.csv
+# HEADLINE TEXT
 # ---------------------------------------------------------------------------
-recs_html = ""
-if recs is None:
-    recs_html = '<div class="fix-note">No recommendations file yet. Run <b>python recommend_actions.py</b> from the scripts folder, then reload.</div>'
+if n_gap == 0:
+    headline = f"All {n_total} high-risk zones are within {SAFE_WINDOW} minutes of a trauma-capable hospital."
 else:
-    gap_recs = recs[recs["current_status"] == "GAP"]
-    if gap_recs.empty:
-        recs_html = '<div class="fix-note">No gap zones, so no fixes are needed.</div>'
-    for _, r in gap_recs.iterrows():
-        status = str(r["projected_status"])
-        if status == "COVERED":
-            cls = "ok"
-        elif status == "IMPROVED":
-            cls = "warn"
-        else:
-            cls = "crit"
-        post_txt = ""
-        if pd.notna(r.get("post_first_care_min")) and str(r.get("post_first_care_min")) != "":
-            post_txt = f' · Ambulance post first-care ≈ <b>{int(float(r["post_first_care_min"]))} min</b> (assumed)'
-        recs_html += f"""
-        <div class="a-card {cls}">
-          <div class="a-left">
-            <div class="a-rank">#{int(r['priority'])}</div>
-            <div>
-              <div class="a-title">{r['zone_id']} — {r['area']}</div>
-              <div class="a-detail">{r['recommended_action']}</div>
-              <div class="a-detail">Now <b>{r['current_min']} min</b> → after fix <b>{r['projected_definitive_min']} min</b> · {status}{post_txt}</div>
-            </div>
-          </div>
-          <div class="a-right">
-            <div class="a-action">SAVES {r['minutes_saved']} MIN</div>
-          </div>
-        </div>
-        """
+    headline = f"{n_gap} of {n_total} high-risk zones are more than {SAFE_WINDOW} minutes from a trauma-capable hospital."
+
+worst = max(zone_list, key=lambda z: z["mins"])
+sub_parts = [f"Slowest: {worst['area']} at {worst['mins']:.1f} minutes."]
+if recs is not None:
+    gap_recs = [z["rec"] for z in zone_list if z["status"] == "GAP" and z["rec"]]
+    closed = sum(1 for r in gap_recs if r.get("projected_status") == "COVERED")
+    improved = sum(1 for r in gap_recs if r.get("projected_status") == "IMPROVED")
+    newfac = len(gap_recs) - closed - improved
+    if gap_recs:
+        sub_parts.append(f"The recommended fixes close {closed}, improve {improved}, and {newfac} need a new facility.")
+subline = " ".join(sub_parts)
 
 # ---------------------------------------------------------------------------
-# BUILD RADAR DOTS -- place gap zones as red dots, covered as green dots
+# HTML FRAGMENTS BUILT IN PYTHON
 # ---------------------------------------------------------------------------
-radar_dots_html = ""
-positions = [(30,60),(65,30),(45,75),(75,55),(25,35),(55,45)]
-for i, (_, row) in enumerate(coverage_sorted.iterrows()):
-    if i >= len(positions):
-        break
-    top, left = positions[i]
-    color = "var(--red)" if row["coverage_status"] == "GAP" else "var(--green)"
-    radar_dots_html += f'<div class="radar-dot" style="top:{top}%; left:{left}%; background:{color}; box-shadow:0 0 8px {color};"></div>'
+def bar(minutes, cls):
+    return (f'<div class="tbar"><i class="fill {cls}" style="width:{pct(minutes):.1f}%"></i>'
+            f'<b class="mark" style="left:{LIMIT_POS:.1f}%"></b></div>')
 
-routing_label = "LIVE traffic routing (TomTom)" if USING_LIVE else "APPROXIMATE routing — run compute_travel_time.py for live results"
+def status_cls(status):
+    return "gap" if status == "GAP" else "ok"
+
+def status_label(status):
+    return "Gap" if status == "GAP" else "Covered"
+
+zone_rows = ""
+for z in zone_list:
+    cls = status_cls(z["status"])
+    zone_rows += f"""
+    <button class="zrow" data-id="{esc(z['id'])}" onclick="selectZone('{esc(z['id'])}', true)">
+      <span class="zrow-top"><span class="zname">{esc(z['area'])}</span><span class="chip {cls}">{status_label(z['status'])}</span></span>
+      {bar(z['mins'], cls)}
+      <span class="zmin"><b>{z['mins']:.1f} min</b> to {esc(z['hosp'] or 'no capable hospital')}</span>
+    </button>"""
+
+REC_STYLE = {
+    "COVERED": ("ok", "Closes the gap"),
+    "IMPROVED": ("warn", "Improves it, still over the limit"),
+}
+
+def rec_style(status):
+    return REC_STYLE.get(status, ("gap", "Needs a new facility"))
+
+fix_cards = ""
+if recs is None:
+    fix_cards = ('<div class="empty">No recommendations yet. Run <code>python scripts\\recommend_actions.py</code> '
+                 'and reload this page.</div>')
+else:
+    for z in zone_list:
+        r = z["rec"]
+        if z["status"] != "GAP" or not r:
+            continue
+        cls, label = rec_style(r.get("projected_status"))
+        after = float(r["projected_definitive_min"])
+        post = r.get("post_first_care_min")
+        post_txt = (f'<p class="note">An ambulance post would give first care in about {int(float(post))} minutes. '
+                    f'This figure is an assumption.</p>') if post not in (None, "") else ""
+        fix_cards += f"""
+        <article class="fix">
+          <header><h4>{esc(z['area'])}</h4><span class="chip {cls}">{label}</span></header>
+          <p class="act">{esc(r['recommended_action'])}</p>
+          <div class="ba"><span class="ba-l">Now</span>{bar(z['mins'], 'gap')}<span class="ba-v">{z['mins']:.1f} min</span></div>
+          <div class="ba"><span class="ba-l">After</span>{bar(after, cls)}<span class="ba-v">{after:.1f} min</span></div>
+          {post_txt}
+        </article>"""
+    if not fix_cards:
+        fix_cards = '<div class="empty">No gap zones, so no fixes are needed.</div>'
+
+hosp_rows = ""
+for h in sorted(hosp_records, key=lambda x: (x["tier"], -x["serves"], x["name"])):
+    tag = ' <span class="chip warn">Upgrade candidate</span>' if h["upgrade"] else ""
+    hosp_rows += f"""
+    <tr>
+      <td>{esc(h['name'])}{tag}</td>
+      <td><span class="tier t{h['tier']}">Tier {h['tier']}</span></td>
+      <td class="num">{h['icu']}</td>
+      <td>{'Yes' if h['cath'] else 'No'}</td>
+      <td>{'Yes' if h['vent'] else 'No'}</td>
+      <td class="num">{h['serves']}</td>
+    </tr>"""
+
+pulled = ""
+if "data_pulled_at" in coverage.columns:
+    pulled = f"Travel times were pulled on {esc(coverage['data_pulled_at'].iloc[0])}. Traffic changes through the day, so a different time can give different results."
+routing_note = ("Travel times come from TomTom's routing service with live traffic."
+                if USING_LIVE else
+                "Travel times are rough estimates (straight-line distance with a traffic factor). Run compute_travel_time.py for real routing.")
+
+notes_html = f"""
+<ul class="notes">
+  <li><b>Accident locations are simulated.</b> India does not publish crash coordinates, so points were scattered around six known accident-prone junctions. Severity mix follows real 2023 Tamil Nadu totals.</li>
+  <li><b>The six zones were planted.</b> Finding six clusters is expected. The useful result is the coverage analysis, not the clustering.</li>
+  <li><b>Hospital capabilities are simulated.</b> Names and locations are real. ICU beds, cath labs and ventilators are estimates.</li>
+  <li><b>{esc(routing_note)}</b> {pulled}</li>
+  <li><b>The ambulance-post time (8 minutes) is an assumption.</b> A post shortens time to first care, not time to the hospital.</li>
+  <li><b>Map lines are straight lines,</b> not the road route. The times shown are for the real road route.</li>
+</ul>"""
+
+map_data = {
+    "safe": SAFE_WINDOW, "scale": SCALE, "limit": LIMIT_POS,
+    "zones": zone_list, "hospitals": hosp_records,
+}
+data_json = json.dumps(map_data).replace("</", "<\\/")
+source_label = "Live traffic routing" if USING_LIVE else "Estimated routing"
+mode_label = "Live simulation on" if live_mode else "Saved results"
 
 # ---------------------------------------------------------------------------
-# FULL HTML (design system reused from the original mockup, values injected)
+# PAGE TEMPLATE
 # ---------------------------------------------------------------------------
-html = f"""
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
+TEMPLATE = r"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
-  :root{{
-    --bg:#090C11; --panel:#10141B; --panel-raised:#141922; --line:#212836; --line-bright:#2E3A4D;
-    --ink:#DCE3EC; --ink-dim:#64738A; --ink-mid:#93A2B8;
-    --red:#FF4B4B; --red-dim:rgba(255,75,75,0.12);
-    --amber:#FFB238; --amber-dim:rgba(255,178,56,0.12);
-    --green:#34E0A1; --green-dim:rgba(52,224,161,0.12);
-    --blue:#4FA3FF; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
-  }}
-  *{{box-sizing:border-box; margin:0; padding:0;}}
-  body{{background:var(--bg); color:var(--ink); font-family:var(--sans);}}
-  .ticker-wrap{{background:#050709; border-bottom:1px solid var(--line); overflow:hidden; white-space:nowrap; padding:9px 0;}}
-  .ticker-track{{display:inline-flex; animation:scroll-left 28s linear infinite;}}
-  .ticker-item{{font-family:var(--mono); font-size:11.5px; padding:0 28px; display:inline-flex; align-items:center; gap:8px; color:var(--ink-mid); border-right:1px solid var(--line);}}
-  .ticker-item.crit{{color:var(--red);}}
-  @keyframes scroll-left{{0%{{transform:translateX(0);}} 100%{{transform:translateX(-50%);}}}}
-  .header{{padding:22px 32px 18px 32px; display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--line);}}
-  .h-eyebrow{{font-family:var(--mono); font-size:10.5px; letter-spacing:3px; color:var(--green); text-transform:uppercase; margin-bottom:8px;}}
-  .h-title{{font-size:24px; font-weight:800;}}
-  .h-sub{{font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); margin-top:6px;}}
-  .status-pill{{display:inline-flex; align-items:center; gap:7px; background:var(--green-dim); border:1px solid rgba(52,224,161,0.3); color:var(--green); padding:6px 12px; border-radius:20px; font-family:var(--mono); font-size:11px; font-weight:600;}}
-  .status-dot{{width:6px; height:6px; border-radius:50%; background:var(--green); animation:blink 1.6s infinite;}}
-  @keyframes blink{{0%,100%{{opacity:1;}} 50%{{opacity:0.25;}}}}
-  .wrap{{padding:24px 32px;}}
-  .counters{{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:26px;}}
-  .counter{{background:var(--panel); padding:20px 22px;}}
-  .counter-num{{font-family:var(--mono); font-size:32px; font-weight:700;}}
-  .counter-num.red{{color:var(--red);}} .counter-num.green{{color:var(--green);}} .counter-num.amber{{color:var(--amber);}}
-  .counter-label{{font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.8px; margin-top:8px;}}
-  .section{{margin-bottom:28px;}}
-  .section-title{{font-family:var(--mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-mid); display:flex; align-items:center; gap:10px; margin-bottom:14px;}}
-  .section-title::before{{content:''; width:3px; height:14px; background:var(--green); display:inline-block;}}
-  .console{{background:var(--panel); border:1px solid var(--line-bright); border-radius:12px; overflow:hidden;}}
-  .console-body{{display:grid; grid-template-columns:220px 1fr;}}
-  .radar-box{{padding:22px; border-right:1px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;}}
-  .radar{{width:160px; height:160px; border-radius:50%; border:1px solid var(--line-bright); position:relative; background:repeating-radial-gradient(circle, transparent 0, transparent 25px, var(--line) 26px);}}
-  .radar-sweep{{position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, rgba(52,224,161,0.35), transparent 60deg); animation:sweep 3.2s linear infinite;}}
-  @keyframes sweep{{100%{{transform:rotate(360deg);}}}}
-  .radar-dot{{position:absolute; width:6px; height:6px; border-radius:50%;}}
-  .radar-center{{position:absolute; top:50%; left:50%; width:6px; height:6px; background:var(--green); border-radius:50%; transform:translate(-50%,-50%);}}
-  .radar-caption{{font-family:var(--mono); font-size:9.5px; color:var(--ink-dim); text-align:center;}}
-  .console-main{{padding:20px 24px;}}
-  .cc-line{{font-family:var(--mono); font-size:12px; margin-bottom:9px;}}
-  .cc-label{{color:var(--ink-dim);}} .cc-val{{color:var(--ink); font-weight:600;}}
-  .alert-grid{{display:flex; flex-direction:column; gap:10px;}}
-  .a-card{{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--line); border-radius:8px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:16px;}}
-  .a-card.crit{{border-left-color:var(--red);}} .a-card.ok{{border-left-color:var(--green);}} .a-card.warn{{border-left-color:var(--amber);}}
-  .a-left{{display:flex; gap:12px; align-items:flex-start;}}
-  .a-title{{font-weight:700; font-size:13px; margin-bottom:3px;}}
-  .a-detail{{font-size:11.5px; color:var(--ink-mid); margin-bottom:2px;}}
-  .a-action{{font-family:var(--mono); font-size:10px; padding:6px 10px; border-radius:5px; border:1px solid var(--line-bright); color:var(--ink-mid); white-space:nowrap;}}
-  .a-rank{{font-family:var(--mono); font-size:11px; font-weight:700; color:var(--ink-dim); background:var(--panel-raised); border:1px solid var(--line-bright); border-radius:5px; padding:2px 7px; align-self:flex-start; margin-top:1px;}}
-  .fix-note{{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); margin-top:10px; line-height:1.6;}}
-</style></head>
-<body>
-  <div class="ticker-wrap"><div class="ticker-track">{ticker_html}</div></div>
-  <div class="header">
-    <div>
-      <div class="h-eyebrow">Module 04 · Coverage & Referral Intelligence</div>
-      <div class="h-title">Emergency Readiness Console</div>
-      <div class="h-sub">{routing_label} · {len(hospitals)} hospitals · {len(zones)} zones</div>
-    </div>
-    <div class="status-pill"><span class="status-dot"></span>{'LIVE SIM · ' + datetime.now().strftime('%H:%M:%S') if live_mode else 'STATIC DATA'}</div>
-  </div>
-  <div class="wrap">
-    <div class="counters">
-      <div class="counter"><div class="counter-num red">{n_gap}</div><div class="counter-label">Zones — Coverage Gap</div></div>
-      <div class="counter"><div class="counter-num green">{n_covered}</div><div class="counter-label">Zones — Covered</div></div>
-      <div class="counter"><div class="counter-num amber">{total_accidents}</div><div class="counter-label">Total Simulated Accidents</div></div>
-      <div class="counter"><div class="counter-num red">{total_fatal}</div><div class="counter-label">Fatal Accidents</div></div>
-    </div>
+  :root{
+    --paper:#EEF1EF; --card:#FFFFFF; --ink:#12262D; --ink2:#4B6068; --line:#D5DDDA;
+    --gap:#C93A24; --gap-bg:#FBE9E5; --ok:#1C8160; --ok-bg:#E3F3EC;
+    --warn:#A86F00; --warn-bg:#FAF0D6; --hosp:#2554C7;
+    --sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-variant-numeric:tabular-nums;line-height:1.45}
+  .shell{max-width:1280px;margin:0 auto;padding:8px 6px 28px}
+  button{font:inherit;color:inherit}
+  button:focus-visible,.tab:focus-visible{outline:3px solid var(--hosp);outline-offset:2px}
 
-    <div class="section">
-      <div class="section-title">Zone Radar</div>
-      <div class="console">
-        <div class="console-body">
-          <div class="radar-box">
-            <div class="radar">
-              <div class="radar-sweep"></div>
-              <div class="radar-center"></div>
-              {radar_dots_html}
-            </div>
-            <div class="radar-caption">{len(zones)} zones scanned</div>
-          </div>
-          <div class="console-main">
-            <div class="cc-line"><span class="cc-label">highest_risk_zone:</span> <span class="cc-val">{coverage_sorted.iloc[0]['zone_id']} — {coverage_sorted.iloc[0]['dominant_area']}</span></div>
-            <div class="cc-line"><span class="cc-label">risk_score:</span> <span class="cc-val">{coverage_sorted.iloc[0]['risk_score']}</span></div>
-            <div class="cc-line"><span class="cc-label">nearest_capable_hospital:</span> <span class="cc-val">{coverage_sorted.iloc[0].get('nearest_capable_hospital','N/A')}</span></div>
-            <div class="cc-line"><span class="cc-label">travel_time:</span> <span class="cc-val">{coverage_sorted.iloc[0][nearest_col]} min</span></div>
-            <div class="cc-line"><span class="cc-label">status:</span> <span class="cc-val">{coverage_sorted.iloc[0]['coverage_status']}</span></div>
-          </div>
-        </div>
+  .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .kicker{font-size:13px;color:var(--ink2);font-weight:500}
+  .meta{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
+  h1{font-size:clamp(26px,3.4vw,40px);line-height:1.12;font-weight:800;letter-spacing:-0.02em;max-width:26ch;margin:6px 0 10px}
+  .lede{font-size:16px;color:var(--ink2);max-width:62ch;margin-bottom:22px}
+
+  .main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:18px;align-items:start}
+  .mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#DDE6E3;height:660px}
+  #map{position:absolute;inset:0}
+  .maperr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:30px;color:var(--ink2);font-weight:500}
+  .legend{position:absolute;left:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;display:grid;gap:6px}
+  .legend div{display:flex;align-items:center;gap:8px}
+  .sw{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .sw.sq{border-radius:3px}
+  .sw.ln{width:18px;height:0;border-top:2px dashed var(--ink2);border-radius:0}
+
+  .side{display:grid;gap:14px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .panel-h{display:flex;justify-content:space-between;align-items:baseline;margin:2px 4px 10px}
+  .panel-h h2{font-size:15px;font-weight:700}
+  .panel-h span{font-size:12px;color:var(--ink2)}
+  .zrow{display:grid;gap:7px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:12px;padding:10px;cursor:pointer}
+  .zrow:hover{background:#F5F8F7}
+  .zrow.sel{background:#F0F5F3;border-color:var(--ink)}
+  .zrow-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .zname{font-weight:700;font-size:14.5px}
+  .zmin{font-size:12.5px;color:var(--ink2)}
+  .zmin b{color:var(--ink)}
+
+  .chip{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .chip.gap{background:var(--gap-bg);color:var(--gap)}
+  .chip.ok{background:var(--ok-bg);color:var(--ok)}
+  .chip.warn{background:var(--warn-bg);color:var(--warn)}
+
+  .tbar{position:relative;height:10px;background:#E6ECEA;border-radius:5px;overflow:visible}
+  .tbar .fill{display:block;height:100%;border-radius:5px}
+  .fill.gap{background:var(--gap)} .fill.ok{background:var(--ok)} .fill.warn{background:#D9A21B}
+  .tbar .mark{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:1px}
+
+  .detail h3{font-size:18px;font-weight:800;margin-bottom:2px}
+  .detail .sub{font-size:13px;color:var(--ink2);margin-bottom:12px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13.5px}
+  .kv dt{color:var(--ink2)} .kv dd{font-weight:600;text-align:right}
+  .fixbox{margin-top:14px;padding:12px;border-radius:12px;background:#F5F8F7;font-size:13.5px}
+  .fixbox b{display:block;margin-bottom:3px}
+
+  .tabs{margin-top:26px}
+  .tablist{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .tab{background:none;border:none;border-bottom:3px solid transparent;padding:10px 16px;font-weight:700;font-size:14.5px;color:var(--ink2);cursor:pointer;margin-bottom:-1px}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+  .pane{display:none} .pane.show{display:block}
+
+  .fixes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .fix{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .fix header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+  .fix h4{font-size:17px;font-weight:800}
+  .fix .act{font-size:14.5px;margin-bottom:14px}
+  .ba{display:grid;grid-template-columns:44px 1fr 62px;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+  .ba-l{color:var(--ink2);font-weight:600} .ba-v{font-weight:700;text-align:right}
+  .note{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+  th{text-align:left;font-size:12.5px;color:var(--ink2);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--line)}
+  td{padding:11px 14px;border-bottom:1px solid #EAF0EE}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+  .tier{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;background:#E8EEF9;color:var(--hosp)}
+  .tier.t2{background:#EEF1EF;color:var(--ink2)} .tier.t3{background:var(--warn-bg);color:var(--warn)}
+
+  .notes{display:grid;gap:12px;list-style:none;max-width:78ch}
+  .notes li{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14.5px}
+  .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:22px;color:var(--ink2)}
+  code{background:#E6ECEA;padding:2px 6px;border-radius:5px;font-size:13px}
+
+  .leaflet-tooltip{font-family:var(--sans);font-weight:600;border-radius:8px}
+  @media (max-width:900px){.main{grid-template-columns:1fr}.mapwrap{height:460px}}
+</style></head>
+<body><div class="shell">
+
+  <div class="top">
+    <div class="kicker">Chennai accident hotspots and emergency coverage</div>
+    <div class="meta"><span class="pill">__SOURCE__</span><span class="pill">__MODE__</span><span class="pill">__NHOSP__ hospitals</span></div>
+  </div>
+  <h1>__HEADLINE__</h1>
+  <p class="lede">__SUBLINE__</p>
+
+  <div class="main">
+    <div class="mapwrap">
+      <div id="map"></div>
+      <div class="maperr" id="maperr">The map could not load. It needs an internet connection for map tiles. The list and tabs still work.</div>
+      <div class="legend">
+        <div><span class="sw" style="background:var(--gap)"></span>Zone over the limit</div>
+        <div><span class="sw" style="background:var(--ok)"></span>Zone within the limit</div>
+        <div><span class="sw sq" style="background:var(--hosp)"></span>Hospital</div>
+        <div><span class="sw ln"></span>Nearest trauma-capable hospital</div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Active Zone Alerts</div>
-      <div class="alert-grid">{alert_cards_html}</div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Recommended Fixes — Gap Zones</div>
-      <div class="alert-grid">{recs_html}</div>
-      <div class="fix-note">Green = fix closes the gap · Amber = improved but still above the 20 min window · Red = no existing hospital can fix it, a new facility is needed. Ambulance-post first-care time is an assumption, not measured data. Recommendations reflect the last run of recommend_actions.py.</div>
+    <div class="side">
+      <section class="panel">
+        <div class="panel-h"><h2>Zones by risk</h2><span>Black line = __SAFE__ minute limit</span></div>
+        __ZONEROWS__
+      </section>
+      <section class="panel detail" id="detail" aria-live="polite"></section>
     </div>
   </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist">
+      <button class="tab" role="tab" id="t-fixes" aria-selected="true" onclick="showTab('fixes')">Recommended fixes</button>
+      <button class="tab" role="tab" id="t-hosp" aria-selected="false" onclick="showTab('hosp')">Hospitals</button>
+      <button class="tab" role="tab" id="t-notes" aria-selected="false" onclick="showTab('notes')">About the data</button>
+    </div>
+    <div class="pane show" id="p-fixes"><div class="fixes">__FIXES__</div></div>
+    <div class="pane" id="p-hosp"><div class="tablewrap"><table>
+      <thead><tr><th>Hospital</th><th>Trauma tier</th><th class="num">ICU beds</th><th>Cath lab</th><th>Ventilators</th><th class="num">Zones served</th></tr></thead>
+      <tbody>__HOSPROWS__</tbody></table></div></div>
+    <div class="pane" id="p-notes">__NOTES__</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const D = __DATA__;
+const byId = Object.fromEntries(D.zones.map(z => [z.id, z]));
+const markers = {};
+let map = null;
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+const REC = { COVERED:['ok','Closes the gap'], IMPROVED:['warn','Improves it, still over the limit'] };
+
+function renderDetail(z){
+  const gap = z.status === 'GAP';
+  let h = '<h3>' + esc(z.area) + '</h3>';
+  h += '<p class="sub">' + esc(z.id) + ', ' + z.accidents + ' simulated accidents, ' + z.fatal + ' fatal, risk score ' + z.risk + '</p>';
+  h += '<dl class="kv">';
+  h += '<dt>Status</dt><dd><span class="chip ' + (gap ? 'gap' : 'ok') + '">' + (gap ? 'Gap' : 'Covered') + '</span></dd>';
+  h += '<dt>Nearest trauma-capable hospital</dt><dd>' + esc(z.hosp || 'None found') + '</dd>';
+  h += '<dt>Travel time</dt><dd>' + z.mins.toFixed(1) + ' min</dd>';
+  if (z.any_hosp && z.any_hosp !== z.hosp) {
+    h += '<dt>Closest hospital of any tier</dt><dd>' + esc(z.any_hosp) + ', ' + Number(z.any_min).toFixed(1) + ' min</dd>';
+    h += '<dt>Delay from skipping it</dt><dd>' + (z.mins - z.any_min).toFixed(1) + ' min</dd>';
+  }
+  h += '</dl>';
+  if (z.rec && gap) {
+    const st = REC[z.rec.projected_status] || ['gap','Needs a new facility'];
+    h += '<div class="fixbox"><b>Recommended fix</b>' + esc(z.rec.recommended_action) +
+         '<div style="margin-top:8px"><span class="chip ' + st[0] + '">' + st[1] + '</span> ' +
+         Number(z.rec.projected_definitive_min).toFixed(1) + ' min after the fix</div></div>';
+  } else if (!gap) {
+    h += '<div class="fixbox"><b>No action needed</b>This zone is within the ' + D.safe + ' minute limit.</div>';
+  }
+  document.getElementById('detail').innerHTML = h;
+}
+
+function selectZone(id, fly){
+  const z = byId[id]; if (!z) return;
+  document.querySelectorAll('.zrow').forEach(r => r.classList.toggle('sel', r.dataset.id === id));
+  renderDetail(z);
+  if (map && fly) {
+    map.flyTo([z.lat, z.lon], 13, {duration: 0.8});
+    if (markers[id]) markers[id].openTooltip();
+  }
+}
+
+function showTab(name){
+  ['fixes','hosp','notes'].forEach(n => {
+    document.getElementById('p-' + n).classList.toggle('show', n === name);
+    document.getElementById('t-' + n).setAttribute('aria-selected', n === name ? 'true' : 'false');
+  });
+}
+
+function initMap(){
+  if (typeof L === 'undefined') { document.getElementById('maperr').style.display = 'flex'; return; }
+  map = L.map('map', {zoomControl: true, scrollWheelZoom: false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18, attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  }).addTo(map);
+
+  const risks = D.zones.map(z => z.risk), rmin = Math.min(...risks), rmax = Math.max(...risks);
+  const bounds = [];
+
+  D.zones.forEach(z => {
+    if (z.hlat != null) {
+      L.polyline([[z.lat, z.lon], [z.hlat, z.hlon]], {
+        color: z.status === 'GAP' ? '#C93A24' : '#1C8160',
+        weight: z.status === 'GAP' ? 3 : 2, opacity: .7, dashArray: '6 6'
+      }).addTo(map);
+    }
+  });
+
+  D.hospitals.forEach(h => {
+    const size = h.tier === 1 ? 14 : 11;
+    const icon = L.divIcon({
+      className: '',
+      html: '<div style="width:' + size + 'px;height:' + size + 'px;background:#2554C7;border:2px solid #fff;border-radius:3px;' +
+            (h.upgrade ? 'box-shadow:0 0 0 3px #D9A21B;' : 'box-shadow:0 0 0 1px rgba(0,0,0,.25);') + '"></div>',
+      iconSize: [size, size]
+    });
+    L.marker([h.lat, h.lon], {icon}).addTo(map)
+      .bindTooltip(esc(h.name) + ', tier ' + h.tier + (h.upgrade ? ' (upgrade candidate)' : ''));
+    bounds.push([h.lat, h.lon]);
+  });
+
+  D.zones.forEach(z => {
+    const r = 10 + (z.risk - rmin) / (rmax - rmin + 1e-9) * 8;
+    const m = L.circleMarker([z.lat, z.lon], {
+      radius: r, color: '#fff', weight: 2, fillOpacity: .92,
+      fillColor: z.status === 'GAP' ? '#C93A24' : '#1C8160'
+    }).addTo(map).bindTooltip(esc(z.area) + ', ' + z.mins.toFixed(1) + ' min');
+    m.on('click', () => selectZone(z.id, false));
+    markers[z.id] = m;
+    bounds.push([z.lat, z.lon]);
+  });
+
+  map.fitBounds(bounds, {padding: [30, 30]});
+}
+
+initMap();
+const first = D.zones.find(z => z.status === 'GAP') || D.zones[0];
+if (first) selectZone(first.id, false);
+</script>
 </body></html>
 """
 
-components.html(html, height=1650, scrolling=True)
+page = (TEMPLATE
+        .replace("__SOURCE__", esc(source_label))
+        .replace("__MODE__", esc(mode_label))
+        .replace("__NHOSP__", str(len(hosp_records)))
+        .replace("__HEADLINE__", esc(headline))
+        .replace("__SUBLINE__", esc(subline))
+        .replace("__SAFE__", str(SAFE_WINDOW))
+        .replace("__ZONEROWS__", zone_rows)
+        .replace("__FIXES__", fix_cards)
+        .replace("__HOSPROWS__", hosp_rows)
+        .replace("__NOTES__", notes_html)
+        .replace("__DATA__", data_json))
 
-# ---------------------------------------------------------------------------
-# REAL MAP -- actual hospital + zone locations, color-coded by status
-# ---------------------------------------------------------------------------
-st.markdown("### 🗺️ Zone & Hospital Map")
-st.caption("Red = coverage gap zone · Green = covered zone · Blue = hospital")
+components.html(page, height=1600, scrolling=True)
 
-import pydeck as pdk
-
-zone_map_df = coverage_sorted.copy()
-zone_map_df["color"] = zone_map_df["coverage_status"].apply(
-    lambda s: [255, 75, 75, 200] if s == "GAP" else [52, 224, 161, 200]
-)
-zone_map_df["label"] = zone_map_df["zone_id"] + " — " + zone_map_df["dominant_area"]
-zone_map_df["radius"] = zone_map_df["risk_score"] * 8  # bigger dot = higher risk
-
-hosp_map_df = hospitals.copy()
-hosp_map_df["color"] = [[74, 163, 255, 200]] * len(hosp_map_df)
-hosp_map_df["label"] = hosp_map_df["name"]
-
-# --- Build route lines: each zone -> its nearest capable hospital ---
-hosp_lookup = hospitals.set_index("name")[["latitude", "longitude"]]
-route_rows = []
-for _, row in zone_map_df.iterrows():
-    hosp_name = row.get("nearest_capable_hospital")
-    if hosp_name in hosp_lookup.index:
-        h = hosp_lookup.loc[hosp_name]
-        route_rows.append({
-            "from_lon": row["centroid_lon"], "from_lat": row["centroid_lat"],
-            "to_lon": h["longitude"], "to_lat": h["latitude"],
-            "color": row["color"],
-            "label": f"{row['zone_id']} → {hosp_name} ({row[nearest_col]} min)",
-        })
-route_df = pd.DataFrame(route_rows)
-
-zone_layer = pdk.Layer(
-    "ScatterplotLayer",
-    data=zone_map_df,
-    get_position="[centroid_lon, centroid_lat]",
-    get_fill_color="color",
-    get_radius="radius",
-    radius_min_pixels=8,
-    radius_max_pixels=40,
-    pickable=True,
-)
-
-hosp_layer = pdk.Layer(
-    "ScatterplotLayer",
-    data=hosp_map_df,
-    get_position="[longitude, latitude]",
-    get_fill_color="color",
-    get_radius=180,
-    radius_min_pixels=6,
-    radius_max_pixels=20,
-    pickable=True,
-    stroked=True,
-    get_line_color=[255, 255, 255, 180],
-    line_width_min_pixels=1,
-)
-
-route_layer = pdk.Layer(
-    "LineLayer",
-    data=route_df,
-    get_source_position="[from_lon, from_lat]",
-    get_target_position="[to_lon, to_lat]",
-    get_color="color",
-    get_width=2.5,
-    pickable=True,
-)
-
-view_state = pdk.ViewState(
-    latitude=float(zones["centroid_lat"].mean()),
-    longitude=float(zones["centroid_lon"].mean()),
-    zoom=10.3,
-    pitch=0,
-)
-
-st.pydeck_chart(pdk.Deck(
-    layers=[route_layer, zone_layer, hosp_layer],
-    initial_view_state=view_state,
-    map_style="dark",
-    tooltip={"text": "{label}"},
-))
-st.caption("Lines show each zone's route to its nearest *capable* hospital (straight-line, not the real road path). Hover any dot to see its name — overlapping hospitals separate as you zoom in.")
-
-# ---------------------------------------------------------------------------
-# READABLE ZONE -> REGION LOOKUP TABLE (answers "what area is ZONE-04?")
-# ---------------------------------------------------------------------------
-st.markdown("### 📍 Zone Reference — What Area Each Zone Covers")
-st.dataframe(
-    coverage_sorted[["priority_rank", "zone_id", "dominant_area", "risk_score",
-                      "coverage_status", "nearest_capable_hospital", nearest_col]]
-    .rename(columns={
-        "priority_rank": "Rank", "zone_id": "Zone", "dominant_area": "Region / Area",
-        "risk_score": "Risk Score", "coverage_status": "Status",
-        "nearest_capable_hospital": "Nearest Capable Hospital", nearest_col: "Travel Time (min)"
-    }),
-    width='stretch', hide_index=True
-)
-
-# ---------------------------------------------------------------------------
-# FULL RECOMMENDATIONS TABLE (downloadable detail view)
-# ---------------------------------------------------------------------------
 if recs is not None:
-    st.markdown("### 🛠️ Recommendations — Full Detail")
-    st.dataframe(
-        recs[["priority", "zone_id", "area", "current_status", "current_min",
-              "recommended_action", "projected_definitive_min", "projected_status", "minutes_saved"]]
-        .rename(columns={
-            "priority": "Priority", "zone_id": "Zone", "area": "Area",
-            "current_status": "Now", "current_min": "Now (min)",
-            "recommended_action": "Recommended Action",
-            "projected_definitive_min": "After Fix (min)",
-            "projected_status": "After Fix", "minutes_saved": "Saved (min)"
-        }),
-        width='stretch', hide_index=True
-    )
+    st.download_button("Download recommendations (CSV)", data=recs.to_csv(index=False),
+                       file_name="chennai_recommendations.csv", mime="text/csv")

@@ -1,48 +1,51 @@
 """
 LIVE Travel-Time Routing (Hotspot -> Nearest Capable Hospital)
 -------------------------------------------------------------------
-Unlike compute_travel_time.py (static OSM road graph, no real-time
-traffic), this version calls the TomTom Routing API for EVERY
-zone->hospital pair, with traffic=true. That means the travel time
-reflects actual current congestion at the moment you run the script --
-this is genuinely "live," not a cached snapshot.
+Calls the TomTom Routing API for EVERY zone->hospital pair with
+traffic=true, so the travel time reflects actual congestion at the
+moment you run the script.
 
-Get a free API key (no credit card needed):
-    https://developer.tomtom.com/  -> Register -> create a key
-    Free tier: 2,500 requests/day, which is plenty for
-    (num_zones x num_hospitals) calls per run.
+THE API KEY IS NOT STORED IN THIS FILE.
+Set it once in PowerShell, then close and reopen PowerShell:
 
-Install first (one-time):
-    pip install requests pandas --break-system-packages
+    setx TOMTOM_API_KEY "your-new-key-here"
+
+Get a free key at https://developer.tomtom.com/
+Free tier: 2,500 requests/day (this script uses zones x hospitals per run).
 
 Input : chennai_hotspot_zones.csv   (from detect_hotspots.py)
         chennai_hospitals.csv       (from build_hospital_table.py)
 Output: chennai_coverage_results_LIVE.csv
-        -> for each hotspot zone: nearest hospital overall (any capability)
-           AND nearest hospital that meets a required capability
-           (e.g. trauma_tier <= 2), with LIVE traffic-aware travel
-           time in minutes, plus the timestamp the data was pulled.
+        -> for each hotspot zone: nearest hospital overall (any tier) AND
+           nearest hospital meeting the capability bar (trauma_tier <= 2),
+           with live traffic-aware travel time in minutes and the
+           timestamp the data was pulled.
 """
 
+import os
 import time
 from datetime import datetime
 
 import pandas as pd
 import requests
-import os
 
 # ---------------------------------------------------------------------------
-# 0. CONFIG -- put your TomTom API key here
+# 0. CONFIG -- key comes from the environment, never from this file
 # ---------------------------------------------------------------------------
-TOMTOM_API_KEY = "YOUR_ACTUAL_KEY_HERE"
+TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY")
+if not TOMTOM_API_KEY:
+    raise SystemExit(
+        "TOMTOM_API_KEY is not set.\n"
+        "Run:  setx TOMTOM_API_KEY \"your-new-key-here\"\n"
+        "Then close and reopen PowerShell and run this script again."
+    )
 
 REQUIRED_MAX_TIER = 2       # "capable" = trauma tier 1 or 2
-SAFE_WINDOW_MINUTES = 20    # your coverage threshold
-REQUEST_DELAY_SEC = 0.25    # be polite to the free tier / avoid rate limits
+SAFE_WINDOW_MINUTES = 20    # coverage threshold
+REQUEST_DELAY_SEC = 0.25    # stay within free-tier rate limits
 
 # ---------------------------------------------------------------------------
-# 1. Load your zone + hospital data (relative paths, same convention as
-#    your other scripts)
+# 1. Load zone + hospital data (relative paths)
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", "simulated")
@@ -53,17 +56,12 @@ hospitals = pd.read_csv(os.path.join(DATA_DIR, "chennai_hospitals.csv"))
 print(f"Loaded {len(zones)} hotspot zones and {len(hospitals)} hospitals")
 print(f"Total live routing calls needed this run: {len(zones) * len(hospitals)}\n")
 
-TOMTOM_API_KEY = "JFxdWes04WdBXCLFA9JgkbGz7CyUtcZD"
-
 # ---------------------------------------------------------------------------
 # 2. Helper: live traffic-aware travel time (minutes) between two points
 # ---------------------------------------------------------------------------
 def live_travel_time_minutes(orig_lat, orig_lon, dest_lat, dest_lon):
-    """
-    Calls TomTom's Routing API with traffic=true, so the returned
-    travelTimeInSeconds already accounts for current live congestion,
-    not just speed limits.
-    """
+    """TomTom Routing API with traffic=true: travelTimeInSeconds already
+    includes current congestion, not just speed limits."""
     url = (
         f"https://api.tomtom.com/routing/1/calculateRoute/"
         f"{orig_lat},{orig_lon}:{dest_lat},{dest_lon}/json"
@@ -80,14 +78,13 @@ def live_travel_time_minutes(orig_lat, orig_lon, dest_lat, dest_lon):
         seconds = data["routes"][0]["summary"]["travelTimeInSeconds"]
         return round(seconds / 60, 1)
     except (requests.RequestException, KeyError, IndexError) as e:
+        # Print the error type only, so the key (which is in the URL) never leaks into logs
         print(f"  [warn] routing failed for ({orig_lat},{orig_lon}) -> "
-              f"({dest_lat},{dest_lon}): {e}")
+              f"({dest_lat},{dest_lon}): {type(e).__name__}")
         return None
 
 # ---------------------------------------------------------------------------
-# 3. For each zone: find (a) nearest hospital overall, (b) nearest hospital
-#    that meets a minimum capability bar (trauma_tier 1 or 2)
-#    -- using LIVE traffic conditions at the moment this script runs.
+# 3. For each zone: nearest hospital overall, and nearest capable hospital
 # ---------------------------------------------------------------------------
 run_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 results = []
