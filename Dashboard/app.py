@@ -11,7 +11,8 @@ Run (from the Dashboard folder):  streamlit run app.py
 
 Module 1 (beds) and Module 4 (coverage) use real results.
 Module 2 (medicine) is recalculated from today's date every time the app loads.
-Module 3 (blood) is still SAMPLE data. Search for "SAMPLE" below.
+Module 3 (blood) uses real results when Dashboard/blood_bank/ exists, otherwise SAMPLE data.
+Medicine counts per hospital are still SAMPLE data. Search for "SAMPLE" below.
 """
 
 import math
@@ -36,6 +37,10 @@ def _find_dir(*names):
 
 
 BED_DIR = _find_dir("bed_occupancy", "bed occupancy")
+BLOOD_DIR = _find_dir("blood_bank", "blood bank", "blood-donation-forecasting-project-master")
+BLOOD_PAGE_FILE = os.path.join(_HERE, BLOOD_DIR, "scripts", "blood_page.py")
+BLOOD_RISK_FILE = os.path.join(_HERE, BLOOD_DIR, "outputs", "blood_risk.csv")
+BLOOD_REAL = os.path.exists(BLOOD_RISK_FILE) and os.path.exists(BLOOD_PAGE_FILE)   # Module 3 loaded?
 
 # Each module keeps its own dashboard file. ?view=<key> opens that dashboard unchanged;
 # the left-menu links open these addresses in a new browser tab.
@@ -162,8 +167,16 @@ def sample_module_status(hosp_df):
         })
     df = pd.DataFrame(rows).set_index("name")
     df["bed_high"] = False
-    # A deliberate sample story: the hospital most zones depend on has low blood
-    df.loc["Fortis Malar Hospital, Adyar", "blood_low"] = 2
+    if BLOOD_REAL:
+        # REAL Module 3: number of blood groups at HIGH shortage risk in each hospital
+        br = pd.read_csv(BLOOD_RISK_FILE)
+        high = br[br["risk_level"] == "High"].groupby("hospital_name").size()
+        df["blood_low"] = 0
+        common = df.index.intersection(high.index)
+        df.loc[common, "blood_low"] = high.loc[common].astype(int)
+    else:
+        # A deliberate sample story: the hospital most zones depend on has low blood
+        df.loc["Fortis Malar Hospital, Adyar", "blood_low"] = 2
     if BEDS_REAL:
         r = pd.read_csv(ROLLUP).set_index("hospital_name_department")
         common = df.index.intersection(r.index)
@@ -362,12 +375,27 @@ def render_patient_route():
     else:
         note = (f"Minutes for {ref_name} are real road times from TomTom. Other hospitals are estimated from distance "
                 "and scaled to match it. Run compute_travel_time.py to get real minutes for all of them.")
-    st.markdown(f'<span class="tag">Note</span> {note} {"Blood and medicine are" if BEDS_REAL else "Beds, blood and medicine are"} sample data until the other modules are connected.',
+    st.markdown(f'<span class="tag">Note</span> {note} {"Per-hospital medicine counts are" if (BEDS_REAL and BLOOD_REAL) else "Medicine, and any module not yet connected, is"} sample data until the other modules are connected.',
                 unsafe_allow_html=True)
 
 
 if page == "Where should the patient go?":
     render_patient_route()
+    st.stop()
+
+# ---------------------------------------------------------------------------
+# PAGE: Blood bank (Module 3), drawn by the module's own page file
+# ---------------------------------------------------------------------------
+if page == "Blood bank (Module 3)":
+    if not BLOOD_REAL:
+        st.title("Blood bank (Module 3)")
+        st.warning("Blood module not found. Put the friend's project folder at Dashboard/blood_bank/ "
+                   "(it must contain scripts/, outputs/ and data/simulated/).")
+        st.stop()
+    import sys
+    sys.path.insert(0, os.path.dirname(BLOOD_PAGE_FILE))
+       import blood_page  # type: ignore
+    blood_page.render()
     st.stop()
 
 # ---------------------------------------------------------------------------
@@ -425,7 +453,8 @@ kpi(c1, len(gap_zones), "Accident zones too far from a trauma hospital",
     f"of {len(cov)} zones, over {SAFE_WINDOW} min at the worst time of day", "bad" if len(gap_zones) else "good")
 kpi(c2, n_red, "Hospitals in trouble", f"{n_amber} more need care", "bad" if n_red else "good")
 kpi(c3, med_short, "Medicines below reorder level", med_sub, "mid" if med_short else "good")
-kpi(c4, int(hosp["blood_low"].sum()), "Blood groups running low", "across all hospitals (sample data)", "mid")
+kpi(c4, int(hosp["blood_low"].sum()), "Blood groups at high shortage risk",
+    "across all hospitals (Module 3 forecast)" if BLOOD_REAL else "across all hospitals (sample data)", "mid")
 
 st.write("")
 left, right = st.columns([1.7, 1])
@@ -485,6 +514,6 @@ table = table.sort_values("Status", key=lambda s: s.map(order))
 st.dataframe(table, hide_index=True, width="stretch")
 
 st.markdown(f'<span class="tag">Data note</span> {"Bed forecasts come from Module 1 (real results). " if BEDS_REAL else ""}'
-            f'Medicine KPIs on this page are real (recalculated today). {"Blood and" if BEDS_REAL else "Beds, blood and"} '
-            'per-hospital medicine counts are placeholders until those modules are connected. '
+            f'Medicine KPIs on this page are real (recalculated today). {"Blood bank forecasts come from Module 3 (simulated stock). " if BLOOD_REAL else ""}'
+            'Per-hospital medicine counts are placeholders until that module is connected. '
             'Accident-zone coverage is real routing data.', unsafe_allow_html=True)
