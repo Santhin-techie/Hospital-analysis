@@ -50,9 +50,9 @@ st.set_page_config(page_title="Emergency coverage - Chennai", layout="wide")
 # Make the Streamlit shell match the light theme and remove its chrome
 st.markdown("""
 <style>
-  .stApp { background:#EEF1EF; }
+  .stApp { background:#DCE9E5; }
   header[data-testid="stHeader"], #MainMenu, footer { display:none !important; }
-  .block-container { padding:1rem 1.5rem 2rem; max-width:1320px; }
+  .block-container { padding:1rem 1.5rem 2rem; max-width:100%; }
   .stApp label, .stApp p, .stApp span { color:#12262D; }
 </style>
 """, unsafe_allow_html=True)
@@ -92,6 +92,10 @@ recs = pd.read_csv(RECS_PATH) if os.path.exists(RECS_PATH) else None
 
 nearest_col = "nearest_capable_min" if "nearest_capable_min" in coverage.columns else "nearest_capable_min_APPROX"
 any_col = next((c for c in ("nearest_hospital_any_min", "nearest_any_min_APPROX") if c in coverage.columns), None)
+slot_cols = [c for c in coverage.columns if c.startswith("capable_min_")]
+HAS_SLOTS = len(slot_cols) > 0
+SLOT_LABELS = {"now": "Now (live)", "morning": "Morning peak 08:30", "midday": "Midday 13:00",
+               "evening": "Evening peak 18:00", "night": "Night 23:00"}
 
 cov = coverage.sort_values("risk_score", ascending=False).reset_index(drop=True)
 if live_mode:
@@ -148,6 +152,10 @@ for _, row in cov.iterrows():
         "any_hosp": py(row.get("nearest_hospital_any")),
         "any_min": any_min,
         "rec": recs_by_zone.get(zid),
+        "slots": {c[len("capable_min_"):]: py(row[c]) for c in slot_cols},
+        "worst_slot": py(row.get("worst_slot")),
+        "slots_over": py(row.get("slots_over_limit")),
+        "slots_n": py(row.get("slots_checked")),
     })
 
 n_total = len(zone_list)
@@ -183,13 +191,16 @@ for _, h in hospitals.iterrows():
 # ---------------------------------------------------------------------------
 # HEADLINE TEXT
 # ---------------------------------------------------------------------------
+when_ok = " at every time of day" if HAS_SLOTS else ""
+when_gap = " at their slowest time of day" if HAS_SLOTS else ""
 if n_gap == 0:
-    headline = f"All {n_total} high-risk zones are within {SAFE_WINDOW} minutes of a trauma-capable hospital."
+    headline = f"All {n_total} high-risk zones are within {SAFE_WINDOW} minutes of a trauma-capable hospital{when_ok}."
 else:
-    headline = f"{n_gap} of {n_total} high-risk zones are more than {SAFE_WINDOW} minutes from a trauma-capable hospital."
+    headline = f"{n_gap} of {n_total} high-risk zones are more than {SAFE_WINDOW} minutes from a trauma-capable hospital{when_gap}."
 
 worst = max(zone_list, key=lambda z: z["mins"])
-sub_parts = [f"Slowest: {worst['area']} at {worst['mins']:.1f} minutes."]
+worst_when = f" ({worst['worst_slot']})" if worst.get("worst_slot") else ""
+sub_parts = [f"Slowest: {worst['area']} at {worst['mins']:.1f} minutes{worst_when}."]
 if recs is not None:
     gap_recs = [z["rec"] for z in zone_list if z["status"] == "GAP" and z["rec"]]
     closed = sum(1 for r in gap_recs if r.get("projected_status") == "COVERED")
@@ -219,7 +230,7 @@ for z in zone_list:
     <button class="zrow" data-id="{esc(z['id'])}" onclick="selectZone('{esc(z['id'])}', true)">
       <span class="zrow-top"><span class="zname">{esc(z['area'])}</span><span class="chip {cls}">{status_label(z['status'])}</span></span>
       {bar(z['mins'], cls)}
-      <span class="zmin"><b>{z['mins']:.1f} min</b> to {esc(z['hosp'] or 'no capable hospital')}</span>
+      <span class="zmin"><b>{z['mins']:.1f} min</b>{' at worst' if HAS_SLOTS else ''} to {esc(z['hosp'] or 'no capable hospital')}</span>
     </button>"""
 
 REC_STYLE = {
@@ -245,7 +256,7 @@ else:
         post_txt = (f'<p class="note">An ambulance post would give first care in about {int(float(post))} minutes. '
                     f'This figure is an assumption.</p>') if post not in (None, "") else ""
         fix_cards += f"""
-        <article class="fix">
+        <article class="fix {cls}">
           <header><h4>{esc(z['area'])}</h4><span class="chip {cls}">{label}</span></header>
           <p class="act">{esc(r['recommended_action'])}</p>
           <div class="ba"><span class="ba-l">Now</span>{bar(z['mins'], 'gap')}<span class="ba-v">{z['mins']:.1f} min</span></div>
@@ -271,6 +282,10 @@ for h in sorted(hosp_records, key=lambda x: (x["tier"], -x["serves"], x["name"])
 pulled = ""
 if "data_pulled_at" in coverage.columns:
     pulled = f"Travel times were pulled on {esc(coverage['data_pulled_at'].iloc[0])}. Traffic changes through the day, so a different time can give different results."
+if HAS_SLOTS:
+    pulled = (f"Each zone is judged at its slowest of {len(slot_cols)} time points: live traffic now, plus predicted "
+              f"traffic for a typical weekday morning, midday, evening and night. "
+              f"Pulled on {esc(coverage['data_pulled_at'].iloc[0])}.")
 routing_note = ("Travel times come from TomTom's routing service with live traffic."
                 if USING_LIVE else
                 "Travel times are rough estimates (straight-line distance with a traffic factor). Run compute_travel_time.py for real routing.")
@@ -287,10 +302,10 @@ notes_html = f"""
 
 map_data = {
     "safe": SAFE_WINDOW, "scale": SCALE, "limit": LIMIT_POS,
-    "zones": zone_list, "hospitals": hosp_records,
+    "zones": zone_list, "hospitals": hosp_records, "slot_labels": SLOT_LABELS,
 }
 data_json = json.dumps(map_data).replace("</", "<\\/")
-source_label = "Live traffic routing" if USING_LIVE else "Estimated routing"
+source_label = (f"Traffic at {len(slot_cols)} times of day" if HAS_SLOTS else "Live traffic routing") if USING_LIVE else "Estimated routing"
 mode_label = "Live simulation on" if live_mode else "Saved results"
 
 # ---------------------------------------------------------------------------
@@ -300,33 +315,34 @@ TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#EEF1EF; --card:#FFFFFF; --ink:#12262D; --ink2:#4B6068; --line:#D5DDDA;
+    --paper:#DCE9E5; --card:#F2F8F5; --ink:#12262D; --ink2:#44585F; --line:#B9D0C8;
     --gap:#C93A24; --gap-bg:#FBE9E5; --ok:#1C8160; --ok-bg:#E3F3EC;
     --warn:#A86F00; --warn-bg:#FAF0D6; --hosp:#2554C7;
     --sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-variant-numeric:tabular-nums;line-height:1.45}
-  .shell{max-width:1280px;margin:0 auto;padding:8px 6px 28px}
+  .shell{max-width:1840px;margin:0 auto;padding:8px 6px 28px}
   button{font:inherit;color:inherit}
   button:focus-visible,.tab:focus-visible{outline:3px solid var(--hosp);outline-offset:2px}
 
   .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:6px}
   .kicker{font-size:13px;color:var(--ink2);font-weight:500}
   .meta{display:flex;gap:8px;flex-wrap:wrap}
-  .pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink2)}
-  h1{font-size:clamp(26px,3.4vw,40px);line-height:1.12;font-weight:800;letter-spacing:-0.02em;max-width:26ch;margin:6px 0 10px}
+  .pill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:#F2F8F5;border:1px solid var(--line);color:var(--ink2)}
+  h1{font-size:clamp(26px,3vw,40px);line-height:1.12;font-weight:800;letter-spacing:-0.02em;max-width:34ch;margin:6px 0 10px}
   .lede{font-size:16px;color:var(--ink2);max-width:62ch;margin-bottom:22px}
 
-  .main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:18px;align-items:start}
-  .mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#DDE6E3;height:660px}
-  #map{position:absolute;inset:0}
+  .main{display:grid;grid-template-columns:minmax(0,2fr) minmax(340px,1fr);gap:18px;align-items:stretch}
+  .mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#CFE0DA;min-height:680px}
+  #map{position:absolute;top:0;left:0;width:100%;height:100%}
   .maperr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:30px;color:var(--ink2);font-weight:500}
-  .legend{position:absolute;left:12px;bottom:12px;z-index:1000;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;display:grid;gap:6px}
+  .legend{position:absolute;left:12px;bottom:12px;z-index:1000;background:rgba(242,248,245,.96);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;display:grid;gap:6px}
   .legend div{display:flex;align-items:center;gap:8px}
   .sw{width:12px;height:12px;border-radius:50%;display:inline-block}
   .sw.sq{border-radius:3px}
@@ -338,8 +354,8 @@ TEMPLATE = r"""<!DOCTYPE html>
   .panel-h h2{font-size:15px;font-weight:700}
   .panel-h span{font-size:12px;color:var(--ink2)}
   .zrow{display:grid;gap:7px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:12px;padding:10px;cursor:pointer}
-  .zrow:hover{background:#F5F8F7}
-  .zrow.sel{background:#F0F5F3;border-color:var(--ink)}
+  .zrow:hover{background:#E3F0EB}
+  .zrow.sel{background:#D3E7DF;border-color:var(--ink)}
   .zrow-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .zname{font-weight:700;font-size:14.5px}
   .zmin{font-size:12.5px;color:var(--ink2)}
@@ -350,16 +366,18 @@ TEMPLATE = r"""<!DOCTYPE html>
   .chip.ok{background:var(--ok-bg);color:var(--ok)}
   .chip.warn{background:var(--warn-bg);color:var(--warn)}
 
-  .tbar{position:relative;height:10px;background:#E6ECEA;border-radius:5px;overflow:visible}
+  .tbar{position:relative;height:10px;background:#D0E0D9;border-radius:5px;overflow:visible}
   .tbar .fill{display:block;height:100%;border-radius:5px}
   .fill.gap{background:var(--gap)} .fill.ok{background:var(--ok)} .fill.warn{background:#D9A21B}
   .tbar .mark{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:1px}
 
+  .detail{background:#FBF0D9;border-color:#E6D3A8}
   .detail h3{font-size:18px;font-weight:800;margin-bottom:2px}
   .detail .sub{font-size:13px;color:var(--ink2);margin-bottom:12px}
   .kv{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13.5px}
   .kv dt{color:var(--ink2)} .kv dd{font-weight:600;text-align:right}
-  .fixbox{margin-top:14px;padding:12px;border-radius:12px;background:#F5F8F7;font-size:13.5px}
+  .slots{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .fixbox{margin-top:14px;padding:12px;border-radius:12px;background:#F6E5BC;font-size:13.5px}
   .fixbox b{display:block;margin-bottom:3px}
 
   .tabs{margin-top:26px}
@@ -370,29 +388,33 @@ TEMPLATE = r"""<!DOCTYPE html>
 
   .fixes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
   .fix{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .fix.gap{background:#FBE6E0;border-color:#EBBDB1}
+  .fix.ok{background:#E1F2E9;border-color:#B2D8C4}
+  .fix.warn{background:#FBF0D3;border-color:#E4CF92}
+  .fix .chip{background:rgba(255,255,255,.75)}
   .fix header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
   .fix h4{font-size:17px;font-weight:800}
   .fix .act{font-size:14.5px;margin-bottom:14px}
-  .ba{display:grid;grid-template-columns:44px 1fr 62px;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
-  .ba-l{color:var(--ink2);font-weight:600} .ba-v{font-weight:700;text-align:right}
+  .ba{display:grid;grid-template-columns:44px 1fr 82px;align-items:center;gap:10px;margin-bottom:10px;font-size:13px}
+  .ba-l{color:var(--ink2);font-weight:600} .ba-v{font-weight:700;text-align:right;white-space:nowrap}
   .note{font-size:12.5px;color:var(--ink2);margin-top:6px}
 
-  .tablewrap{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+  .tablewrap{background:#E8F0FA;border:1px solid #BFD3EA;border-radius:16px;overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
-  th{text-align:left;font-size:12.5px;color:var(--ink2);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--line)}
-  td{padding:11px 14px;border-bottom:1px solid #EAF0EE}
+  th{text-align:left;font-size:12.5px;color:var(--ink2);font-weight:600;padding:12px 14px;border-bottom:1px solid #BFD3EA;background:#D6E4F5}
+  td{padding:11px 14px;border-bottom:1px solid #D3E1F2}
   tr:last-child td{border-bottom:none}
   td.num,th.num{text-align:right}
-  .tier{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;background:#E8EEF9;color:var(--hosp)}
-  .tier.t2{background:#EEF1EF;color:var(--ink2)} .tier.t3{background:var(--warn-bg);color:var(--warn)}
+  .tier{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;background:#CFE0F7;color:var(--hosp)}
+  .tier.t2{background:#D8E4DF;color:var(--ink2)} .tier.t3{background:var(--warn-bg);color:var(--warn)}
 
   .notes{display:grid;gap:12px;list-style:none;max-width:78ch}
-  .notes li{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:14.5px}
+  .notes li{background:#E8F0FA;border:1px solid #BFD3EA;border-radius:14px;padding:14px 16px;font-size:14.5px}
   .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:22px;color:var(--ink2)}
-  code{background:#E6ECEA;padding:2px 6px;border-radius:5px;font-size:13px}
+  code{background:#D0E0D9;padding:2px 6px;border-radius:5px;font-size:13px}
 
   .leaflet-tooltip{font-family:var(--sans);font-weight:600;border-radius:8px}
-  @media (max-width:900px){.main{grid-template-columns:1fr}.mapwrap{height:460px}}
+  @media (max-width:900px){.main{grid-template-columns:1fr}.mapwrap{height:460px;min-height:460px}}
 </style></head>
 <body><div class="shell">
 
@@ -439,11 +461,13 @@ TEMPLATE = r"""<!DOCTYPE html>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>window.L || document.write('<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"><\/script>')</script>
 <script>
 const D = __DATA__;
 const byId = Object.fromEntries(D.zones.map(z => [z.id, z]));
 const markers = {};
 let map = null;
+let allBounds = [];
 
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 const REC = { COVERED:['ok','Closes the gap'], IMPROVED:['warn','Improves it, still over the limit'] };
@@ -455,12 +479,20 @@ function renderDetail(z){
   h += '<dl class="kv">';
   h += '<dt>Status</dt><dd><span class="chip ' + (gap ? 'gap' : 'ok') + '">' + (gap ? 'Gap' : 'Covered') + '</span></dd>';
   h += '<dt>Nearest trauma-capable hospital</dt><dd>' + esc(z.hosp || 'None found') + '</dd>';
-  h += '<dt>Travel time</dt><dd>' + z.mins.toFixed(1) + ' min</dd>';
+  h += '<dt>' + (z.worst_slot ? 'Slowest travel time' : 'Travel time') + '</dt><dd>' + z.mins.toFixed(1) + ' min</dd>';
   if (z.any_hosp && z.any_hosp !== z.hosp) {
     h += '<dt>Closest hospital of any tier</dt><dd>' + esc(z.any_hosp) + ', ' + Number(z.any_min).toFixed(1) + ' min</dd>';
     h += '<dt>Delay from skipping it</dt><dd>' + (z.mins - z.any_min).toFixed(1) + ' min</dd>';
   }
   h += '</dl>';
+  if (z.slots && Object.keys(z.slots).length) {
+    h += '<div class="slots">';
+    Object.keys(z.slots).forEach(k => {
+      const v = z.slots[k]; if (v == null) return;
+      h += '<span class="chip ' + (v > D.safe ? 'gap' : 'ok') + '">' + esc(D.slot_labels[k] || k) + ': ' + v.toFixed(1) + ' min</span>';
+    });
+    h += '</div>';
+  }
   if (z.rec && gap) {
     const st = REC[z.rec.projected_status] || ['gap','Needs a new facility'];
     h += '<div class="fixbox"><b>Recommended fix</b>' + esc(z.rec.recommended_action) +
@@ -492,12 +524,28 @@ function showTab(name){
 function initMap(){
   if (typeof L === 'undefined') { document.getElementById('maperr').style.display = 'flex'; return; }
   map = L.map('map', {zoomControl: true, scrollWheelZoom: false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 18, attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-  }).addTo(map);
+  const SOURCES = [
+    {url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+     opt: {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}},
+    {url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+     opt: {maxZoom: 19, attribution: 'Tiles &copy; Esri'}},
+    {url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+     opt: {maxZoom: 16, attribution: 'Tiles &copy; Esri'}}
+  ];
+  let tileLayer = null;
+  function useSource(i){
+    if (tileLayer) map.removeLayer(tileLayer);
+    tileLayer = L.tileLayer(SOURCES[i].url, SOURCES[i].opt).addTo(map);
+    let errors = 0;
+    tileLayer.on('tileerror', () => {
+      errors += 1;
+      if (errors === 3 && i + 1 < SOURCES.length) useSource(i + 1);
+    });
+  }
+  useSource(0);
 
   const risks = D.zones.map(z => z.risk), rmin = Math.min(...risks), rmax = Math.max(...risks);
-  const bounds = [];
+  const bounds = allBounds;
 
   D.zones.forEach(z => {
     if (z.hlat != null) {
@@ -535,7 +583,15 @@ function initMap(){
   map.fitBounds(bounds, {padding: [30, 30]});
 }
 
-initMap();
+function boot(){
+  initMap();
+  if (!map) return;
+  const refit = () => { map.invalidateSize(); map.fitBounds(allBounds, {padding: [30, 30]}); };
+  setTimeout(refit, 250);
+  setTimeout(refit, 1200);
+  if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(document.getElementById('map'));
+}
+if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
 const first = D.zones.find(z => z.status === 'GAP') || D.zones[0];
 if (first) selectZone(first.id, false);
 </script>
