@@ -1,0 +1,23 @@
+REDISTRIBUTION SUMMARY
+
+Total deficit: 443 units | total sendable surplus: 192 units
+Max transfer time 90 min, min shelf life 7 days, travel time = straight line x 1.4 / 25 km/h + 15 min
+
+Method comparison:
+                    method  units_moved  deficit_left_unmet  avg_travel_min_per_unit  total_unit_minutes
+Rule-based (nearest first)          117                 326                     44.4              5198.0
+          Optimised (MILP)          117                 326                     41.1              4803.0
+
+Substitute (secondary) suggestions: 17 units
+High-risk deficits still unmet after optimisation: 93 units
+Still short (need regional blood centre / camp):
+  Fortis Malar Hospital, Adyar - O+: 28 units
+  Government Hospital, Tambaram - O+: 17 units
+  Stanley Medical College Hospital - O+: 16 units
+  Fortis Malar Hospital, Adyar - A+: 15 units
+  Fortis Malar Hospital, Adyar - B+: 11 units
+  Tulips Multispeciality, OMR - O+: 3 units
+  Government Hospital, Tambaram - A+: 2 units
+  Chettinad Hospital, Kelambakkam - O-: 1 units
+
+NOTE: travel time is an approximation until Module 4's road matrix is plugged in.

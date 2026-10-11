@@ -1,0 +1,13 @@
+hospital_id,hospital_name_department,total_capacity,total_occupied,total_available,departments_with_vacancy,departments_at_risk,highest_risk_department,max_breach_probability,highest_risk_predicted_occupancy,current_occupancy_pct,hospital_risk_level,hospital_vacancy_status
+HOSP08,"Tulips Multispeciality, OMR",16,15,1,1,6,Surgery,0.9996493,99.879456,93.75,HIGH,AVAILABLE
+HOSP05,Stanley Medical College Hospital,94,79,15,5,3,Emergency,0.7812855,84.34623,84.04255319148936,HIGH,AVAILABLE
+HOSP03,"Kauvery Hospital, Alwarpet",63,49,14,4,0,Orthopedics,0.23837015,68.18471,77.77777777777779,LOW,AVAILABLE
+HOSP11,"Prashanth Hospitals, Chromepet",33,23,10,6,0,Pediatrics,0.21524173,53.865494,69.6969696969697,LOW,AVAILABLE
+HOSP10,"Government Hospital, Tambaram",48,30,18,5,0,ICU,0.16341202,80.49631,62.5,LOW,AVAILABLE
+HOSP01,"Apollo Hospitals, Greams Road",100,82,18,5,0,Surgery,0.15927069,73.36369,82.0,LOW,AVAILABLE
+HOSP06,Sri Ramachandra Medical Centre,194,156,38,6,0,Orthopedics,0.14315292,77.889885,80.41237113402062,LOW,AVAILABLE
+HOSP07,"Fortis Malar Hospital, Adyar",43,30,13,6,0,Pediatrics,0.11317978,54.802982,69.76744186046511,LOW,AVAILABLE
+HOSP12,"SIMS Hospital, Vadapalani",77,54,23,5,0,ICU,0.06454354,80.89058,70.12987012987013,LOW,AVAILABLE
+HOSP09,"Chettinad Hospital, Kelambakkam",91,68,23,5,0,Orthopedics,0.056075417,70.934006,74.72527472527473,LOW,AVAILABLE
+HOSP02,"MIOT International, Manapakkam",135,88,47,6,0,Pediatrics,0.0018065666,64.80792,65.18518518518519,LOW,AVAILABLE
+HOSP04,Rajiv Gandhi Govt. General Hospital,198,142,56,6,0,Emergency,0.0016157575,69.97485,71.71717171717171,LOW,AVAILABLE

@@ -1,0 +1,27 @@
+Backtest: 26 weekly origins x 96 hospital-groups = 2496 cases
+Share of cases with any unmet demand in next 7 days: 8.0%
+
+Outcome by predicted status (a good engine: SHORTAGE > LOW > STABLE):
+               cases  pct_with_stockout  avg_unmet_units
+status                                                  
+SHORTAGE RISK    162              35.19             1.26
+LOW STOCK        971              12.36             0.42
+STABLE          1363               1.69             0.05
+
+Flag quality vs actual stock-outs:
+                         rule  flagged  precision  recall    F1
+Risk engine (SHORTAGE or LOW)     1133      0.156   0.885 0.266
+  Risk engine (SHORTAGE only)      162      0.352   0.285 0.315
+    Baseline: cover rule only      825      0.152   0.625 0.244
+
+By blood group:
+             cases  stockout_%  flagged_%  recall_%
+blood_group                                        
+A+           312.0         4.5       42.9      57.1
+A-           312.0         9.3       48.4      82.8
+AB+          312.0         4.8       35.6      86.7
+AB-          312.0         9.6       40.1      90.0
+B+           312.0         4.5       44.6      92.9
+B-           312.0        10.3       45.5      87.5
+O+           312.0         6.1       52.9     100.0
+O-           312.0        15.1       53.2      95.7

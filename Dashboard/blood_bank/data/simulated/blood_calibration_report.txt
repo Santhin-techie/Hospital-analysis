@@ -1,0 +1,26 @@
+MODULE 3 - SIMULATION CALIBRATION REPORT
+Period: 2023-01-01 to 2025-12-31  |  Hospitals: 12  |  Groups: 8
+
+Accident scaling: sim 2023 = 151 points, real Chennai City 2023 = 3654 -> each point represents 24.2 accidents
+
+Yearly totals (units):
+      collected  procured  demanded  unmet  expired  wastage_rate_%  fill_rate_%
+year                                                                            
+2023     153816     13238    167473    888      147            0.09        99.47
+2024     153754     17337    172353    984      142            0.08        99.43
+2025     152747     25453    179711   1439      120            0.07        99.20
+
+By blood group:
+             demanded  donated  unmet  demand_share_%  donation_per_demand  unmet_%
+blood_group                                                                        
+A+             111968    99590    444           21.55                0.889     0.40
+A-               5237     3965    248            1.01                0.757     4.74
+AB+             33971    30069    181            6.54                0.885     0.53
+AB-              2633     2011    180            0.51                0.764     6.84
+B+             163119   145754    513           31.40                0.894     0.31
+B-               8245     6470    267            1.59                0.785     3.24
+O+             183929   164922    854           35.40                0.897     0.46
+O-              10435     7536    624            2.01                0.722     5.98
+
+TODO (manual): compare yearly 'collected' with the e-RaktKosh / NBTC figure you cite,
+scaled to a 12-hospital subset of Chennai, and paste the comparison here.

@@ -1,0 +1,97 @@
+hospital_id,hospital_name,blood_group,as_of_date,stock_now,forecast_demand_7d,demand_upper_7d,forecast_donations_7d,days_of_cover,safety_stock,projected_stock_end,projected_stock_end_upper,unmet_units_point,unmet_units_upper,units_expiring_3d,expiring_unused_7d,surplus_units,deficit_units,avg_daily_demand,risk_level,reason
+HOSP10,"Government Hospital, Tambaram",A-,2025-12-31,0.0,1.9,3.9,1.4,0.0,1.4,0.0,0.0,0.5,2.4,0,0.0,0.0,1.9,0.28,High,only 0.0 days of cover
+HOSP12,"SIMS Hospital, Vadapalani",B-,2025-12-31,1.0,4.4,8.0,3.9,0.9,3.1,0.6,0.0,0.0,3.1,0,0.0,0.0,2.6,0.62,High,only 0.9 days of cover
+HOSP07,"Fortis Malar Hospital, Adyar",O-,2025-12-31,1.0,3.5,6.7,2.0,1.0,2.5,0.0,0.0,0.5,3.7,0,0.0,0.0,3.0,0.5,High,only 1.0 days of cover
+HOSP10,"Government Hospital, Tambaram",O-,2025-12-31,1.0,3.5,6.3,2.2,1.1,2.5,0.0,0.0,0.2,3.1,0,0.0,0.0,2.7,0.5,High,only 1.1 days of cover
+HOSP07,"Fortis Malar Hospital, Adyar",A+,2025-12-31,7.0,29.8,37.4,20.9,1.3,12.8,0.0,0.0,1.9,9.5,0,0.0,0.0,14.7,4.26,High,only 1.3 days of cover; stock projected to run out (2 units short)
+HOSP07,"Fortis Malar Hospital, Adyar",B+,2025-12-31,12.0,51.7,62.8,32.2,1.3,22.2,0.0,0.0,7.5,18.6,0,0.0,0.0,29.7,7.38,High,only 1.3 days of cover; stock projected to run out (8 units short)
+HOSP04,Rajiv Gandhi Govt. General Hospital,AB+,2025-12-31,11.0,45.8,56.1,38.7,1.4,19.6,3.9,0.0,0.0,6.4,0,0.0,0.0,15.7,6.54,High,only 1.4 days of cover
+HOSP08,"Tulips Multispeciality, OMR",O+,2025-12-31,4.0,14.2,19.4,14.0,1.4,6.1,3.8,0.0,0.0,1.4,0,0.0,0.0,2.4,2.03,High,only 1.4 days of cover
+HOSP04,Rajiv Gandhi Govt. General Hospital,B-,2025-12-31,3.0,9.6,13.9,8.4,1.5,6.9,1.7,0.0,0.0,2.6,0,0.0,0.0,5.1,1.38,High,only 1.5 days of cover
+HOSP10,"Government Hospital, Tambaram",AB+,2025-12-31,3.0,10.4,14.4,8.7,1.5,4.5,1.3,0.0,0.0,2.7,0,0.0,0.0,3.2,1.49,High,only 1.5 days of cover
+HOSP07,"Fortis Malar Hospital, Adyar",O+,2025-12-31,16.0,56.6,68.5,37.2,1.6,24.2,0.0,0.0,3.4,15.3,0,0.0,0.0,27.6,8.08,High,only 1.6 days of cover; stock projected to run out (3 units short)
+HOSP09,"Chettinad Hospital, Kelambakkam",O-,2025-12-31,2.0,6.0,9.0,4.6,1.6,4.3,0.6,0.0,0.0,2.4,0,0.0,0.0,3.6,0.86,High,only 1.6 days of cover
+HOSP10,"Government Hospital, Tambaram",A+,2025-12-31,13.0,45.7,55.2,31.0,1.6,19.6,0.0,0.0,1.6,11.2,0,0.0,0.0,21.2,6.53,High,only 1.6 days of cover; stock projected to run out (2 units short)
+HOSP12,"SIMS Hospital, Vadapalani",AB+,2025-12-31,4.0,13.0,17.9,12.4,1.6,5.6,3.4,0.0,0.0,1.5,0,0.0,0.0,2.2,1.86,High,only 1.6 days of cover
+HOSP07,"Fortis Malar Hospital, Adyar",A-,2025-12-31,1.0,2.2,4.0,1.2,1.7,1.6,0.0,0.0,0.0,1.8,0,0.0,0.0,1.6,0.31,High,only 1.7 days of cover
+HOSP10,"Government Hospital, Tambaram",O+,2025-12-31,19.0,62.3,74.7,53.9,1.8,26.7,10.6,0.0,0.0,1.8,0,0.0,0.0,16.1,8.9,High,only 1.8 days of cover
+HOSP12,"SIMS Hospital, Vadapalani",O-,2025-12-31,2.0,3.9,7.7,3.2,1.8,2.8,1.2,0.0,0.0,2.6,0,0.0,0.0,1.6,0.56,High,only 1.8 days of cover
+HOSP10,"Government Hospital, Tambaram",B+,2025-12-31,17.0,53.0,63.9,43.5,1.9,22.7,7.5,0.0,0.0,3.5,0,0.0,0.0,15.2,7.57,High,only 1.9 days of cover
+HOSP04,Rajiv Gandhi Govt. General Hospital,A-,2025-12-31,3.0,7.4,10.6,5.8,2.0,5.3,1.4,0.0,0.0,1.8,0,0.0,0.0,3.9,1.06,High,
+HOSP05,Stanley Medical College Hospital,O+,2025-12-31,35.0,106.1,124.2,100.7,2.0,45.5,29.6,11.5,0.0,0.0,0,0.0,0.0,15.9,15.16,High,
+HOSP12,"SIMS Hospital, Vadapalani",A+,2025-12-31,20.0,54.3,65.1,46.9,2.1,23.3,12.6,1.8,0.0,0.0,0,0.0,0.0,10.6,7.75,Medium,"2.1 days of cover, below the comfort level"
+HOSP01,"Apollo Hospitals, Greams Road",A+,2025-12-31,22.0,57.5,69.0,50.3,2.2,24.6,14.8,3.3,0.0,0.0,0,0.0,0.0,9.8,8.21,Medium,"2.2 days of cover, below the comfort level"
+HOSP01,"Apollo Hospitals, Greams Road",B+,2025-12-31,32.0,87.5,102.0,85.1,2.2,37.5,29.6,15.1,0.0,0.0,0,0.0,0.0,7.9,12.5,Medium,"2.2 days of cover, below the comfort level"
+HOSP01,"Apollo Hospitals, Greams Road",O+,2025-12-31,35.0,94.6,111.0,91.3,2.2,40.5,31.7,15.3,0.0,0.0,0,0.0,0.0,8.8,13.51,Medium,"2.2 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",B+,2025-12-31,47.0,133.8,152.8,124.6,2.2,57.4,37.8,18.9,0.0,0.0,0,0.0,0.0,19.5,19.12,Medium,"2.2 days of cover, below the comfort level"
+HOSP05,Stanley Medical College Hospital,A+,2025-12-31,27.0,73.8,86.3,68.2,2.2,31.6,21.4,8.8,0.0,0.0,0,0.0,0.0,10.2,10.54,Medium,"2.2 days of cover, below the comfort level"
+HOSP06,Sri Ramachandra Medical Centre,A+,2025-12-31,50.0,138.0,158.1,131.8,2.2,59.2,43.8,23.8,0.0,0.0,0,0.0,0.0,15.4,19.72,Medium,"2.2 days of cover, below the comfort level"
+HOSP10,"Government Hospital, Tambaram",AB-,2025-12-31,1.0,0.9,3.2,0.7,2.2,0.7,0.7,0.0,0.0,1.5,0,0.0,0.1,0.0,0.13,Medium,"2.2 days of cover, below the comfort level"
+HOSP12,"SIMS Hospital, Vadapalani",O+,2025-12-31,29.0,78.5,93.1,75.9,2.2,33.7,26.4,11.8,0.0,0.0,0,0.0,0.0,7.3,11.22,Medium,"2.2 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",O+,2025-12-31,57.0,151.0,173.7,143.7,2.3,64.7,49.7,27.0,0.0,0.0,0,0.0,0.0,15.0,21.57,Medium,"2.3 days of cover, below the comfort level"
+HOSP04,Rajiv Gandhi Govt. General Hospital,A+,2025-12-31,50.0,132.3,151.1,126.3,2.3,56.7,44.0,25.2,0.0,0.0,0,0.0,0.0,12.7,18.9,Medium,"2.3 days of cover, below the comfort level"
+HOSP04,Rajiv Gandhi Govt. General Hospital,O+,2025-12-31,82.0,218.1,248.7,205.0,2.3,93.5,68.9,38.3,0.0,0.0,0,0.0,0.0,24.6,31.16,Medium,"2.3 days of cover, below the comfort level"
+HOSP06,Sri Ramachandra Medical Centre,O+,2025-12-31,83.0,223.5,255.1,215.5,2.3,95.8,74.9,43.4,0.0,0.0,0,0.0,0.0,20.9,31.93,Medium,"2.3 days of cover, below the comfort level"
+HOSP12,"SIMS Hospital, Vadapalani",B+,2025-12-31,26.0,66.2,78.6,61.0,2.3,28.4,20.8,8.4,0.0,0.0,0,0.0,0.0,7.6,9.46,Medium,"2.3 days of cover, below the comfort level"
+HOSP09,"Chettinad Hospital, Kelambakkam",B+,2025-12-31,36.0,91.0,106.1,84.9,2.4,39.0,29.9,14.8,0.0,0.0,0,0.0,0.0,9.1,13.0,Medium,"2.4 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",A+,2025-12-31,36.0,87.9,102.7,83.4,2.5,37.7,31.5,16.7,0.0,0.0,0,0.0,0.0,6.1,12.56,Medium,"2.5 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",AB+,2025-12-31,12.0,26.2,33.7,25.5,2.5,11.2,11.3,3.8,0.0,0.0,0,0.0,0.1,0.0,3.74,Medium,"2.5 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",O+,2025-12-31,27.0,63.1,75.9,59.5,2.5,27.1,23.4,10.6,0.0,0.0,0,0.0,0.0,3.6,9.02,Medium,"2.5 days of cover, below the comfort level"
+HOSP06,Sri Ramachandra Medical Centre,B+,2025-12-31,83.0,203.2,228.8,194.0,2.5,87.1,73.8,48.1,0.0,0.0,0,0.0,0.0,13.3,29.03,Medium,"2.5 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",B+,2025-12-31,24.0,52.8,64.2,47.4,2.6,22.6,18.7,7.2,0.0,0.0,0,0.0,0.0,4.0,7.54,Medium,"2.6 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",O-,2025-12-31,6.0,10.0,15.6,7.7,2.7,7.1,3.7,0.0,0.0,2.0,0,0.0,0.0,3.4,1.42,Medium,"2.7 days of cover, below the comfort level"
+HOSP06,Sri Ramachandra Medical Centre,AB+,2025-12-31,22.0,47.4,57.9,41.8,2.7,20.3,16.3,5.9,0.0,0.0,0,0.0,0.0,4.0,6.78,Medium,"2.7 days of cover, below the comfort level"
+HOSP09,"Chettinad Hospital, Kelambakkam",O+,2025-12-31,49.0,107.7,125.6,100.8,2.7,46.2,42.1,24.2,0.0,0.0,0,0.0,0.0,4.1,15.39,Medium,"2.7 days of cover, below the comfort level"
+HOSP11,"Prashanth Hospitals, Chromepet",O+,2025-12-31,17.0,35.7,44.5,33.8,2.7,15.3,15.1,6.3,0.0,0.0,0,0.0,0.0,0.3,5.1,Medium,"2.7 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",A+,2025-12-31,23.0,45.2,55.7,37.5,2.9,19.4,15.4,4.8,0.0,0.0,0,0.0,0.0,4.0,6.45,Medium,"2.9 days of cover, below the comfort level"
+HOSP04,Rajiv Gandhi Govt. General Hospital,B+,2025-12-31,92.0,200.1,225.8,195.1,2.9,85.8,87.0,61.3,0.0,0.0,0,0.0,1.2,0.0,28.59,Medium,"2.9 days of cover, below the comfort level"
+HOSP05,Stanley Medical College Hospital,A-,2025-12-31,3.0,3.8,6.9,3.0,3.0,2.7,2.1,0.0,0.0,1.0,0,0.0,0.0,0.6,0.54,Medium,"3.0 days of cover, below the comfort level"
+HOSP05,Stanley Medical College Hospital,O-,2025-12-31,4.0,6.3,9.2,4.7,3.0,4.5,2.4,0.0,0.0,0.5,0,0.0,0.0,2.1,0.9,Medium,"3.0 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",B-,2025-12-31,2.0,2.7,4.3,2.4,3.2,1.9,1.7,0.0,0.0,0.0,0,0.0,0.0,0.2,0.38,Medium,"3.2 days of cover, below the comfort level"
+HOSP04,Rajiv Gandhi Govt. General Hospital,AB-,2025-12-31,2.0,2.8,4.4,2.5,3.2,2.0,1.8,0.2,0.0,0.0,0,0.0,0.0,0.2,0.39,Medium,"3.2 days of cover, below the comfort level"
+HOSP06,Sri Ramachandra Medical Centre,O-,2025-12-31,8.0,12.1,17.7,11.0,3.2,8.6,6.9,1.3,0.0,0.0,0,0.0,0.0,1.7,1.73,Medium,"3.2 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",AB-,2025-12-31,2.0,2.5,4.2,2.1,3.4,1.8,1.7,0.0,0.0,0.0,0,0.0,0.0,0.1,0.35,Medium,"3.4 days of cover, below the comfort level"
+HOSP12,"SIMS Hospital, Vadapalani",A-,2025-12-31,2.0,2.3,4.1,1.8,3.4,1.6,1.5,0.0,0.0,0.3,0,0.0,0.0,0.1,0.33,Medium,"3.4 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",A-,2025-12-31,2.0,2.2,4.0,1.8,3.5,1.6,1.6,0.0,0.0,0.2,0,0.0,0.0,0.0,0.31,Medium,"3.5 days of cover, below the comfort level"
+HOSP05,Stanley Medical College Hospital,B+,2025-12-31,55.0,95.2,110.6,91.5,3.5,40.8,51.3,35.9,0.0,0.0,0,0.0,10.5,0.0,13.61,Medium,"3.5 days of cover, below the comfort level"
+HOSP09,"Chettinad Hospital, Kelambakkam",A+,2025-12-31,39.0,65.9,78.4,60.3,3.5,28.2,33.4,20.9,0.0,0.0,0,0.0,5.2,0.0,9.41,Medium,"3.5 days of cover, below the comfort level"
+HOSP09,"Chettinad Hospital, Kelambakkam",AB+,2025-12-31,12.0,18.1,24.1,17.8,3.5,7.8,11.7,5.7,0.0,0.0,0,0.0,3.9,0.0,2.59,Medium,"3.5 days of cover, below the comfort level"
+HOSP07,"Fortis Malar Hospital, Adyar",AB+,2025-12-31,7.0,9.3,13.7,7.2,3.6,4.0,4.9,0.5,0.0,0.0,0,0.0,0.9,0.0,1.33,Medium,"3.6 days of cover, below the comfort level"
+HOSP04,Rajiv Gandhi Govt. General Hospital,O-,2025-12-31,9.0,10.9,16.6,9.1,3.8,7.8,7.1,1.5,0.0,0.0,0,0.0,0.0,0.7,1.56,Medium,"3.8 days of cover, below the comfort level"
+HOSP11,"Prashanth Hospitals, Chromepet",A+,2025-12-31,13.0,18.7,24.1,18.2,3.8,8.0,12.5,7.1,0.0,0.0,0,0.0,4.5,0.0,2.67,Medium,"3.8 days of cover, below the comfort level"
+HOSP08,"Tulips Multispeciality, OMR",B+,2025-12-31,12.0,15.7,21.1,15.9,4.0,6.7,12.2,6.8,0.0,0.0,0,0.0,5.4,0.0,2.25,Medium,"4.0 days of cover, below the comfort level"
+HOSP11,"Prashanth Hospitals, Chromepet",O-,2025-12-31,2.0,1.4,3.5,1.2,4.0,1.0,1.8,0.0,0.0,0.3,0,0.0,0.8,0.0,0.21,Medium,"4.0 days of cover, below the comfort level"
+HOSP03,"Kauvery Hospital, Alwarpet",AB-,2025-12-31,2.0,0.8,3.1,0.4,4.5,0.6,1.6,0.0,0.0,0.7,0,0.0,1.0,0.0,0.11,Medium,could run out if demand reaches the upper bound
+HOSP07,"Fortis Malar Hospital, Adyar",B-,2025-12-31,3.0,3.2,4.6,1.7,4.5,2.3,1.5,0.1,0.0,0.0,0,0.0,0.0,0.7,0.45,Medium,"4.5 days of cover, below the comfort level"
+HOSP02,"MIOT International, Manapakkam",B-,2025-12-31,7.0,6.9,10.4,5.6,4.7,5.0,5.6,2.2,0.0,0.0,0,0.0,0.7,0.0,0.99,Low,
+HOSP06,Sri Ramachandra Medical Centre,AB-,2025-12-31,5.0,3.8,7.3,3.3,4.8,2.7,4.4,1.0,0.0,0.0,0,0.0,1.7,0.0,0.55,Low,
+HOSP05,Stanley Medical College Hospital,AB+,2025-12-31,18.0,18.2,24.2,17.1,5.2,7.8,16.9,10.9,0.0,0.0,0,0.0,9.0,0.0,2.61,Low,
+HOSP05,Stanley Medical College Hospital,AB-,2025-12-31,3.0,1.6,3.7,1.1,5.7,1.2,2.4,0.4,0.0,0.0,0,0.0,1.3,0.0,0.23,Low,
+HOSP10,"Government Hospital, Tambaram",B-,2025-12-31,4.0,3.0,4.5,1.6,6.2,2.1,2.6,1.1,0.0,0.0,0,0.0,0.5,0.0,0.43,Low,
+HOSP12,"SIMS Hospital, Vadapalani",AB-,2025-12-31,3.0,1.2,3.4,0.7,6.2,0.9,2.5,0.3,0.0,0.0,0,0.0,1.6,0.0,0.18,Low,
+HOSP03,"Kauvery Hospital, Alwarpet",O-,2025-12-31,6.0,3.5,6.7,2.6,6.3,2.5,5.1,1.8,0.0,0.0,0,0.0,2.5,0.0,0.5,Low,
+HOSP11,"Prashanth Hospitals, Chromepet",B+,2025-12-31,33.0,29.2,36.7,27.9,6.3,12.5,31.7,24.2,0.0,0.0,0,0.0,19.1,0.0,4.18,Low,
+HOSP07,"Fortis Malar Hospital, Adyar",AB-,2025-12-31,3.0,1.0,3.3,0.4,6.4,0.7,2.4,0.1,0.0,0.0,0,0.0,1.7,0.0,0.15,Low,
+HOSP01,"Apollo Hospitals, Greams Road",A-,2025-12-31,5.0,3.5,5.2,3.0,6.7,2.5,4.5,2.8,0.0,0.0,0,0.0,2.0,0.0,0.5,Low,
+HOSP02,"MIOT International, Manapakkam",A-,2025-12-31,8.0,4.5,8.1,3.1,6.9,3.2,6.6,3.0,0.0,0.0,0,0.0,3.4,0.0,0.65,Low,
+HOSP09,"Chettinad Hospital, Kelambakkam",B-,2025-12-31,9.0,5.5,8.7,4.0,7.2,3.9,7.5,4.3,0.0,0.0,0,0.0,3.6,0.0,0.78,Low,
+HOSP01,"Apollo Hospitals, Greams Road",AB-,2025-12-31,4.0,1.7,3.7,0.9,7.6,1.2,3.2,1.2,0.0,0.0,0,0.0,2.0,0.0,0.24,Low,
+HOSP06,Sri Ramachandra Medical Centre,A-,2025-12-31,10.0,6.3,9.2,4.9,7.6,4.5,8.5,5.6,0.0,0.0,0,0.0,4.0,0.0,0.9,Low,
+HOSP01,"Apollo Hospitals, Greams Road",AB+,2025-12-31,25.0,16.5,22.7,15.4,7.7,7.1,23.9,17.7,0.0,0.0,0,0.0,16.8,0.0,2.36,Low,
+HOSP08,"Tulips Multispeciality, OMR",A+,2025-12-31,17.0,11.1,15.2,10.3,7.8,4.8,16.2,12.1,0.0,0.0,0,0.0,11.4,0.0,1.59,Low,
+HOSP08,"Tulips Multispeciality, OMR",AB+,2025-12-31,4.0,1.5,3.6,2.8,7.8,0.7,5.3,3.2,0.0,0.0,0,0.0,4.7,0.0,0.22,Low,
+HOSP11,"Prashanth Hospitals, Chromepet",B-,2025-12-31,4.0,1.5,3.6,0.9,7.8,1.1,3.4,1.3,0.0,0.0,0,0.0,2.3,0.0,0.21,Low,
+HOSP11,"Prashanth Hospitals, Chromepet",A-,2025-12-31,4.0,1.4,3.5,0.8,7.9,1.0,3.3,1.2,0.0,0.0,0,0.0,2.3,0.0,0.2,Low,
+HOSP06,Sri Ramachandra Medical Centre,B-,2025-12-31,19.0,10.4,15.9,9.0,8.4,7.4,17.6,12.0,0.0,0.0,0,0.0,10.2,0.0,1.48,Low,
+HOSP01,"Apollo Hospitals, Greams Road",O-,2025-12-31,13.0,6.5,10.5,5.6,8.7,4.6,12.1,8.1,0.0,0.0,0,0.0,7.4,0.0,0.93,Low,
+HOSP11,"Prashanth Hospitals, Chromepet",AB+,2025-12-31,12.0,5.6,8.7,6.8,9.6,2.4,13.3,10.1,0.0,0.0,0,0.0,10.9,0.0,0.79,Low,
+HOSP05,Stanley Medical College Hospital,B-,2025-12-31,12.0,5.4,8.7,4.1,9.7,3.9,10.7,7.4,0.0,0.0,0,0.0,6.8,0.0,0.77,Low,
+HOSP08,"Tulips Multispeciality, OMR",B-,2025-12-31,1.0,0.7,0.7,0.5,10.4,0.5,0.8,0.8,0.0,0.0,0,0.0,0.3,0.0,0.1,Low,
+HOSP03,"Kauvery Hospital, Alwarpet",AB+,2025-12-31,26.0,12.1,17.4,11.2,10.5,5.2,25.0,19.8,0.0,0.0,0,0.0,19.8,0.0,1.73,Low,
+HOSP08,"Tulips Multispeciality, OMR",O-,2025-12-31,5.0,1.0,3.3,0.6,10.7,0.7,4.6,2.4,0.0,0.0,0,0.0,3.9,0.0,0.14,Low,
+HOSP08,"Tulips Multispeciality, OMR",A-,2025-12-31,4.0,0.8,2.5,0.5,11.3,0.6,3.7,2.1,0.0,0.0,0,0.0,3.1,0.0,0.12,Low,
+HOSP09,"Chettinad Hospital, Kelambakkam",A-,2025-12-31,7.0,2.6,4.3,2.2,11.5,1.9,6.6,5.0,0.0,0.0,0,0.0,4.8,0.0,0.37,Low,
+HOSP01,"Apollo Hospitals, Greams Road",B-,2025-12-31,13.0,3.8,6.9,3.2,13.2,2.7,12.4,9.3,0.0,0.0,0,0.0,9.7,0.0,0.54,Low,
+HOSP09,"Chettinad Hospital, Kelambakkam",AB-,2025-12-31,9.0,1.9,3.8,1.4,16.6,1.3,8.5,6.6,0.0,0.0,0,0.0,7.2,0.0,0.27,Low,
+HOSP08,"Tulips Multispeciality, OMR",AB-,2025-12-31,1.0,0.4,0.4,0.3,16.7,0.3,0.9,0.9,0.0,0.0,0,0.0,0.6,0.0,0.06,Low,
+HOSP11,"Prashanth Hospitals, Chromepet",AB-,2025-12-31,3.0,0.7,0.7,0.3,30.5,0.5,2.6,2.6,0.0,0.0,0,0.0,2.1,0.0,0.1,Low,

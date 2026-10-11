@@ -1,0 +1,69 @@
+date,hospital_id,hospital_name_department,department,department_bed_capacity,occupied_beds,available_beds,vacancy_status,predicted_occupancy_7d,breach_probability,predicted_breach_7d,forecast_risk_level
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,Pediatrics,20,18,2,AVAILABLE,74.953636,0.032944147,0,LOW
+2026-06-23,HOSP12,"SIMS Hospital, Vadapalani",ICU,45,34,11,AVAILABLE,80.89058,0.06454354,0,LOW
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,Emergency,25,21,4,AVAILABLE,78.268906,0.076862186,0,LOW
+2026-06-23,HOSP05,Stanley Medical College Hospital,Surgery,13,10,3,AVAILABLE,82.760704,0.4707841,0,MEDIUM
+2026-06-23,HOSP05,Stanley Medical College Hospital,Pediatrics,9,7,2,AVAILABLE,81.139366,0.15326603,0,LOW
+2026-06-23,HOSP05,Stanley Medical College Hospital,Orthopedics,9,9,0,FULL,80.891426,0.13180006,0,LOW
+2026-06-23,HOSP05,Stanley Medical College Hospital,ICU,30,26,4,AVAILABLE,84.5152,0.5518818,1,MEDIUM
+2026-06-23,HOSP05,Stanley Medical College Hospital,General Medicine,22,18,4,AVAILABLE,82.64287,0.6176745,1,MEDIUM
+2026-06-23,HOSP05,Stanley Medical College Hospital,Emergency,11,9,2,AVAILABLE,84.34623,0.7812855,1,HIGH
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,Surgery,26,16,10,AVAILABLE,67.28998,0.0006300684,0,LOW
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,Pediatrics,17,12,5,AVAILABLE,69.93817,0.0013253051,0,LOW
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,Orthopedics,19,14,5,AVAILABLE,63.885357,0.00052219024,0,LOW
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,ICU,70,54,16,AVAILABLE,71.134476,0.0003306255,0,LOW
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,General Medicine,44,31,13,AVAILABLE,67.131775,0.00041033482,0,LOW
+2026-06-23,HOSP04,Rajiv Gandhi Govt. General Hospital,Emergency,22,15,7,AVAILABLE,69.97485,0.0016157575,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",Surgery,5,4,1,AVAILABLE,75.33586,0.02497798,0,LOW
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,General Medicine,49,36,13,AVAILABLE,77.12054,0.007958734,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",Pediatrics,3,3,0,FULL,65.15278,0.055822838,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",ICU,40,30,10,AVAILABLE,80.92176,0.08443838,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",General Medicine,8,6,2,AVAILABLE,76.55888,0.014777007,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",Emergency,4,3,1,AVAILABLE,72.554504,0.047245238,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",Surgery,16,10,6,AVAILABLE,64.7339,0.00097364123,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",Pediatrics,11,7,4,AVAILABLE,64.80792,0.0018065666,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",Orthopedics,12,6,6,AVAILABLE,64.17102,0.00077750086,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",ICU,55,40,15,AVAILABLE,66.04239,0.0004179689,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",General Medicine,27,17,10,AVAILABLE,63.74284,0.00039498246,0,LOW
+2026-06-23,HOSP02,"MIOT International, Manapakkam",Emergency,14,8,6,AVAILABLE,63.69867,0.0007839059,0,LOW
+2026-06-23,HOSP01,"Apollo Hospitals, Greams Road",Surgery,10,8,2,AVAILABLE,73.36369,0.15927069,0,LOW
+2026-06-23,HOSP01,"Apollo Hospitals, Greams Road",Pediatrics,6,5,1,AVAILABLE,75.70682,0.023890331,0,LOW
+2026-06-23,HOSP01,"Apollo Hospitals, Greams Road",ICU,60,50,10,AVAILABLE,76.942116,0.0065040817,0,LOW
+2026-06-23,HOSP01,"Apollo Hospitals, Greams Road",General Medicine,16,14,2,AVAILABLE,74.95477,0.07534877,0,LOW
+2026-06-23,HOSP01,"Apollo Hospitals, Greams Road",Emergency,8,5,3,AVAILABLE,74.59475,0.035801504,0,LOW
+2026-06-23,HOSP03,"Kauvery Hospital, Alwarpet",Orthopedics,3,3,0,FULL,68.18471,0.23837015,0,LOW
+2026-06-23,HOSP12,"SIMS Hospital, Vadapalani",Pediatrics,5,3,2,AVAILABLE,58.052914,0.0009172449,0,LOW
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,ICU,50,38,12,AVAILABLE,80.57853,0.046675924,0,LOW
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,Surgery,29,24,5,AVAILABLE,78.09227,0.054300614,0,LOW
+2026-06-23,HOSP12,"SIMS Hospital, Vadapalani",General Medicine,13,8,5,AVAILABLE,57.382374,0.00116192,0,LOW
+2026-06-23,HOSP12,"SIMS Hospital, Vadapalani",Emergency,6,4,2,AVAILABLE,59.924217,0.0025019275,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",Surgery,3,2,1,AVAILABLE,66.846466,0.0626944,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",Pediatrics,2,1,1,AVAILABLE,53.865494,0.21524173,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",Orthopedics,2,1,1,AVAILABLE,50.46348,0.029133439,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",ICU,20,15,5,AVAILABLE,65.55792,0.0011087233,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",General Medicine,4,3,1,AVAILABLE,59.162514,0.003957014,0,LOW
+2026-06-23,HOSP11,"Prashanth Hospitals, Chromepet",Emergency,2,1,1,AVAILABLE,51.30056,0.078644544,0,LOW
+2026-06-23,HOSP10,"Government Hospital, Tambaram",Pediatrics,5,3,2,AVAILABLE,43.756275,0.0005749908,0,LOW
+2026-06-23,HOSP10,"Government Hospital, Tambaram",Orthopedics,5,2,3,AVAILABLE,45.51871,0.0005440128,0,LOW
+2026-06-23,HOSP10,"Government Hospital, Tambaram",ICU,20,15,5,AVAILABLE,80.49631,0.16341202,0,LOW
+2026-06-23,HOSP10,"Government Hospital, Tambaram",General Medicine,12,7,5,AVAILABLE,52.19795,0.00060568884,0,LOW
+2026-06-23,HOSP10,"Government Hospital, Tambaram",Emergency,6,3,3,AVAILABLE,52.38427,0.00097654667,0,LOW
+2026-06-23,HOSP09,"Chettinad Hospital, Kelambakkam",Surgery,13,9,4,AVAILABLE,70.64539,0.022379173,0,LOW
+2026-06-23,HOSP06,Sri Ramachandra Medical Centre,Orthopedics,21,19,2,AVAILABLE,77.889885,0.14315292,0,LOW
+2026-06-23,HOSP09,"Chettinad Hospital, Kelambakkam",Orthopedics,10,8,2,AVAILABLE,70.934006,0.056075417,0,LOW
+2026-06-23,HOSP09,"Chettinad Hospital, Kelambakkam",General Medicine,22,18,4,AVAILABLE,69.851135,0.004177054,0,LOW
+2026-06-23,HOSP09,"Chettinad Hospital, Kelambakkam",Emergency,11,8,3,AVAILABLE,70.92556,0.030459912,0,LOW
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",Surgery,1,1,0,FULL,99.879456,0.9996493,1,HIGH
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",Pediatrics,1,1,0,FULL,99.879456,0.9996493,1,HIGH
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",Orthopedics,1,1,0,FULL,99.879456,0.9996493,1,HIGH
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",ICU,10,9,1,AVAILABLE,85.26624,0.8882855,1,HIGH
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",General Medicine,2,2,0,FULL,96.297615,0.99148655,1,HIGH
+2026-06-23,HOSP08,"Tulips Multispeciality, OMR",Emergency,1,1,0,FULL,99.879456,0.9996493,1,HIGH
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",Surgery,4,2,2,AVAILABLE,69.34575,0.0031865146,0,LOW
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",Pediatrics,2,1,1,AVAILABLE,54.802982,0.11317978,0,LOW
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",Orthopedics,3,2,1,AVAILABLE,67.44478,0.02415062,0,LOW
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",ICU,25,19,6,AVAILABLE,70.88156,0.0011676808,0,LOW
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",General Medicine,6,4,2,AVAILABLE,68.73201,0.0016939386,0,LOW
+2026-06-23,HOSP07,"Fortis Malar Hospital, Adyar",Emergency,3,2,1,AVAILABLE,67.260445,0.03615481,0,LOW
+2026-06-23,HOSP09,"Chettinad Hospital, Kelambakkam",ICU,35,25,10,AVAILABLE,71.93208,0.006052024,0,LOW
+2026-06-23,HOSP12,"SIMS Hospital, Vadapalani",Surgery,8,5,3,AVAILABLE,58.125694,0.0012357373,0,LOW

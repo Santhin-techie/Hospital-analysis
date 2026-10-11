@@ -1,0 +1,145 @@
+target,split,model,scope,MAE,RMSE,WAPE_%,n
+demand,validation,Naive (yesterday),ALL,2.177,4.098,42.951,17376
+demand,validation,Naive (yesterday),A+,3.505,4.941,40.049,2172
+demand,validation,Naive (yesterday),A-,0.542,0.893,130.343,2172
+demand,validation,Naive (yesterday),B+,4.516,6.407,35.367,2172
+demand,validation,Naive (yesterday),B-,0.791,1.245,117.418,2172
+demand,validation,Naive (yesterday),AB+,1.738,2.412,64.997,2172
+demand,validation,Naive (yesterday),AB-,0.336,0.668,158.009,2172
+demand,validation,Naive (yesterday),O+,5.082,7.622,35.693,2172
+demand,validation,Naive (yesterday),O-,0.908,1.473,110.911,2172
+demand,validation,Seasonal naive (last week),ALL,2.064,3.889,40.718,17376
+demand,validation,Seasonal naive (last week),A+,3.332,4.646,38.077,2172
+demand,validation,Seasonal naive (last week),A-,0.549,0.896,132.115,2172
+demand,validation,Seasonal naive (last week),B+,4.212,6.06,32.984,2172
+demand,validation,Seasonal naive (last week),B-,0.761,1.198,112.842,2172
+demand,validation,Seasonal naive (last week),AB+,1.731,2.433,64.721,2172
+demand,validation,Seasonal naive (last week),AB-,0.343,0.679,161.472,2172
+demand,validation,Seasonal naive (last week),O+,4.672,7.199,32.808,2172
+demand,validation,Seasonal naive (last week),O-,0.913,1.487,111.586,2172
+demand,validation,7-day moving average,ALL,1.69,3.088,33.334,17376
+demand,validation,7-day moving average,A+,2.675,3.727,30.568,2172
+demand,validation,7-day moving average,A-,0.498,0.682,119.665,2172
+demand,validation,7-day moving average,B+,3.403,4.853,26.651,2172
+demand,validation,7-day moving average,B-,0.66,0.916,97.922,2172
+demand,validation,7-day moving average,AB+,1.378,1.867,51.523,2172
+demand,validation,7-day moving average,AB-,0.327,0.51,153.741,2172
+demand,validation,7-day moving average,O+,3.813,5.703,26.776,2172
+demand,validation,7-day moving average,O-,0.766,1.125,93.516,2172
+demand,validation,Boosted model (sklearn-hist-gbm),ALL,1.506,2.809,29.711,17376
+demand,validation,Boosted model (sklearn-hist-gbm),A+,2.375,3.407,27.14,2172
+demand,validation,Boosted model (sklearn-hist-gbm),A-,0.488,0.643,117.286,2172
+demand,validation,Boosted model (sklearn-hist-gbm),B+,2.936,4.362,22.992,2172
+demand,validation,Boosted model (sklearn-hist-gbm),B-,0.644,0.88,95.489,2172
+demand,validation,Boosted model (sklearn-hist-gbm),AB+,1.289,1.761,48.219,2172
+demand,validation,Boosted model (sklearn-hist-gbm),AB-,0.335,0.478,157.407,2172
+demand,validation,Boosted model (sklearn-hist-gbm),O+,3.261,5.18,22.902,2172
+demand,validation,Boosted model (sklearn-hist-gbm),O-,0.722,1.054,88.184,2172
+donation,validation,Naive (yesterday),ALL,1.846,3.349,43.947,17376
+donation,validation,Naive (yesterday),A+,3.132,4.349,43.276,2172
+donation,validation,Naive (yesterday),A-,0.43,0.77,146.468,2172
+donation,validation,Naive (yesterday),B+,3.85,5.337,36.094,2172
+donation,validation,Naive (yesterday),B-,0.581,0.949,126.807,2172
+donation,validation,Naive (yesterday),AB+,1.628,2.293,74.073,2172
+donation,validation,Naive (yesterday),AB-,0.245,0.543,167.823,2172
+donation,validation,Naive (yesterday),O+,4.234,5.839,35.134,2172
+donation,validation,Naive (yesterday),O-,0.669,1.089,120.398,2172
+donation,validation,Seasonal naive (last week),ALL,1.772,3.142,42.173,17376
+donation,validation,Seasonal naive (last week),A+,3.004,4.084,41.508,2172
+donation,validation,Seasonal naive (last week),A-,0.424,0.756,144.741,2172
+donation,validation,Seasonal naive (last week),B+,3.628,4.929,34.009,2172
+donation,validation,Seasonal naive (last week),B-,0.577,0.95,125.803,2172
+donation,validation,Seasonal naive (last week),AB+,1.597,2.223,72.628,2172
+donation,validation,Seasonal naive (last week),AB-,0.246,0.542,168.77,2172
+donation,validation,Seasonal naive (last week),O+,4.01,5.487,33.273,2172
+donation,validation,Seasonal naive (last week),O-,0.687,1.101,123.715,2172
+donation,validation,7-day moving average,ALL,1.517,2.7,36.118,17376
+donation,validation,7-day moving average,A+,2.526,3.494,34.902,2172
+donation,validation,7-day moving average,A-,0.395,0.576,134.806,2172
+donation,validation,7-day moving average,B+,3.151,4.332,29.541,2172
+donation,validation,7-day moving average,B-,0.527,0.725,114.874,2172
+donation,validation,7-day moving average,AB+,1.275,1.744,58.013,2172
+donation,validation,7-day moving average,AB-,0.233,0.405,159.351,2172
+donation,validation,7-day moving average,O+,3.434,4.75,28.495,2172
+donation,validation,7-day moving average,O-,0.597,0.839,107.534,2172
+donation,validation,Boosted model (sklearn-hist-gbm),ALL,1.283,2.156,30.552,17376
+donation,validation,Boosted model (sklearn-hist-gbm),A+,2.121,2.838,29.304,2172
+donation,validation,Boosted model (sklearn-hist-gbm),A-,0.398,0.539,135.563,2172
+donation,validation,Boosted model (sklearn-hist-gbm),B+,2.496,3.351,23.399,2172
+donation,validation,Boosted model (sklearn-hist-gbm),B-,0.512,0.682,111.746,2172
+donation,validation,Boosted model (sklearn-hist-gbm),AB+,1.174,1.583,53.38,2172
+donation,validation,Boosted model (sklearn-hist-gbm),AB-,0.248,0.38,170.152,2172
+donation,validation,Boosted model (sklearn-hist-gbm),O+,2.751,3.731,22.829,2172
+donation,validation,Boosted model (sklearn-hist-gbm),O-,0.568,0.766,102.242,2172
+demand,test,Naive (yesterday),ALL,2.182,4.148,42.06,17664
+demand,test,Naive (yesterday),A+,3.49,4.973,38.924,2208
+demand,test,Naive (yesterday),A-,0.523,0.896,125.817,2208
+demand,test,Naive (yesterday),B+,4.527,6.495,34.922,2208
+demand,test,Naive (yesterday),B-,0.723,1.135,113.343,2208
+demand,test,Naive (yesterday),AB+,1.705,2.358,64.441,2208
+demand,test,Naive (yesterday),AB-,0.315,0.64,152.412,2208
+demand,test,Naive (yesterday),O+,5.236,7.791,35.303,2208
+demand,test,Naive (yesterday),O-,0.934,1.397,112.801,2208
+demand,test,Seasonal naive (last week),ALL,2.107,4.02,40.626,17664
+demand,test,Seasonal naive (last week),A+,3.453,4.958,38.505,2208
+demand,test,Seasonal naive (last week),A-,0.51,0.88,122.549,2208
+demand,test,Seasonal naive (last week),B+,4.334,6.343,33.433,2208
+demand,test,Seasonal naive (last week),B-,0.735,1.132,115.188,2208
+demand,test,Seasonal naive (last week),AB+,1.678,2.32,63.448,2208
+demand,test,Seasonal naive (last week),AB-,0.319,0.642,154.386,2208
+demand,test,Seasonal naive (last week),O+,4.928,7.394,33.23,2208
+demand,test,Seasonal naive (last week),O-,0.901,1.388,108.807,2208
+demand,test,7-day moving average,ALL,1.712,3.149,33.011,17664
+demand,test,7-day moving average,A+,2.759,3.872,30.764,2208
+demand,test,7-day moving average,A-,0.465,0.683,111.905,2208
+demand,test,7-day moving average,B+,3.476,4.994,26.811,2208
+demand,test,7-day moving average,B-,0.635,0.864,99.442,2208
+demand,test,7-day moving average,AB+,1.318,1.768,49.813,2208
+demand,test,7-day moving average,AB-,0.308,0.488,149.279,2208
+demand,test,7-day moving average,O+,3.98,5.809,26.834,2208
+demand,test,7-day moving average,O-,0.758,1.049,91.591,2208
+demand,test,Boosted model (sklearn-hist-gbm),ALL,1.535,2.889,29.59,17664
+demand,test,Boosted model (sklearn-hist-gbm),A+,2.443,3.552,27.241,2208
+demand,test,Boosted model (sklearn-hist-gbm),A-,0.472,0.648,113.418,2208
+demand,test,Boosted model (sklearn-hist-gbm),B+,2.999,4.492,23.135,2208
+demand,test,Boosted model (sklearn-hist-gbm),B-,0.614,0.808,96.208,2208
+demand,test,Boosted model (sklearn-hist-gbm),AB+,1.238,1.655,46.798,2208
+demand,test,Boosted model (sklearn-hist-gbm),AB-,0.328,0.462,158.93,2208
+demand,test,Boosted model (sklearn-hist-gbm),O+,3.462,5.385,23.345,2208
+demand,test,Boosted model (sklearn-hist-gbm),O-,0.723,0.985,87.283,2208
+donation,test,Naive (yesterday),ALL,1.885,3.449,41.742,17664
+donation,test,Naive (yesterday),A+,3.147,4.342,40.03,2208
+donation,test,Naive (yesterday),A-,0.439,0.794,140.639,2208
+donation,test,Naive (yesterday),B+,3.976,5.599,34.788,2208
+donation,test,Naive (yesterday),B-,0.639,1.013,122.609,2208
+donation,test,Naive (yesterday),AB+,1.525,2.146,65.506,2208
+donation,test,Naive (yesterday),AB-,0.256,0.555,165.982,2208
+donation,test,Naive (yesterday),O+,4.351,6.088,33.758,2208
+donation,test,Naive (yesterday),O-,0.744,1.158,119.231,2208
+donation,test,Seasonal naive (last week),ALL,1.806,3.227,39.993,17664
+donation,test,Seasonal naive (last week),A+,3.109,4.238,39.552,2208
+donation,test,Seasonal naive (last week),A-,0.432,0.776,138.462,2208
+donation,test,Seasonal naive (last week),B+,3.831,5.248,33.516,2208
+donation,test,Seasonal naive (last week),B-,0.612,0.981,117.565,2208
+donation,test,Seasonal naive (last week),AB+,1.525,2.146,65.506,2208
+donation,test,Seasonal naive (last week),AB-,0.253,0.555,163.93,2208
+donation,test,Seasonal naive (last week),O+,3.976,5.481,30.842,2208
+donation,test,Seasonal naive (last week),O-,0.707,1.126,113.353,2208
+donation,test,7-day moving average,ALL,1.56,2.782,34.557,17664
+donation,test,7-day moving average,A+,2.612,3.585,33.232,2208
+donation,test,7-day moving average,A-,0.406,0.6,130.023,2208
+donation,test,7-day moving average,B+,3.288,4.547,28.765,2208
+donation,test,7-day moving average,B-,0.552,0.757,105.988,2208
+donation,test,7-day moving average,AB+,1.231,1.677,52.871,2208
+donation,test,7-day moving average,AB-,0.245,0.417,158.819,2208
+donation,test,7-day moving average,O+,3.519,4.872,27.297,2208
+donation,test,7-day moving average,O-,0.629,0.867,100.86,2208
+donation,test,Boosted model (sklearn-hist-gbm),ALL,1.311,2.227,29.047,17664
+donation,test,Boosted model (sklearn-hist-gbm),A+,2.184,2.913,27.783,2208
+donation,test,Boosted model (sklearn-hist-gbm),A-,0.412,0.568,132.166,2208
+donation,test,Boosted model (sklearn-hist-gbm),B+,2.623,3.577,22.946,2208
+donation,test,Boosted model (sklearn-hist-gbm),B-,0.52,0.703,99.884,2208
+donation,test,Boosted model (sklearn-hist-gbm),AB+,1.138,1.529,48.865,2208
+donation,test,Boosted model (sklearn-hist-gbm),AB-,0.257,0.395,166.529,2208
+donation,test,Boosted model (sklearn-hist-gbm),O+,2.765,3.798,21.447,2208
+donation,test,Boosted model (sklearn-hist-gbm),O-,0.593,0.803,95.039,2208

@@ -1,0 +1,19 @@
+feature,meaning
+target_demand,TARGET: units of this blood group needed at this hospital on this day
+demand_lag_1/7/14/28,"demand 1, 7, 14, 28 days earlier"
+donation_lag_1/7,donations 1 and 7 days earlier
+unmet_lag_1,unmet demand yesterday (stock-out signal)
+demand_roll_mean_7/14/28,average demand over the previous 7/14/28 days (ends yesterday)
+demand_roll_std_7/14,demand variability over the previous 7/14 days
+donation_roll_mean_7/28,average donations over the previous 7/28 days
+"day_of_week, is_weekend, month, day_of_year, week_of_year",calendar position
+is_festival,"within +/-2 days of Pongal, Tamil New Year, Independence Day or Deepavali"
+is_summer_dip,May-June (low donation season)
+"trauma_tier, icu_beds, general_beds, has_cath_lab","hospital capability, from Module 4 hospital table"
+"blood_group_code, is_rh_negative, hospital_code",numeric codes for tree models
+"acc_7d, acc_30d, acc_severe_30d",accidents attributed to this hospital in the previous 7/30 days (ends yesterday)
+stock_prev_close,closing stock at end of yesterday
+expiring_3d_prev,"units that were due to expire within 3 days, as of yesterday"
+procured_lag_1,units received from regional centre yesterday
+days_of_cover_prev,yesterday's closing stock / 7-day average demand
+split,"train (2023-2024) / validation (2025 H1) / test (2025 H2) -- time-based, never random"

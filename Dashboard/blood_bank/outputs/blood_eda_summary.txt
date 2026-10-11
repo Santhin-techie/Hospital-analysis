@@ -1,0 +1,89 @@
+============================================================
+1. DATA QUALITY
+============================================================
+Rows: 105,216 | Hospitals: 12 | Groups: 8 | Days: 1096
+Date range: 2023-01-01 to 2025-12-31
+Missing values: 0
+Duplicate (date, hospital, group) rows: 0
+Negative closing stock rows: 0
+Rows where issued + unmet != demanded: 0
+Complete panel (no missing dates): True
+
+============================================================
+2. BLOOD GROUP SUMMARY (3 years, all hospitals)
+============================================================
+             demanded  donated  procured  unmet  expired  demand_share_%  donation_per_demand  unmet_%
+blood_group                                                                                           
+A+             111968    99590     11877    444       19           21.55                0.889     0.40
+A-               5237     3965      1106    248       73            1.01                0.757     4.74
+B+             163119   145754     16755    513        0           31.40                0.894     0.31
+B-               8245     6470      1587    267       51            1.59                0.785     3.24
+AB+             33971    30069      3803    181       62            6.54                0.885     0.53
+AB-              2633     2011       605    180      158            0.51                0.764     6.84
+O+             183929   164922     17971    854        0           35.40                0.897     0.46
+O-              10435     7536      2324    624       46            2.01                0.722     5.98
+
+Structurally short groups (highest unmet %): AB-, O-, A-, B-
+
+============================================================
+3. YEARLY TOTALS
+============================================================
+      units_demanded  units_donated  demand_growth_%
+year                                                
+2023          167473         153816              NaN
+2024          172353         153754             2.91
+2025          179711         152747             4.27
+
+============================================================
+4. WEEKLY PATTERN (avg units/day)
+============================================================
+     units_demanded  units_donated
+Mon           509.0          361.0
+Tue           511.1          361.0
+Wed           497.3          370.0
+Thu           494.0          385.8
+Fri           492.8          402.7
+Sat           435.4          540.5
+Sun           378.7          519.3
+
+============================================================
+5. DEMAND BY HOSPITAL
+============================================================
+                                            name  demanded  unmet  unmet_%
+hospital_id                                                               
+HOSP01             Apollo Hospitals, Greams Road     40953     65     0.16
+HOSP02            MIOT International, Manapakkam     65678    154     0.23
+HOSP03                Kauvery Hospital, Alwarpet     25933     88     0.34
+HOSP04       Rajiv Gandhi Govt. General Hospital     95580     73     0.08
+HOSP05          Stanley Medical College Hospital     47785    152     0.32
+HOSP06            Sri Ramachandra Medical Centre     98804     57     0.06
+HOSP07              Fortis Malar Hospital, Adyar     21893   1692     7.73
+HOSP08               Tulips Multispeciality, OMR      6648     29     0.44
+HOSP09           Chettinad Hospital, Kelambakkam     46176    282     0.61
+HOSP10             Government Hospital, Tambaram     25365    596     2.35
+HOSP11            Prashanth Hospitals, Chromepet     12912     36     0.28
+HOSP12                 SIMS Hospital, Vadapalani     31810     87     0.27
+
+============================================================
+6. % OF DAYS WITH ZERO DEMAND (per hospital-group-day)
+============================================================
+blood_group
+A+      3.5
+A-     69.5
+B+      1.4
+B-     58.3
+AB+    19.4
+AB-    82.8
+O+      1.4
+O-     52.4
+-> High zero share for AB-/A-/B-/O- means plain MAPE breaks; use WAPE and pool or aggregate to weekly for the rare groups.
+
+============================================================
+7. FESTIVAL EFFECT (avg units/day, all hospitals)
+============================================================
+                      units_demanded  units_donated
+Normal days                    472.2          426.0
+Festival days (+/-2)           505.2          315.6
+
+Overall wastage rate (expired / collected+procured): 0.08%
+NOTE: real RBC wastage is usually a few percent; this simulation is lower because stock turns over every 3-4 days. State this limitation in the report.

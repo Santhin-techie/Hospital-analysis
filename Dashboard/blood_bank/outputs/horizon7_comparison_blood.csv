@@ -1,0 +1,55 @@
+target,model,scope,MAE_7d_units,WAPE_7d_%,n
+demand,Previous week total,ALL,6.336,17.455,2496
+demand,Previous week total,A+,10.205,16.259,312
+demand,Previous week total,A-,1.801,62.168,312
+demand,Previous week total,B+,13.029,14.364,312
+demand,Previous week total,B-,2.215,49.605,312
+demand,Previous week total,AB+,4.558,24.589,312
+demand,Previous week total,AB-,1.212,83.814,312
+demand,Previous week total,O+,15.08,14.528,312
+demand,Previous week total,O-,2.59,44.715,312
+demand,28-day average x 7,ALL,4.956,13.651,2496
+demand,28-day average x 7,A+,7.997,12.741,312
+demand,28-day average x 7,A-,1.568,54.121,312
+demand,28-day average x 7,B+,9.817,10.822,312
+demand,28-day average x 7,B-,1.701,38.101,312
+demand,28-day average x 7,AB+,3.609,19.471,312
+demand,28-day average x 7,AB-,1.053,72.838,312
+demand,28-day average x 7,O+,11.752,11.322,312
+demand,28-day average x 7,O-,2.147,37.078,312
+demand,Boosted model (recursive),ALL,4.856,13.376,2496
+demand,Boosted model (recursive),A+,7.867,12.534,312
+demand,Boosted model (recursive),A-,1.438,49.615,312
+demand,Boosted model (recursive),B+,9.97,10.992,312
+demand,Boosted model (recursive),B-,1.623,36.353,312
+demand,Boosted model (recursive),AB+,3.398,18.332,312
+demand,Boosted model (recursive),AB-,0.944,65.297,312
+demand,Boosted model (recursive),O+,11.637,11.211,312
+demand,Boosted model (recursive),O-,1.969,34.003,312
+donation,Previous week total,ALL,5.618,17.758,2496
+donation,Previous week total,A+,9.064,16.448,312
+donation,Previous week total,A-,1.657,76.141,312
+donation,Previous week total,B+,12.391,15.483,312
+donation,Previous week total,B-,1.824,50.176,312
+donation,Previous week total,AB+,4.516,27.693,312
+donation,Previous week total,AB-,0.99,91.42,312
+donation,Previous week total,O+,12.25,13.552,312
+donation,Previous week total,O-,2.253,51.54,312
+donation,28-day average x 7,ALL,4.586,14.495,2496
+donation,28-day average x 7,A+,7.646,13.874,312
+donation,28-day average x 7,A-,1.296,59.536,312
+donation,28-day average x 7,B+,9.87,12.333,312
+donation,28-day average x 7,B-,1.444,39.727,312
+donation,28-day average x 7,AB+,3.681,22.573,312
+donation,28-day average x 7,AB-,0.874,80.695,312
+donation,28-day average x 7,O+,10.188,11.27,312
+donation,28-day average x 7,O-,1.689,38.636,312
+donation,Boosted model (recursive),ALL,4.052,12.806,2496
+donation,Boosted model (recursive),A+,6.246,11.333,312
+donation,Boosted model (recursive),A-,1.237,56.836,312
+donation,Boosted model (recursive),B+,8.903,11.124,312
+donation,Boosted model (recursive),B-,1.307,35.968,312
+donation,Boosted model (recursive),AB+,3.478,21.329,312
+donation,Boosted model (recursive),AB-,0.833,76.915,312
+donation,Boosted model (recursive),O+,8.81,9.746,312
+donation,Boosted model (recursive),O-,1.599,36.571,312
