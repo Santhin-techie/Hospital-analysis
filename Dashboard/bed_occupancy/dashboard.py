@@ -81,8 +81,8 @@ st.markdown(
 
     /* Compact metric cards */
     div[data-testid="stMetric"] {
-        background-color: white;
-        border: 1px solid #dbe5ee;
+        background-color: rgba(128, 128, 128, 0.12);
+        border: 1px solid rgba(128, 128, 128, 0.35);
         border-radius: 8px;
         padding: 5px 12px;
         box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.06);

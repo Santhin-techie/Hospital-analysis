@@ -1,33 +1,46 @@
 """
 Hospital Resource Intelligence - Master Dashboard (Home page)
 
-Folder layout (same style as your scripts folder):
-    Dashboard/app.py            <- this file
-    data/simulated/             <- chennai_hospitals.csv, chennai_hotspot_zones.csv,
-                                   chennai_coverage_results_LIVE.csv (or _APPROX.csv),
-                                   medicine_inventory_demand.csv (optional)
+Folder layout:
+    Dashboard/app.py                    <- this file
+    Dashboard/bed_occupancy/            <- Module 1 (friend's folder, no .venv)
+    Dashboard/module4_dashboard_full.py <- Module 4 dashboard
+    data/simulated/                     <- chennai_*.csv, medicine_inventory_demand.csv
 
 Run (from the Dashboard folder):  streamlit run app.py
 
-Module 4 (coverage) uses your REAL results.
-Modules 1-3 use SAMPLE data until teammates give their CSV files.
-Search for "SAMPLE" below to find what to replace.
+Module 1 (beds) and Module 4 (coverage) use real results.
+Module 2 (medicine) is recalculated from today's date every time the app loads.
+Module 3 (blood) is still SAMPLE data. Search for "SAMPLE" below.
 """
 
 import math
 import os
 import random
 import runpy
+from datetime import date
 
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _find_dir(*names):
+    """Return the first existing folder name (handles 'bed_occupancy' vs 'bed occupancy')."""
+    for n in names:
+        if os.path.isdir(os.path.join(_HERE, n)):
+            return n
+    return names[0]
+
+
+BED_DIR = _find_dir("bed_occupancy", "bed occupancy")
+
 # Each module keeps its own dashboard file. ?view=<key> opens that dashboard unchanged;
 # the left-menu links open these addresses in a new browser tab.
-_HERE = os.path.dirname(os.path.abspath(__file__))
 MODULE_APPS = {
-    "module1": ("Bed occupancy (Module 1)", os.path.join(_HERE, "bed_occupancy", "dashboard.py")),
+    "module1": ("Bed occupancy (Module 1)", os.path.join(_HERE, BED_DIR, "dashboard.py")),
     "module4": ("Coverage and referral (Module 4)", os.path.join(_HERE, "module4_dashboard_full.py")),
 }
 _view = st.query_params.get("view")
@@ -37,7 +50,7 @@ if _view in MODULE_APPS and os.path.exists(MODULE_APPS[_view][1]):
 
 st.set_page_config(page_title="Hospital Readiness - Master Console", layout="wide")
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+BASE = _HERE
 SIM = os.path.join(BASE, "..", "data", "simulated")
 
 RED, AMBER, GREEN = [201, 58, 36], [217, 162, 27], [28, 129, 96]
@@ -74,6 +87,36 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+# ---------------------------------------------------------------------------
+# Medicine status, recalculated from TODAY (the CSV's saved status goes stale)
+# ---------------------------------------------------------------------------
+def refresh_medicine(med):
+    """Recompute days_to_expiry and stock_status using today's date.
+
+    EXPIRED         expiry date is today or earlier
+    SHORTAGE RISK   stock is below the reorder level (about 7 days of demand)
+    WASTAGE RISK    expires within 30 days and stock would outlast the expiry date
+    STABLE STOCK    none of the above
+    """
+    m = med.copy()
+    today = pd.Timestamp(date.today())
+    m["days_to_expiry"] = (pd.to_datetime(m["expiry_date"]) - today).dt.days
+
+    def status(r):
+        if r["days_to_expiry"] <= 0:
+            return "EXPIRED WASTAGE"
+        if r["current_stock_units"] < r["reorder_level"]:
+            return "SHORTAGE RISK"
+        left = r["current_stock_units"] - r["forecasted_daily_demand"] * r["days_to_expiry"]
+        if r["days_to_expiry"] <= 30 and left > 0:
+            return "WASTAGE RISK"
+        return "STABLE STOCK"
+
+    m["stock_status"] = m.apply(status, axis=1)
+    return m
+
+
 # ---------------------------------------------------------------------------
 # Load data
 # ---------------------------------------------------------------------------
@@ -88,8 +131,9 @@ def load():
     else:
         cov = pd.read_csv(approx).rename(columns={"nearest_capable_min_APPROX": "nearest_capable_min"})
     med_path = os.path.join(SIM, "medicine_inventory_demand.csv")
-    med = pd.read_csv(med_path) if os.path.exists(med_path) else None
+    med = refresh_medicine(pd.read_csv(med_path)) if os.path.exists(med_path) else None
     return hosp, zones, cov, med
+
 
 try:
     hosp, zones, cov, med = load()
@@ -98,13 +142,13 @@ except FileNotFoundError as e:
     st.stop()
 
 # ---------------------------------------------------------------------------
-# SAMPLE data for Modules 1-3 (one row per hospital)
-# Replace each block with the teammate's real CSV when it is ready.
+# Module 1 (real) + Modules 2-3 (hospital level = SAMPLE)
 # ---------------------------------------------------------------------------
-ROLLUP = next((q for q in [os.path.join(BASE, "bed_occupancy", "outputs", "hospital_risk_rollup.csv"),
+ROLLUP = next((q for q in [os.path.join(BASE, BED_DIR, "outputs", "hospital_risk_rollup.csv"),
                            os.path.join(BASE, "..", "data", "final", "hospital_risk_rollup.csv")]
                if os.path.exists(q)), None)
 BEDS_REAL = ROLLUP is not None      # True = Module 1 results are loaded
+
 
 def sample_module_status(hosp_df):
     rng = random.Random(7)
@@ -112,16 +156,15 @@ def sample_module_status(hosp_df):
     for _, h in hosp_df.iterrows():
         rows.append({
             "name": h["name"],
-            "bed_pct": rng.randint(55, 88),        # Module 1: predicted bed use tomorrow (%)
-            "meds_short": rng.choice([0, 0, 1, 2]),   # Module 2: medicines about to run out
-            "blood_low": rng.choice([0, 0, 0, 1, 2]), # Module 3: blood groups running low
+            "bed_pct": rng.randint(55, 88),            # Module 1 fallback (%)
+            "meds_short": rng.choice([0, 0, 1, 2]),    # SAMPLE: medicines about to run out
+            "blood_low": rng.choice([0, 0, 0, 1, 2]),  # SAMPLE: blood groups running low (Module 3)
         })
     df = pd.DataFrame(rows).set_index("name")
     df["bed_high"] = False
     # A deliberate sample story: the hospital most zones depend on has low blood
     df.loc["Fortis Malar Hospital, Adyar", "blood_low"] = 2
     if BEDS_REAL:
-        # REAL Module 1: busiest department's 7-day forecast and the hospital risk level
         r = pd.read_csv(ROLLUP).set_index("hospital_name_department")
         common = df.index.intersection(r.index)
         df.loc[common, "bed_pct"] = r.loc[common, "highest_risk_predicted_occupancy"].round(0)
@@ -130,6 +173,7 @@ def sample_module_status(hosp_df):
         df.loc["Fortis Malar Hospital, Adyar", "bed_pct"] = 92
     df["bed_pct"] = df["bed_pct"].astype(int)
     return df
+
 
 status = sample_module_status(hosp)
 
@@ -141,19 +185,27 @@ hosp = hosp.set_index("name").join(status)
 hosp["zones_served"] = served.reindex(hosp.index).fillna(0).astype(int)
 hosp = hosp.reset_index()
 
+
 def readiness(r):
     reasons, level = [], 0
-    if r["bed_high"] or r["bed_pct"] >= 90: level = max(level, 2); reasons.append(f"bed forecast high ({r['bed_pct']}% in busiest department)")
-    elif r["bed_pct"] >= 80: level = max(level, 1); reasons.append(f"bed forecast {r['bed_pct']}% in busiest department")
-    if r["blood_low"] >= 2: level = max(level, 2); reasons.append(f"{r['blood_low']} blood groups low")
-    elif r["blood_low"] == 1: level = max(level, 1); reasons.append("1 blood group low")
-    if r["meds_short"] >= 2: level = max(level, 2); reasons.append(f"{r['meds_short']} medicines running out")
-    elif r["meds_short"] == 1: level = max(level, 1); reasons.append("1 medicine running out")
+    if r["bed_high"] or r["bed_pct"] >= 90:
+        level = max(level, 2); reasons.append(f"bed forecast high ({r['bed_pct']}% in busiest department)")
+    elif r["bed_pct"] >= 80:
+        level = max(level, 1); reasons.append(f"bed forecast {r['bed_pct']}% in busiest department")
+    if r["blood_low"] >= 2:
+        level = max(level, 2); reasons.append(f"{r['blood_low']} blood groups low")
+    elif r["blood_low"] == 1:
+        level = max(level, 1); reasons.append("1 blood group low")
+    if r["meds_short"] >= 2:
+        level = max(level, 2); reasons.append(f"{r['meds_short']} medicines running out")
+    elif r["meds_short"] == 1:
+        level = max(level, 1); reasons.append("1 medicine running out")
     if r["zones_served"] >= 3 and level >= 1:
         level = 2; reasons.append(f"{r['zones_served']} accident zones depend on it")
     elif r["zones_served"] >= 3:
         level = max(level, 1); reasons.append(f"{r['zones_served']} accident zones depend on it")
     return pd.Series({"readiness": ["Green", "Amber", "Red"][level], "why": ", ".join(reasons) or "all clear"})
+
 
 hosp[["readiness", "why"]] = hosp.apply(readiness, axis=1)
 
@@ -168,19 +220,16 @@ with st.sidebar:
         _pages.append("Bed occupancy (Module 1)")
     _pages += ["Medicine stock (Module 2)", "Blood bank (Module 3)"]
     page = st.radio("Go to", _pages, label_visibility="collapsed")
-    # Real links: one click opens that module's own dashboard in a new tab
     for _key, (_label, _file) in MODULE_APPS.items():
         if os.path.exists(_file):
             st.markdown(f'<a class="m4link" href="?view={_key}" target="_blank">{_label} &#8599;</a>',
                         unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------------------------
-# MODULE 4 PAGE: Coverage and referral (REAL data)
-# ---------------------------------------------------------------------------
 def kpi(col, number, label, sub, cls):
     col.markdown(f'<div class="kpi"><div class="n {cls}">{number}</div>'
                  f'<div class="l">{label}</div><div class="s">{sub}</div></div>', unsafe_allow_html=True)
+
 
 SLOT_LABELS = {"now": "Now (live)", "morning": "Morning 08:30", "midday": "Midday 13:00",
                "evening": "Evening 18:00", "night": "Night 23:00"}
@@ -195,6 +244,7 @@ def approx_min(lat1, lon1, lat2, lon2):
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     return 6371 * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)) * 1.4 / 22 * 60
 
+
 def hospital_problems(r):
     p = []
     if r["trauma_tier"] > 2: p.append("cannot handle trauma")
@@ -202,6 +252,7 @@ def hospital_problems(r):
     if r["blood_low"] >= 2: p.append("blood running low")
     if r["meds_short"] >= 2: p.append("medicines running out")
     return p
+
 
 def render_patient_route():
     st.title("Where should the patient go?")
@@ -234,7 +285,8 @@ def render_patient_route():
     factor = min(3.0, max(0.5, float(ref_min) / base)) if base > 0 else 1.0
     d["minutes"] = (d["est"] * factor).round(1)
     d.loc[d["name"] == ref_name, "minutes"] = round(float(ref_min), 1)
-    # If the real all-hospital file exists (from compute_travel_time.py), use real TomTom minutes
+
+    # Real all-hospital TomTom minutes, if the file exists
     used_real = False
     real_path = os.path.join(SIM, "chennai_all_travel_times.csv")
     if os.path.exists(real_path):
@@ -286,7 +338,7 @@ def render_patient_route():
     show = top[["name", "minutes", "trauma_tier", "bed_pct", "blood_low", "meds_short", "Verdict"]].rename(columns={
         "name": "Hospital", "minutes": "Minutes", "trauma_tier": "Trauma tier", "bed_pct": "Bed forecast, busiest dept (%)",
         "blood_low": "Blood groups low", "meds_short": "Medicines running out"})
-    st.dataframe(show, hide_index=True, use_container_width=True)
+    st.dataframe(show, hide_index=True, width="stretch")
 
     # ---- Map ----
     d["color"] = d["name"].map(lambda n: GREEN if n == best["name"] else ([201, 58, 36] if n == nearest["name"] else [37, 84, 199]))
@@ -318,6 +370,34 @@ if page == "Where should the patient go?":
     render_patient_route()
     st.stop()
 
+# ---------------------------------------------------------------------------
+# PAGE: Medicine stock (Module 2), now a real page using today's date
+# ---------------------------------------------------------------------------
+if page == "Medicine stock (Module 2)":
+    st.title("Medicine stock")
+    if med is None:
+        st.warning("medicine_inventory_demand.csv was not found in data/simulated.")
+        st.stop()
+    st.write(f"Status is recalculated from today's date ({date.today():%d %b %Y}), not from when the file was generated.")
+    n = med["stock_status"].value_counts()
+    k1, k2, k3, k4 = st.columns(4)
+    kpi(k1, int(n.get("EXPIRED WASTAGE", 0)), "Already expired", "remove from shelves", "bad" if n.get("EXPIRED WASTAGE", 0) else "good")
+    kpi(k2, int(n.get("SHORTAGE RISK", 0)), "Below reorder level", "about 7 days of demand", "mid" if n.get("SHORTAGE RISK", 0) else "good")
+    kpi(k3, int(n.get("WASTAGE RISK", 0)), "Likely to expire unused", "within 30 days", "mid" if n.get("WASTAGE RISK", 0) else "good")
+    kpi(k4, int(n.get("STABLE STOCK", 0)), "Stable", "", "good")
+    st.write("")
+    expired_value = med.loc[med["stock_status"] == "EXPIRED WASTAGE"].eval("current_stock_units * unit_cost_inr").sum()
+    st.markdown(f'<span class="tag">Value</span> Expired stock is worth about Rs.{expired_value:,.0f}.', unsafe_allow_html=True)
+    order_m = {"EXPIRED WASTAGE": 0, "SHORTAGE RISK": 1, "WASTAGE RISK": 2, "STABLE STOCK": 3}
+    t = med[["medicine_name", "category", "current_stock_units", "reorder_level", "forecasted_daily_demand",
+             "expiry_date", "days_to_expiry", "stock_status"]].rename(columns={
+        "medicine_name": "Medicine", "category": "Category", "current_stock_units": "Stock",
+        "reorder_level": "Reorder level", "forecasted_daily_demand": "Daily demand",
+        "expiry_date": "Expiry", "days_to_expiry": "Days to expiry", "stock_status": "Status"})
+    t = t.sort_values("Status", key=lambda s: s.map(order_m))
+    st.dataframe(t, hide_index=True, width="stretch")
+    st.stop()
+
 if page != "Home":
     st.title(page)
     st.info("This page is next. Home is ready first.")
@@ -340,12 +420,11 @@ if med is not None:
 else:
     med_short, med_sub = int(hosp["meds_short"].sum()), "sample data"
 
-
 c1, c2, c3, c4 = st.columns(4)
 kpi(c1, len(gap_zones), "Accident zones too far from a trauma hospital",
     f"of {len(cov)} zones, over {SAFE_WINDOW} min at the worst time of day", "bad" if len(gap_zones) else "good")
 kpi(c2, n_red, "Hospitals in trouble", f"{n_amber} more need care", "bad" if n_red else "good")
-kpi(c3, med_short, "Medicines at risk of running out", med_sub, "mid" if med_short else "good")
+kpi(c3, med_short, "Medicines below reorder level", med_sub, "mid" if med_short else "good")
 kpi(c4, int(hosp["blood_low"].sum()), "Blood groups running low", "across all hospitals (sample data)", "mid")
 
 st.write("")
@@ -403,8 +482,9 @@ table = hosp[["name", "readiness", "bed_pct", "meds_short", "blood_low", "zones_
     "zones_served": "Accident zones served", "why": "Reason"})
 order = {"Red": 0, "Amber": 1, "Green": 2}
 table = table.sort_values("Status", key=lambda s: s.map(order))
-st.dataframe(table, hide_index=True, use_container_width=True)
+st.dataframe(table, hide_index=True, width="stretch")
 
 st.markdown(f'<span class="tag">Data note</span> {"Bed forecasts come from Module 1 (real results). " if BEDS_REAL else ""}'
-            f'{"Blood and" if BEDS_REAL else "Beds, blood and"} hospital-level medicine counts are placeholders until those modules are connected. '
+            f'Medicine KPIs on this page are real (recalculated today). {"Blood and" if BEDS_REAL else "Beds, blood and"} '
+            'per-hospital medicine counts are placeholders until those modules are connected. '
             'Accident-zone coverage is real routing data.', unsafe_allow_html=True)
