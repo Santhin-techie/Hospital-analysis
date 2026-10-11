@@ -1,10 +1,10 @@
 zone_id,slot,slot_label,nearest_hospital_any,nearest_hospital_any_min,nearest_capable_hospital,nearest_capable_min,coverage_status
-ZONE-04,now,Now (live),"Fortis Malar Hospital, Adyar",15.0,"Fortis Malar Hospital, Adyar",15.0,COVERED
-ZONE-02,now,Now (live),"Government Hospital, Tambaram",4.9,"Government Hospital, Tambaram",4.9,COVERED
-ZONE-05,now,Now (live),"Chettinad Hospital, Kelambakkam",5.1,"Chettinad Hospital, Kelambakkam",5.1,COVERED
-ZONE-03,now,Now (live),"Fortis Malar Hospital, Adyar",14.0,"Fortis Malar Hospital, Adyar",14.0,COVERED
-ZONE-01,now,Now (live),"SIMS Hospital, Vadapalani",21.9,"SIMS Hospital, Vadapalani",21.9,GAP
-ZONE-06,now,Now (live),"Fortis Malar Hospital, Adyar",2.4,"Fortis Malar Hospital, Adyar",2.4,COVERED
+ZONE-04,now,Now (live),"Fortis Malar Hospital, Adyar",14.3,"Fortis Malar Hospital, Adyar",14.3,COVERED
+ZONE-02,now,Now (live),"Government Hospital, Tambaram",4.5,"Government Hospital, Tambaram",4.5,COVERED
+ZONE-05,now,Now (live),"Chettinad Hospital, Kelambakkam",5.2,"Chettinad Hospital, Kelambakkam",5.2,COVERED
+ZONE-03,now,Now (live),"Fortis Malar Hospital, Adyar",11.4,"Fortis Malar Hospital, Adyar",11.4,COVERED
+ZONE-01,now,Now (live),"SIMS Hospital, Vadapalani",21.1,"SIMS Hospital, Vadapalani",21.1,GAP
+ZONE-06,now,Now (live),"Fortis Malar Hospital, Adyar",2.0,"Fortis Malar Hospital, Adyar",2.0,COVERED
 ZONE-04,morning,Morning peak 08:30,"Fortis Malar Hospital, Adyar",18.6,"Fortis Malar Hospital, Adyar",18.6,COVERED
 ZONE-02,morning,Morning peak 08:30,"Government Hospital, Tambaram",5.2,"Government Hospital, Tambaram",5.2,COVERED
 ZONE-05,morning,Morning peak 08:30,"Chettinad Hospital, Kelambakkam",5.2,"Chettinad Hospital, Kelambakkam",5.2,COVERED

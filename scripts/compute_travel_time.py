@@ -30,6 +30,10 @@ Output: chennai_coverage_results_LIVE.csv
           one capable_min_<slot> column per time point.
         chennai_coverage_by_timeslot.csv
           every zone at every time point (for charts and the report).
+        chennai_all_travel_times.csv                                  <-- NEW
+          EVERY zone x hospital x time point (6 x 12 x 5 = 360 rows). Used by
+          the "Where should the patient go?" page for real travel minutes to
+          all hospitals, not only the nearest one.
 """
 
 import os
@@ -124,6 +128,7 @@ def travel_minutes(orig_lat, orig_lon, dest_lat, dest_lon, hm, slot_key):
 # ---------------------------------------------------------------------------
 run_timestamp = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
 long_rows = []
+all_rows = []        # NEW: every single route, not only the best one per zone
 
 for key, label, hm in SLOTS:
     print(f"--- {label} ---")
@@ -136,6 +141,18 @@ for key, label, hm in SLOTS:
             time.sleep(REQUEST_DELAY_SEC)
             if t is None:
                 continue
+
+            # NEW: keep this route (previously only the best one survived)
+            all_rows.append({
+                "zone_id": zone["zone_id"],
+                "hospital_id": hosp["hospital_id"],
+                "hospital": hosp["name"],
+                "trauma_tier": hosp["trauma_tier"],
+                "slot": key,
+                "slot_label": label,
+                "travel_min": t,
+            })
+
             if t < best_any["time"]:
                 best_any = {"time": t, "hospital": hosp["name"]}
             if hosp["trauma_tier"] <= REQUIRED_MAX_TIER and t < best_capable["time"]:
@@ -198,8 +215,11 @@ final_df = pd.DataFrame(final_rows).sort_values("risk_score", ascending=False)
 
 out_live = os.path.join(DATA_DIR, "chennai_coverage_results_LIVE.csv")
 out_slots = os.path.join(DATA_DIR, "chennai_coverage_by_timeslot.csv")
+out_all = os.path.join(DATA_DIR, "chennai_all_travel_times.csv")      # NEW
 final_df.to_csv(out_live, index=False)
 long_df.to_csv(out_slots, index=False)
+all_df = pd.DataFrame(all_rows)                                        # NEW
+all_df.to_csv(out_all, index=False)                                    # NEW
 
 # ---------------------------------------------------------------------------
 # 5. Summary
@@ -210,3 +230,4 @@ print(final_df[cols].to_string(index=False))
 print(f"\nA zone is a GAP if it is over {SAFE_WINDOW_MINUTES} min at its worst time of day.")
 print(f"Saved -> {out_live}")
 print(f"Saved -> {out_slots}")
+print(f"Saved -> {out_all}  ({len(all_df)} of {total_calls} routes returned data)")

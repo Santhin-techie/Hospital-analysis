@@ -1,0 +1,361 @@
+zone_id,hospital_id,hospital,trauma_tier,slot,slot_label,travel_min
+ZONE-04,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),29.2
+ZONE-04,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),35.0
+ZONE-04,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),21.6
+ZONE-04,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),37.2
+ZONE-04,HOSP05,Stanley Medical College Hospital,2,now,Now (live),42.7
+ZONE-04,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),34.0
+ZONE-04,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),14.3
+ZONE-04,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),19.6
+ZONE-04,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),40.0
+ZONE-04,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),36.1
+ZONE-04,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),28.8
+ZONE-04,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),34.1
+ZONE-02,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),43.4
+ZONE-02,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),38.7
+ZONE-02,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),38.6
+ZONE-02,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),51.5
+ZONE-02,HOSP05,Stanley Medical College Hospital,2,now,Now (live),58.1
+ZONE-02,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),30.4
+ZONE-02,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),34.9
+ZONE-02,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),26.9
+ZONE-02,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),39.5
+ZONE-02,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),4.5
+ZONE-02,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),17.6
+ZONE-02,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),37.1
+ZONE-05,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),63.9
+ZONE-05,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),68.2
+ZONE-05,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),55.7
+ZONE-05,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),72.0
+ZONE-05,HOSP05,Stanley Medical College Hospital,2,now,Now (live),77.5
+ZONE-05,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),57.6
+ZONE-05,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),49.0
+ZONE-05,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),28.9
+ZONE-05,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),5.2
+ZONE-05,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),41.9
+ZONE-05,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),49.6
+ZONE-05,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),68.6
+ZONE-03,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),20.0
+ZONE-03,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),15.6
+ZONE-03,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),15.2
+ZONE-03,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),28.2
+ZONE-03,HOSP05,Stanley Medical College Hospital,2,now,Now (live),34.7
+ZONE-03,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),14.4
+ZONE-03,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),11.4
+ZONE-03,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),33.9
+ZONE-03,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),54.1
+ZONE-03,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),26.9
+ZONE-03,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),20.5
+ZONE-03,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),13.9
+ZONE-01,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),27.9
+ZONE-01,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),43.8
+ZONE-01,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),35.3
+ZONE-01,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),32.8
+ZONE-01,HOSP05,Stanley Medical College Hospital,2,now,Now (live),32.2
+ZONE-01,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),31.4
+ZONE-01,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),39.2
+ZONE-01,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),61.6
+ZONE-01,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),72.5
+ZONE-01,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),48.7
+ZONE-01,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),48.4
+ZONE-01,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),21.1
+ZONE-06,HOSP01,"Apollo Hospitals, Greams Road",1,now,Now (live),18.8
+ZONE-06,HOSP02,"MIOT International, Manapakkam",1,now,Now (live),24.7
+ZONE-06,HOSP03,"Kauvery Hospital, Alwarpet",1,now,Now (live),11.5
+ZONE-06,HOSP04,Rajiv Gandhi Govt. General Hospital,1,now,Now (live),27.3
+ZONE-06,HOSP05,Stanley Medical College Hospital,2,now,Now (live),31.1
+ZONE-06,HOSP06,Sri Ramachandra Medical Centre,1,now,Now (live),23.6
+ZONE-06,HOSP07,"Fortis Malar Hospital, Adyar",2,now,Now (live),2.0
+ZONE-06,HOSP08,"Tulips Multispeciality, OMR",3,now,Now (live),24.6
+ZONE-06,HOSP09,"Chettinad Hospital, Kelambakkam",2,now,Now (live),44.8
+ZONE-06,HOSP10,"Government Hospital, Tambaram",2,now,Now (live),36.4
+ZONE-06,HOSP11,"Prashanth Hospitals, Chromepet",2,now,Now (live),29.9
+ZONE-06,HOSP12,"SIMS Hospital, Vadapalani",1,now,Now (live),23.6
+ZONE-04,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,38.1
+ZONE-04,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,43.5
+ZONE-04,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,28.9
+ZONE-04,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,48.8
+ZONE-04,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,53.9
+ZONE-04,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,44.5
+ZONE-04,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,18.6
+ZONE-04,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,22.2
+ZONE-04,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,45.0
+ZONE-04,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,39.7
+ZONE-04,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,32.2
+ZONE-04,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,42.0
+ZONE-02,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,57.5
+ZONE-02,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,44.4
+ZONE-02,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,52.0
+ZONE-02,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,69.3
+ZONE-02,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,71.7
+ZONE-02,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,33.5
+ZONE-02,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,46.0
+ZONE-02,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,30.8
+ZONE-02,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,44.5
+ZONE-02,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,5.2
+ZONE-02,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,17.9
+ZONE-02,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,47.4
+ZONE-05,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,81.0
+ZONE-05,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,74.4
+ZONE-05,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,71.6
+ZONE-05,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,91.8
+ZONE-05,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,97.2
+ZONE-05,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,60.6
+ZONE-05,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,61.0
+ZONE-05,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,31.8
+ZONE-05,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,5.2
+ZONE-05,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,44.8
+ZONE-05,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,55.7
+ZONE-05,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,79.5
+ZONE-03,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,26.2
+ZONE-03,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,17.3
+ZONE-03,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,20.9
+ZONE-03,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,37.6
+ZONE-03,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,45.8
+ZONE-03,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,18.0
+ZONE-03,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,15.3
+ZONE-03,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,39.2
+ZONE-03,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,61.8
+ZONE-03,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,30.4
+ZONE-03,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,22.9
+ZONE-03,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,16.9
+ZONE-01,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,35.0
+ZONE-01,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,48.8
+ZONE-01,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,41.2
+ZONE-01,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,39.2
+ZONE-01,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,38.4
+ZONE-01,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,35.3
+ZONE-01,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,53.2
+ZONE-01,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,77.0
+ZONE-01,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,79.7
+ZONE-01,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,52.3
+ZONE-01,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,60.6
+ZONE-01,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,25.2
+ZONE-06,HOSP01,"Apollo Hospitals, Greams Road",1,morning,Morning peak 08:30,23.4
+ZONE-06,HOSP02,"MIOT International, Manapakkam",1,morning,Morning peak 08:30,28.9
+ZONE-06,HOSP03,"Kauvery Hospital, Alwarpet",1,morning,Morning peak 08:30,13.5
+ZONE-06,HOSP04,Rajiv Gandhi Govt. General Hospital,1,morning,Morning peak 08:30,32.4
+ZONE-06,HOSP05,Stanley Medical College Hospital,2,morning,Morning peak 08:30,37.5
+ZONE-06,HOSP06,Sri Ramachandra Medical Centre,1,morning,Morning peak 08:30,29.7
+ZONE-06,HOSP07,"Fortis Malar Hospital, Adyar",2,morning,Morning peak 08:30,2.6
+ZONE-06,HOSP08,"Tulips Multispeciality, OMR",3,morning,Morning peak 08:30,29.1
+ZONE-06,HOSP09,"Chettinad Hospital, Kelambakkam",2,morning,Morning peak 08:30,51.9
+ZONE-06,HOSP10,"Government Hospital, Tambaram",2,morning,Morning peak 08:30,42.5
+ZONE-06,HOSP11,"Prashanth Hospitals, Chromepet",2,morning,Morning peak 08:30,35.0
+ZONE-06,HOSP12,"SIMS Hospital, Vadapalani",1,morning,Morning peak 08:30,27.3
+ZONE-04,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,38.9
+ZONE-04,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,42.8
+ZONE-04,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,28.8
+ZONE-04,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,51.5
+ZONE-04,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,55.5
+ZONE-04,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,43.2
+ZONE-04,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,18.6
+ZONE-04,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,21.9
+ZONE-04,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,43.9
+ZONE-04,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,39.7
+ZONE-04,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,32.4
+ZONE-04,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,42.1
+ZONE-02,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,55.2
+ZONE-02,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,44.3
+ZONE-02,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,48.9
+ZONE-02,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,70.0
+ZONE-02,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,72.2
+ZONE-02,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,32.4
+ZONE-02,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,43.5
+ZONE-02,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,31.1
+ZONE-02,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,42.5
+ZONE-02,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,4.8
+ZONE-02,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,18.0
+ZONE-02,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,46.1
+ZONE-05,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,75.9
+ZONE-05,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,73.7
+ZONE-05,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,66.4
+ZONE-05,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,89.1
+ZONE-05,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,93.0
+ZONE-05,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,59.7
+ZONE-05,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,56.7
+ZONE-05,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,31.4
+ZONE-05,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,5.5
+ZONE-05,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,44.5
+ZONE-05,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,54.8
+ZONE-05,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,76.3
+ZONE-03,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,26.9
+ZONE-03,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,17.2
+ZONE-03,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,20.6
+ZONE-03,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,41.7
+ZONE-03,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,50.8
+ZONE-03,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,18.1
+ZONE-03,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,15.2
+ZONE-03,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,38.8
+ZONE-03,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,60.5
+ZONE-03,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,31.0
+ZONE-03,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,23.7
+ZONE-03,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,17.7
+ZONE-01,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,35.2
+ZONE-01,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,48.0
+ZONE-01,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,43.5
+ZONE-01,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,40.9
+ZONE-01,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,40.7
+ZONE-01,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,37.3
+ZONE-01,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,50.3
+ZONE-01,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,74.7
+ZONE-01,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,80.7
+ZONE-01,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,54.3
+ZONE-01,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,59.6
+ZONE-01,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,25.4
+ZONE-06,HOSP01,"Apollo Hospitals, Greams Road",1,midday,Midday 13:00,24.9
+ZONE-06,HOSP02,"MIOT International, Manapakkam",1,midday,Midday 13:00,29.1
+ZONE-06,HOSP03,"Kauvery Hospital, Alwarpet",1,midday,Midday 13:00,14.1
+ZONE-06,HOSP04,Rajiv Gandhi Govt. General Hospital,1,midday,Midday 13:00,35.9
+ZONE-06,HOSP05,Stanley Medical College Hospital,2,midday,Midday 13:00,40.2
+ZONE-06,HOSP06,Sri Ramachandra Medical Centre,1,midday,Midday 13:00,29.6
+ZONE-06,HOSP07,"Fortis Malar Hospital, Adyar",2,midday,Midday 13:00,2.7
+ZONE-06,HOSP08,"Tulips Multispeciality, OMR",3,midday,Midday 13:00,29.2
+ZONE-06,HOSP09,"Chettinad Hospital, Kelambakkam",2,midday,Midday 13:00,51.2
+ZONE-06,HOSP10,"Government Hospital, Tambaram",2,midday,Midday 13:00,43.5
+ZONE-06,HOSP11,"Prashanth Hospitals, Chromepet",2,midday,Midday 13:00,36.1
+ZONE-06,HOSP12,"SIMS Hospital, Vadapalani",1,midday,Midday 13:00,28.3
+ZONE-04,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,46.9
+ZONE-04,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,57.6
+ZONE-04,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,34.9
+ZONE-04,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,59.4
+ZONE-04,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,65.5
+ZONE-04,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,61.7
+ZONE-04,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,22.5
+ZONE-04,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,26.3
+ZONE-04,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,51.9
+ZONE-04,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,49.0
+ZONE-04,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,39.5
+ZONE-04,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,51.9
+ZONE-02,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,61.4
+ZONE-02,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,49.7
+ZONE-02,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,55.5
+ZONE-02,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,76.2
+ZONE-02,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,80.6
+ZONE-02,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,38.0
+ZONE-02,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,51.6
+ZONE-02,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,33.9
+ZONE-02,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,45.9
+ZONE-02,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,5.3
+ZONE-02,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,19.0
+ZONE-02,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,57.1
+ZONE-05,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,90.2
+ZONE-05,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,86.0
+ZONE-05,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,78.2
+ZONE-05,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,102.4
+ZONE-05,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,108.1
+ZONE-05,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,71.8
+ZONE-05,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,67.4
+ZONE-05,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,34.4
+ZONE-05,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,5.6
+ZONE-05,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,54.5
+ZONE-05,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,64.2
+ZONE-05,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,92.2
+ZONE-03,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,28.6
+ZONE-03,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,21.0
+ZONE-03,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,22.7
+ZONE-03,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,44.3
+ZONE-03,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,54.6
+ZONE-03,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,24.9
+ZONE-03,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,18.2
+ZONE-03,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,48.1
+ZONE-03,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,73.6
+ZONE-03,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,38.8
+ZONE-03,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,29.8
+ZONE-03,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,23.4
+ZONE-01,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,39.5
+ZONE-01,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,56.6
+ZONE-01,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,48.2
+ZONE-01,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,44.6
+ZONE-01,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,44.4
+ZONE-01,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,41.1
+ZONE-01,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,59.8
+ZONE-01,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,89.4
+ZONE-01,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,85.9
+ZONE-01,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,59.8
+ZONE-01,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,73.8
+ZONE-01,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,28.0
+ZONE-06,HOSP01,"Apollo Hospitals, Greams Road",1,evening,Evening peak 18:00,27.3
+ZONE-06,HOSP02,"MIOT International, Manapakkam",1,evening,Evening peak 18:00,39.1
+ZONE-06,HOSP03,"Kauvery Hospital, Alwarpet",1,evening,Evening peak 18:00,15.4
+ZONE-06,HOSP04,Rajiv Gandhi Govt. General Hospital,1,evening,Evening peak 18:00,40.1
+ZONE-06,HOSP05,Stanley Medical College Hospital,2,evening,Evening peak 18:00,46.4
+ZONE-06,HOSP06,Sri Ramachandra Medical Centre,1,evening,Evening peak 18:00,43.1
+ZONE-06,HOSP07,"Fortis Malar Hospital, Adyar",2,evening,Evening peak 18:00,3.0
+ZONE-06,HOSP08,"Tulips Multispeciality, OMR",3,evening,Evening peak 18:00,36.4
+ZONE-06,HOSP09,"Chettinad Hospital, Kelambakkam",2,evening,Evening peak 18:00,62.0
+ZONE-06,HOSP10,"Government Hospital, Tambaram",2,evening,Evening peak 18:00,58.1
+ZONE-06,HOSP11,"Prashanth Hospitals, Chromepet",2,evening,Evening peak 18:00,49.1
+ZONE-06,HOSP12,"SIMS Hospital, Vadapalani",1,evening,Evening peak 18:00,33.2
+ZONE-04,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,27.8
+ZONE-04,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,33.9
+ZONE-04,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,20.7
+ZONE-04,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,35.7
+ZONE-04,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,41.4
+ZONE-04,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,32.8
+ZONE-04,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,13.7
+ZONE-04,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,18.9
+ZONE-04,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,38.6
+ZONE-04,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,34.2
+ZONE-04,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,28.0
+ZONE-04,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,32.7
+ZONE-02,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,41.6
+ZONE-02,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,37.4
+ZONE-02,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,37.0
+ZONE-02,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,49.5
+ZONE-02,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,55.9
+ZONE-02,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,29.4
+ZONE-02,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,33.4
+ZONE-02,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,25.3
+ZONE-02,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,37.4
+ZONE-02,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,4.2
+ZONE-02,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,16.9
+ZONE-02,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,35.5
+ZONE-05,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,61.2
+ZONE-05,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,65.9
+ZONE-05,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,54.1
+ZONE-05,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,69.1
+ZONE-05,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,74.9
+ZONE-05,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,53.4
+ZONE-05,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,47.1
+ZONE-05,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,27.6
+ZONE-05,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,5.1
+ZONE-05,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,39.2
+ZONE-05,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,47.0
+ZONE-05,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,66.2
+ZONE-03,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,18.9
+ZONE-03,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,14.8
+ZONE-03,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,14.3
+ZONE-03,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,26.8
+ZONE-03,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,33.2
+ZONE-03,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,13.8
+ZONE-03,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,10.7
+ZONE-03,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,32.5
+ZONE-03,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,52.1
+ZONE-03,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,25.7
+ZONE-03,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,19.4
+ZONE-03,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,13.1
+ZONE-01,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,26.6
+ZONE-01,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,42.0
+ZONE-01,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,32.7
+ZONE-01,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,31.2
+ZONE-01,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,31.2
+ZONE-01,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,30.4
+ZONE-01,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,37.5
+ZONE-01,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,59.3
+ZONE-01,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,70.5
+ZONE-01,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,47.2
+ZONE-01,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,46.5
+ZONE-01,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,19.9
+ZONE-06,HOSP01,"Apollo Hospitals, Greams Road",1,night,Night 23:00,17.4
+ZONE-06,HOSP02,"MIOT International, Manapakkam",1,night,Night 23:00,23.5
+ZONE-06,HOSP03,"Kauvery Hospital, Alwarpet",1,night,Night 23:00,10.7
+ZONE-06,HOSP04,Rajiv Gandhi Govt. General Hospital,1,night,Night 23:00,25.9
+ZONE-06,HOSP05,Stanley Medical College Hospital,2,night,Night 23:00,29.5
+ZONE-06,HOSP06,Sri Ramachandra Medical Centre,1,night,Night 23:00,22.4
+ZONE-06,HOSP07,"Fortis Malar Hospital, Adyar",2,night,Night 23:00,1.8
+ZONE-06,HOSP08,"Tulips Multispeciality, OMR",3,night,Night 23:00,23.6
+ZONE-06,HOSP09,"Chettinad Hospital, Kelambakkam",2,night,Night 23:00,43.2
+ZONE-06,HOSP10,"Government Hospital, Tambaram",2,night,Night 23:00,34.7
+ZONE-06,HOSP11,"Prashanth Hospitals, Chromepet",2,night,Night 23:00,28.5
+ZONE-06,HOSP12,"SIMS Hospital, Vadapalani",1,night,Night 23:00,22.4
