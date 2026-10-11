@@ -300,6 +300,42 @@ notes_html = f"""
   <li><b>Map lines are straight lines,</b> not the road route. The times shown are for the real road route.</li>
 </ul>"""
 
+LIMITS = [10, 15, 20, 25, 30, 40]
+
+def now_value(z):
+    v = z["slots"].get("now") if z["slots"] else None
+    return v if v is not None else z["mins"]
+
+limit_rows = ""
+for lim in LIMITS:
+    worst_gaps = [z["area"] for z in zone_list if z["mins"] > lim]
+    now_gaps = [z for z in zone_list if now_value(z) > lim]
+    cur = " class=\"cur\"" if lim == SAFE_WINDOW else ""
+    now_cell = f'<td class="num">{len(now_gaps)}</td>' if HAS_SLOTS else ""
+    limit_rows += (f'<tr{cur}><td>{lim} min{" (current)" if lim == SAFE_WINDOW else ""}</td>'
+                   f'<td class="num">{len(worst_gaps)}</td>{now_cell}'
+                   f'<td>{esc(", ".join(worst_gaps)) if worst_gaps else "None"}</td></tr>')
+now_head = '<th class="num">Gaps on live snapshot only</th>' if HAS_SLOTS else ""
+
+range_rows = ""
+for z in zone_list:
+    vals = [v for v in (z["slots"] or {}).values() if v is not None]
+    fastest = min(vals) if vals else z["mins"]
+    flips = fastest <= SAFE_WINDOW < z["mins"]
+    tag = ' <span class="chip warn">Changes with time of day</span>' if flips else ""
+    range_rows += (f'<tr><td>{esc(z["area"])}{tag}</td><td class="num">{fastest:.1f}</td>'
+                   f'<td class="num">{z["mins"]:.1f}</td>'
+                   f'<td>{"Gap" if z["mins"] > SAFE_WINDOW else "Covered"}</td></tr>')
+
+limit_html = f"""
+<p class="note" style="max-width:78ch;margin:0 0 14px">The {SAFE_WINDOW} minute limit is a planning choice. This table shows how many zones count as gaps if the limit is stricter or looser. A zone that stays a gap even at 30 minutes is the most serious case.</p>
+<div class="tablewrap" style="margin-bottom:18px"><table style="min-width:520px">
+  <thead><tr><th>Limit</th><th class="num">Gap zones at slowest time</th>{now_head}<th>Which zones</th></tr></thead>
+  <tbody>{limit_rows}</tbody></table></div>
+<div class="tablewrap"><table style="min-width:520px">
+  <thead><tr><th>Zone</th><th class="num">Fastest (min)</th><th class="num">Slowest (min)</th><th>At {SAFE_WINDOW} min limit</th></tr></thead>
+  <tbody>{range_rows}</tbody></table></div>"""
+
 map_data = {
     "safe": SAFE_WINDOW, "scale": SCALE, "limit": LIMIT_POS,
     "zones": zone_list, "hospitals": hosp_records, "slot_labels": SLOT_LABELS,
@@ -408,6 +444,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   .tier{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;background:#CFE0F7;color:var(--hosp)}
   .tier.t2{background:#D8E4DF;color:var(--ink2)} .tier.t3{background:var(--warn-bg);color:var(--warn)}
 
+  tr.cur td{background:#D6E4F5;font-weight:700}
   .notes{display:grid;gap:12px;list-style:none;max-width:78ch}
   .notes li{background:#E8F0FA;border:1px solid #BFD3EA;border-radius:14px;padding:14px 16px;font-size:14.5px}
   .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:22px;color:var(--ink2)}
@@ -450,12 +487,14 @@ TEMPLATE = r"""<!DOCTYPE html>
     <div class="tablist" role="tablist">
       <button class="tab" role="tab" id="t-fixes" aria-selected="true" onclick="showTab('fixes')">Recommended fixes</button>
       <button class="tab" role="tab" id="t-hosp" aria-selected="false" onclick="showTab('hosp')">Hospitals</button>
+      <button class="tab" role="tab" id="t-limit" aria-selected="false" onclick="showTab('limit')">Limit check</button>
       <button class="tab" role="tab" id="t-notes" aria-selected="false" onclick="showTab('notes')">About the data</button>
     </div>
     <div class="pane show" id="p-fixes"><div class="fixes">__FIXES__</div></div>
     <div class="pane" id="p-hosp"><div class="tablewrap"><table>
       <thead><tr><th>Hospital</th><th>Trauma tier</th><th class="num">ICU beds</th><th>Cath lab</th><th>Ventilators</th><th class="num">Zones served</th></tr></thead>
       <tbody>__HOSPROWS__</tbody></table></div></div>
+    <div class="pane" id="p-limit">__LIMIT__</div>
     <div class="pane" id="p-notes">__NOTES__</div>
   </div>
 </div>
@@ -515,7 +554,7 @@ function selectZone(id, fly){
 }
 
 function showTab(name){
-  ['fixes','hosp','notes'].forEach(n => {
+  ['fixes','hosp','limit','notes'].forEach(n => {
     document.getElementById('p-' + n).classList.toggle('show', n === name);
     document.getElementById('t-' + n).setAttribute('aria-selected', n === name ? 'true' : 'false');
   });
@@ -609,6 +648,7 @@ page = (TEMPLATE
         .replace("__FIXES__", fix_cards)
         .replace("__HOSPROWS__", hosp_rows)
         .replace("__NOTES__", notes_html)
+        .replace("__LIMIT__", limit_html)
         .replace("__DATA__", data_json))
 
 components.html(page, height=1600, scrolling=True)

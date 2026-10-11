@@ -1,0 +1,7 @@
+limit_min,gaps_at_worst_time,gaps_live_now_only,gap_zones_at_worst_time
+10,3,3,Retteri Junction; Kathipara Junction; Perungudi (OMR)
+15,3,1,Retteri Junction; Kathipara Junction; Perungudi (OMR)
+20,2,1,Retteri Junction; Perungudi (OMR)
+25,1,0,Retteri Junction
+30,0,0,
+40,0,0,

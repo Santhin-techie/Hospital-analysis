@@ -1,0 +1,7 @@
+zone_id,area,fastest,slowest,swing_min,gap_flips_with_time
+ZONE-01,Retteri Junction,19.9,28.0,8.1,True
+ZONE-02,Tambaram (GST Road),4.2,5.3,1.1,False
+ZONE-03,Kathipara Junction,10.7,18.2,7.5,False
+ZONE-04,Perungudi (OMR),13.7,22.5,8.8,True
+ZONE-05,Kelambakkam (ECR/OMR),5.1,5.6,0.5,False
+ZONE-06,Madhya Kailash Junction,1.8,3.0,1.2,False
