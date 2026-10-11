@@ -11,7 +11,8 @@ Run (from the Dashboard folder):  streamlit run app.py
 
 Module 1 (beds) and Module 4 (coverage) use real results.
 Module 2 (medicine) is recalculated from today's date every time the app loads.
-Module 3 (blood) uses real results when Dashboard/blood_bank/ exists, otherwise SAMPLE data.
+Module 3 (blood) opens in its own browser tab (like Modules 1 and 4) when Dashboard/blood_bank/ exists.
+Its results also feed the readiness colours; otherwise SAMPLE data is used.
 Medicine counts per hospital are still SAMPLE data. Search for "SAMPLE" below.
 """
 
@@ -46,6 +47,7 @@ BLOOD_REAL = os.path.exists(BLOOD_RISK_FILE) and os.path.exists(BLOOD_PAGE_FILE)
 # the left-menu links open these addresses in a new browser tab.
 MODULE_APPS = {
     "module1": ("Bed occupancy (Module 1)", os.path.join(_HERE, BED_DIR, "dashboard.py")),
+    "module3": ("Blood bank (Module 3)", BLOOD_PAGE_FILE),
     "module4": ("Coverage and referral (Module 4)", os.path.join(_HERE, "module4_dashboard_full.py")),
 }
 _view = st.query_params.get("view")
@@ -231,7 +233,9 @@ with st.sidebar:
     _pages = ["Home", "Where should the patient go?"]
     if not os.path.exists(MODULE_APPS["module1"][1]):
         _pages.append("Bed occupancy (Module 1)")
-    _pages += ["Medicine stock (Module 2)", "Blood bank (Module 3)"]
+    _pages.append("Medicine stock (Module 2)")
+    if not os.path.exists(MODULE_APPS["module3"][1]):
+        _pages.append("Blood bank (Module 3)")
     page = st.radio("Go to", _pages, label_visibility="collapsed")
     for _key, (_label, _file) in MODULE_APPS.items():
         if os.path.exists(_file):
@@ -383,20 +387,6 @@ if page == "Where should the patient go?":
     render_patient_route()
     st.stop()
 
-# ---------------------------------------------------------------------------
-# PAGE: Blood bank (Module 3), drawn by the module's own page file
-# ---------------------------------------------------------------------------
-if page == "Blood bank (Module 3)":
-    if not BLOOD_REAL:
-        st.title("Blood bank (Module 3)")
-        st.warning("Blood module not found. Put the friend's project folder at Dashboard/blood_bank/ "
-                   "(it must contain scripts/, outputs/ and data/simulated/).")
-        st.stop()
-    import sys
-    sys.path.insert(0, os.path.dirname(BLOOD_PAGE_FILE))
-    import blood_page  # type: ignore
-    blood_page.render()
-    st.stop()
 # ---------------------------------------------------------------------------
 # PAGE: Medicine stock (Module 2), now a real page using today's date
 # ---------------------------------------------------------------------------
