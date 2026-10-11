@@ -394,10 +394,9 @@ if page == "Blood bank (Module 3)":
         st.stop()
     import sys
     sys.path.insert(0, os.path.dirname(BLOOD_PAGE_FILE))
-       import blood_page  # type: ignore
+    import blood_page  # type: ignore
     blood_page.render()
     st.stop()
-
 # ---------------------------------------------------------------------------
 # PAGE: Medicine stock (Module 2), now a real page using today's date
 # ---------------------------------------------------------------------------

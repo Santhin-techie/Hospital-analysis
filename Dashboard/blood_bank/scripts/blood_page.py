@@ -134,7 +134,7 @@ def render():
     k[3].metric("Units short (7 days)", int(round(rsel.deficit_units.sum())))
     k[4].metric("Units to move", int(trs["units"].sum()) if trs is not None and len(trs) else 0)
 
-    tabs = st.tabs(["Overview", "Forecast", "Risk & expiry", "Redistribution", "Explanations", "Model performance"])
+    tabs = st.tabs(["Overview", "Forecast", "Risk & expiry", "Redistribution", "Model performance"])
 
     # ---- Overview ------------------------------------------------------
     with tabs[0]:
@@ -204,31 +204,8 @@ def render():
             show = trs.drop(columns=["from_hospital", "to_hospital"], errors="ignore")
             st.dataframe(show, hide_index=True)
 
-    # ---- Explanations --------------------------------------------------
-    with tabs[4]:
-        st.subheader("Why this alert?")
-        ex_df = bd.select(d["explain"], hsel, gsel)
-        if ex_df is None or ex_df.empty:
-            st.info("No explanations for this selection (run blood_shap.py to create them).")
-        else:
-            ex_df = ex_df.reset_index(drop=True)
-            pick = st.selectbox("Alert", options=list(ex_df.index),
-                                format_func=lambda i: f"{ex_df.risk_level[i]} · {ex_df.blood_group[i]} · {ex_df.hospital_name[i]}")
-            row = ex_df.loc[pick]
-            st.markdown(f"**{row['explanation']}**")
-            c = st.columns(2)
-            c[0].metric("Days of cover", f"{row['days_of_cover']:.1f}")
-            c[1].metric("Predicted demand, first forecast day", f"{row['predicted_demand_day1']:.1f} units")
-            wf = bd.find_waterfall(FIG_DIR, row["hospital_id"], row["blood_group"])
-            if wf:
-                st.image(str(wf), caption="SHAP waterfall (log scale: how each factor moves expected demand)")
-        with st.expander("Global feature importance (SHAP)"):
-            for f in ("shap_01_summary.png", "shap_02_importance_bar.png"):
-                if (FIG_DIR / f).exists():
-                    st.image(str(FIG_DIR / f))
-
     # ---- Model performance --------------------------------------------
-    with tabs[5]:
+    with tabs[4]:
         st.subheader("How good are the forecasts? (test period 2025 H2)")
         scope = st.selectbox("Scope", ["ALL"] + bd.GROUPS)
         if d["cmp"] is not None:
