@@ -1,0 +1,9 @@
+medicine_id,medicine_name,category,unit_price,unit_of_measure,default_shelf_life_days,reorder_lead_time_days,department
+M01AB,Diclofenac (Acetic acid NSAID),Tablet,6.5,strip,730,5,General
+M01AE,Ibuprofen (Propionic acid NSAID),Tablet,4.0,strip,730,5,General
+N02BA,Aspirin (Salicylic acid analgesic),Tablet,2.5,strip,1095,4,General
+N02BE,Paracetamol 500mg,Tablet,2.0,strip,1095,3,General
+N05B,Diazepam (Anxiolytic),Tablet,9.0,strip,730,6,Psychiatry
+N05C,Zolpidem (Hypnotic-sedative),Tablet,12.0,strip,730,6,Psychiatry
+R03,Salbutamol Inhaler (Airway disease),Inhaler,150.0,piece,730,7,Pulmonology
+R06,Cetirizine (Antihistamine),Tablet,3.0,strip,1095,5,General

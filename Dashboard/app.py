@@ -38,6 +38,8 @@ def _find_dir(*names):
 
 
 BED_DIR = _find_dir("bed_occupancy", "bed occupancy")
+MED_DIR = _find_dir("medicinestockexpiryprediction", "medicine_stock", "medicine")
+MED_PAGE_FILE = os.path.join(_HERE, MED_DIR, "medicine_dashboard_streamlit.py")
 BLOOD_DIR = _find_dir("blood_bank", "blood bank", "blood-donation-forecasting-project-master")
 BLOOD_PAGE_FILE = os.path.join(_HERE, BLOOD_DIR, "scripts", "blood_page.py")
 BLOOD_RISK_FILE = os.path.join(_HERE, BLOOD_DIR, "outputs", "blood_risk.csv")
@@ -47,6 +49,7 @@ BLOOD_REAL = os.path.exists(BLOOD_RISK_FILE) and os.path.exists(BLOOD_PAGE_FILE)
 # the left-menu links open these addresses in a new browser tab.
 MODULE_APPS = {
     "module1": ("Bed occupancy (Module 1)", os.path.join(_HERE, BED_DIR, "dashboard.py")),
+    "module2": ("Medicine stock & expiry (Module 2)", MED_PAGE_FILE),
     "module3": ("Blood bank (Module 3)", BLOOD_PAGE_FILE),
     "module4": ("Coverage and referral (Module 4)", os.path.join(_HERE, "module4_dashboard_full.py")),
 }
@@ -392,6 +395,15 @@ if page == "Where should the patient go?":
 # ---------------------------------------------------------------------------
 if page == "Medicine stock (Module 2)":
     st.title("Medicine stock")
+    if os.path.exists(MED_PAGE_FILE):
+        st.markdown(
+            '<div style="background:#F6FAF8; border:1px solid #1C8160; border-radius:10px; padding:12px 16px; margin-bottom:16px;">'
+            '<strong>Full Module 2 Connected:</strong> Advanced pharmacy forecasting, stockout tracking & FEFO batch monitoring are available in the dedicated module. '
+            '<a href="?view=module2" target="_blank" style="color:#1C8160; font-weight:700; text-decoration:underline;">'
+            'Open Full Hospital Pharmacy Analytics Dashboard &#8599;</a>'
+            '</div>',
+            unsafe_allow_html=True
+        )
     if med is None:
         st.warning("medicine_inventory_demand.csv was not found in data/simulated.")
         st.stop()

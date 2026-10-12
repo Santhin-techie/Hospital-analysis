@@ -1,13 +1,13 @@
 hospital_name_department,total_capacity,total_occupied,total_available,current_occupancy_pct,vacancy_status,simulation_timestamp
-"Tulips Multispeciality, OMR",16.0,13.0,3.0,81.25,AVAILABLE,2026-10-11 23:58:46
-"Apollo Hospitals, Greams Road",100.0,76.0,24.0,76.0,AVAILABLE,2026-10-11 23:58:46
-"SIMS Hospital, Vadapalani",77.0,58.0,19.0,75.32,AVAILABLE,2026-10-11 23:58:46
-Rajiv Gandhi Govt. General Hospital,198.0,148.0,50.0,74.75,AVAILABLE,2026-10-11 23:58:46
-"Fortis Malar Hospital, Adyar",43.0,32.0,11.0,74.42,AVAILABLE,2026-10-11 23:58:46
-"Kauvery Hospital, Alwarpet",63.0,40.0,23.0,63.49,AVAILABLE,2026-10-11 23:58:46
-Sri Ramachandra Medical Centre,194.0,121.0,73.0,62.37,AVAILABLE,2026-10-11 23:58:46
-"Chettinad Hospital, Kelambakkam",91.0,50.0,41.0,54.95,AVAILABLE,2026-10-11 23:58:46
-"Prashanth Hospitals, Chromepet",33.0,18.0,15.0,54.55,AVAILABLE,2026-10-11 23:58:46
-Stanley Medical College Hospital,94.0,50.0,44.0,53.19,AVAILABLE,2026-10-11 23:58:46
-"MIOT International, Manapakkam",135.0,71.0,64.0,52.59,AVAILABLE,2026-10-11 23:58:46
-"Government Hospital, Tambaram",48.0,23.0,25.0,47.92,AVAILABLE,2026-10-11 23:58:46
+"Tulips Multispeciality, OMR",16.0,13.0,3.0,81.25,AVAILABLE,2026-10-12 16:02:42
+"Apollo Hospitals, Greams Road",100.0,78.0,22.0,78.0,AVAILABLE,2026-10-12 16:02:42
+"SIMS Hospital, Vadapalani",77.0,60.0,17.0,77.92,AVAILABLE,2026-10-12 16:02:42
+"Fortis Malar Hospital, Adyar",43.0,33.0,10.0,76.74,AVAILABLE,2026-10-12 16:02:42
+Rajiv Gandhi Govt. General Hospital,198.0,144.0,54.0,72.73,AVAILABLE,2026-10-12 16:02:42
+"Prashanth Hospitals, Chromepet",33.0,22.0,11.0,66.67,AVAILABLE,2026-10-12 16:02:42
+Sri Ramachandra Medical Centre,194.0,117.0,77.0,60.31,AVAILABLE,2026-10-12 16:02:42
+"Kauvery Hospital, Alwarpet",63.0,37.0,26.0,58.73,AVAILABLE,2026-10-12 16:02:42
+"Chettinad Hospital, Kelambakkam",91.0,50.0,41.0,54.95,AVAILABLE,2026-10-12 16:02:42
+Stanley Medical College Hospital,94.0,51.0,43.0,54.26,AVAILABLE,2026-10-12 16:02:42
+"MIOT International, Manapakkam",135.0,71.0,64.0,52.59,AVAILABLE,2026-10-12 16:02:42
+"Government Hospital, Tambaram",48.0,23.0,25.0,47.92,AVAILABLE,2026-10-12 16:02:42
