@@ -236,7 +236,10 @@ with st.sidebar:
     _pages = ["Home", "Where should the patient go?"]
     if not os.path.exists(MODULE_APPS["module1"][1]):
         _pages.append("Bed occupancy (Module 1)")
-    _pages.append("Medicine stock (Module 2)")
+    # CHANGED: Module 2 is only listed here when its dashboard file is missing
+    # (same behaviour as Modules 1 and 3). Otherwise it opens in a new tab via the link below.
+    if not os.path.exists(MODULE_APPS["module2"][1]):
+        _pages.append("Medicine stock (Module 2)")
     if not os.path.exists(MODULE_APPS["module3"][1]):
         _pages.append("Blood bank (Module 3)")
     page = st.radio("Go to", _pages, label_visibility="collapsed")
@@ -391,7 +394,8 @@ if page == "Where should the patient go?":
     st.stop()
 
 # ---------------------------------------------------------------------------
-# PAGE: Medicine stock (Module 2), now a real page using today's date
+# PAGE: Medicine stock (Module 2), fallback page using today's date.
+# Only reachable when the full Module 2 dashboard file is missing.
 # ---------------------------------------------------------------------------
 if page == "Medicine stock (Module 2)":
     st.title("Medicine stock")
