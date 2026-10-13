@@ -29,9 +29,15 @@ DB_PATH = PROJECT_DIR / "database" / "hospital.db"
 st.markdown(
     """
     <style>
-        .stApp {
-            background-color: #F4F7FA;
+        /* ---------- DARK THEME: dark background, white text ---------- */
+        :root { color-scheme: dark; }
+
+        .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
+            background-color: #0F1720;
+            color: #E8EEF4;
         }
+
+        header[data-testid="stHeader"] { background: transparent; }
 
         .block-container {
             max-width: 1450px;
@@ -39,81 +45,136 @@ st.markdown(
             padding-bottom: 3rem;
         }
 
-        section[data-testid="stSidebar"] {
-            background-color: #FFFFFF;
-            border-right: 1px solid #DFE7EE;
+        /* All normal text white */
+        .stApp p, .stApp li, .stApp label, .stApp span,
+        [data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"] p,
+        [data-testid="stCaptionContainer"] {
+            color: #E8EEF4;
         }
+        [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+            color: #9FB0C0;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #FFFFFF !important; }
 
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background-color: #121C26;
+            border-right: 1px solid #263646;
+        }
         section[data-testid="stSidebar"] h1,
         section[data-testid="stSidebar"] h2,
         section[data-testid="stSidebar"] h3,
-        section[data-testid="stSidebar"] label {
-            color: #183B56;
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] p {
+            color: #FFFFFF;
         }
 
-        h1, h2, h3 {
-            color: #183B56;
-        }
-
+        /* Metric cards */
         [data-testid="stMetric"] {
-            background-color: #FFFFFF;
-            border: 1px solid #E1E8EF;
+            background-color: #18232F;
+            border: 1px solid #2A3A4A;
             border-radius: 14px;
             padding: 16px 18px;
-            box-shadow: 0 3px 12px rgba(16, 42, 67, 0.045);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
         }
-
-        [data-testid="stMetricLabel"] {
-            color: #64788A;
+        [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] p {
+            color: #9FB0C0;
             font-size: 0.85rem;
             font-weight: 600;
         }
-
         [data-testid="stMetricValue"] {
-            color: #123B5D;
+            color: #FFFFFF;
             font-weight: 750;
         }
 
+        /* Tabs */
         [data-testid="stTabs"] button {
             font-weight: 600;
+            color: #C5D2DE;
+        }
+        [data-testid="stTabs"] button[aria-selected="true"] {
+            color: #4FC3D1;
+        }
+        [data-baseweb="tab-border"] { background-color: #2A3A4A; }
+
+        /* Dropdowns, multiselects, inputs */
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="input"] > div,
+        div[data-baseweb="base-input"] {
+            background-color: #18232F;
+            border-color: #2A3A4A;
+            color: #FFFFFF;
+        }
+        div[data-baseweb="select"] input, div[data-baseweb="select"] span,
+        div[data-baseweb="select"] div { color: #FFFFFF; }
+        div[data-baseweb="select"] svg { fill: #C5D2DE; }
+        span[data-baseweb="tag"] { background-color: #2A4A5C; color: #FFFFFF; }
+        span[data-baseweb="tag"] span { color: #FFFFFF; }
+        div[data-baseweb="popover"] ul, ul[role="listbox"] { background-color: #18232F; }
+        li[role="option"] { color: #FFFFFF; background-color: #18232F; }
+        li[role="option"]:hover, li[aria-selected="true"] { background-color: #263646; }
+
+        /* Buttons */
+        .stButton button, [data-testid="stDownloadButton"] button {
+            background-color: #1F6F7C;
+            color: #FFFFFF;
+            border: 1px solid #2A8C9B;
+        }
+        .stButton button:hover, [data-testid="stDownloadButton"] button:hover {
+            background-color: #278A9A;
+            color: #FFFFFF;
+            border-color: #4FC3D1;
         }
 
+        /* Info / warning / success / error boxes */
+        div[data-testid="stAlert"] {
+            background-color: rgba(79, 195, 209, 0.10);
+            border: 1px solid #2A3A4A;
+            border-radius: 10px;
+        }
+        div[data-testid="stAlert"] p, div[data-testid="stAlert"] span { color: #FFFFFF; }
+
+        /* Tables */
         div[data-testid="stDataFrame"] {
-            border: 1px solid #E1E8EF;
+            border: 1px solid #2A3A4A;
             border-radius: 10px;
             overflow: hidden;
         }
 
+        /* Expanders */
+        [data-testid="stExpander"] {
+            background-color: #18232F;
+            border: 1px solid #2A3A4A;
+            border-radius: 10px;
+        }
+        [data-testid="stExpander"] summary, [data-testid="stExpander"] p { color: #FFFFFF; }
+
+        hr { border-color: #2A3A4A; }
+
         .dashboard-header {
-            background: linear-gradient(
-                135deg,
-                #123B5D 0%,
-                #0B7285 100%
-            );
+            background: linear-gradient(135deg, #123B5D 0%, #0B7285 100%);
+            border: 1px solid #2A3A4A;
             border-radius: 16px;
             padding: 28px 32px;
             margin-bottom: 22px;
             color: white;
         }
-
         .dashboard-title {
             color: #FFFFFF;
             font-size: 31px;
             font-weight: 800;
             margin: 0;
         }
-
         .dashboard-subtitle {
             color: #D9F2F7;
             font-size: 14px;
             margin-top: 8px;
         }
-
         .footer {
-            border-top: 1px solid #DFE7EE;
+            border-top: 1px solid #2A3A4A;
             margin-top: 34px;
             padding-top: 16px;
-            color: #718096;
+            color: #9FB0C0;
             font-size: 0.78rem;
             text-align: center;
         }
@@ -298,7 +359,7 @@ if missing_columns:
 
 with st.sidebar:
 
-    st.markdown('<a href="/" target="_self" style="display:inline-block; margin-bottom:12px; font-weight:700; text-decoration:none; color:#0B7285;">← Back to Master Console</a>', unsafe_allow_html=True)
+    st.markdown('<a href="/" target="_self" style="display:inline-block; margin-bottom:12px; font-weight:700; text-decoration:none; color:#4FC3D1;">← Back to Master Console</a>', unsafe_allow_html=True)
     st.markdown("## Hospital Pharmacy")
     st.caption("Inventory analytics and decision support")
 
@@ -600,6 +661,7 @@ with chart_left:
                 t=20,
                 b=15
             ),
+            template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             showlegend=False
@@ -666,6 +728,7 @@ with chart_right:
                 t=20,
                 b=15
             ),
+            template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             yaxis=dict(
@@ -758,7 +821,8 @@ if (
             t=20,
             b=20
         ),
-        paper_bgcolor="rgba(0,0,0,0)",
+        template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         xaxis_tickangle=-25,
         legend_title_text=""

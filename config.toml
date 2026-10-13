@@ -1,0 +1,4 @@
+# OPTIONAL: forces dark mode for tables/dropdowns in every module.
+# Put this file in the repo root (next to requirements.txt).
+[theme]
+base = "dark"
