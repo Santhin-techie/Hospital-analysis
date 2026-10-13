@@ -425,6 +425,7 @@ with st.sidebar:
         st.rerun()
 
     st.caption("Database: SQLite")
+    st.caption("UI version: dark theme v2")
     st.caption("Forecasting: Prophet")
 
 
