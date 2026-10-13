@@ -247,7 +247,10 @@ with st.sidebar:
     page = st.radio("Go to", _pages, label_visibility="collapsed")
     for _key, (_label, _file) in MODULE_APPS.items():
         if os.path.exists(_file):
-            st.markdown(f'<a class="m4link" href="?view={_key}" target="_blank">{_label} &#8599;</a>',
+            # Module 3 (blood bank) opens in Streamlit's LIGHT theme, like the original dashboard.
+            # Other modules keep the viewer's normal theme.
+            _extra = "&embed=true&embed_options=light_theme&embed_options=show_padding&embed_options=show_toolbar" if _key == "module3" else ""
+            st.markdown(f'<a class="m4link" href="?view={_key}{_extra}" target="_blank">{_label} &#8599;</a>',
                         unsafe_allow_html=True)
 
 
