@@ -38,18 +38,15 @@ def _find_dir(*names):
 
 
 BED_DIR = _find_dir("bed_occupancy", "bed occupancy")
-MED_DIR = _find_dir("medicinestockexpiryprediction", "medicine_stock", "medicine")
-MED_PAGE_FILE = os.path.join(_HERE, MED_DIR, "medicine_dashboard_streamlit.py")
 BLOOD_DIR = _find_dir("blood_bank", "blood bank", "blood-donation-forecasting-project-master")
-BLOOD_PAGE_FILE = os.path.join(_HERE, BLOOD_DIR, "scripts", "blood_page.py")
-BLOOD_RISK_FILE = os.path.join(_HERE, BLOOD_DIR, "outputs", "blood_risk.csv")
+BLOOD_PAGE_FILE = os.path.join(_HERE, BLOOD_DIR, "scripts", "blood_dashboard.py")   # friend's own dashboard (Status grid / Action list / Forecast / Map)
+BLOOD_RISK_FILE = os.path.join(_HERE, BLOOD_DIR, "data", "simulated", "blood_coverage_results.csv")   # same file her dashboard reads
 BLOOD_REAL = os.path.exists(BLOOD_RISK_FILE) and os.path.exists(BLOOD_PAGE_FILE)   # Module 3 loaded?
 
 # Each module keeps its own dashboard file. ?view=<key> opens that dashboard unchanged;
 # the left-menu links open these addresses in a new browser tab.
 MODULE_APPS = {
     "module1": ("Bed occupancy (Module 1)", os.path.join(_HERE, BED_DIR, "dashboard.py")),
-    "module2": ("Medicine stock & expiry (Module 2)", MED_PAGE_FILE),
     "module3": ("Blood bank (Module 3)", BLOOD_PAGE_FILE),
     "module4": ("Coverage and referral (Module 4)", os.path.join(_HERE, "module4_dashboard_full.py")),
 }
@@ -173,9 +170,11 @@ def sample_module_status(hosp_df):
     df = pd.DataFrame(rows).set_index("name")
     df["bed_high"] = False
     if BLOOD_REAL:
-        # REAL Module 3: number of blood groups at HIGH shortage risk in each hospital
+        # REAL Module 3: number of blood groups with status SHORTAGE RISK in each hospital
+        # (same numbers as the Module 3 dashboard's "Shortage Risk" tile)
         br = pd.read_csv(BLOOD_RISK_FILE)
-        high = br[br["risk_level"] == "High"].groupby("hospital_name").size()
+        br["hospital_name"] = br["hospital_id"].map(hosp_df.set_index("hospital_id")["name"])
+        high = br[br["status"] == "SHORTAGE RISK"].groupby("hospital_name").size()
         df["blood_low"] = 0
         common = df.index.intersection(high.index)
         df.loc[common, "blood_low"] = high.loc[common].astype(int)
@@ -236,10 +235,7 @@ with st.sidebar:
     _pages = ["Home", "Where should the patient go?"]
     if not os.path.exists(MODULE_APPS["module1"][1]):
         _pages.append("Bed occupancy (Module 1)")
-    # CHANGED: Module 2 is only listed here when its dashboard file is missing
-    # (same behaviour as Modules 1 and 3). Otherwise it opens in a new tab via the link below.
-    if not os.path.exists(MODULE_APPS["module2"][1]):
-        _pages.append("Medicine stock (Module 2)")
+    _pages.append("Medicine stock (Module 2)")
     if not os.path.exists(MODULE_APPS["module3"][1]):
         _pages.append("Blood bank (Module 3)")
     page = st.radio("Go to", _pages, label_visibility="collapsed")
@@ -394,20 +390,10 @@ if page == "Where should the patient go?":
     st.stop()
 
 # ---------------------------------------------------------------------------
-# PAGE: Medicine stock (Module 2), fallback page using today's date.
-# Only reachable when the full Module 2 dashboard file is missing.
+# PAGE: Medicine stock (Module 2), now a real page using today's date
 # ---------------------------------------------------------------------------
 if page == "Medicine stock (Module 2)":
     st.title("Medicine stock")
-    if os.path.exists(MED_PAGE_FILE):
-        st.markdown(
-            '<div style="background:#F6FAF8; border:1px solid #1C8160; border-radius:10px; padding:12px 16px; margin-bottom:16px;">'
-            '<strong>Full Module 2 Connected:</strong> Advanced pharmacy forecasting, stockout tracking & FEFO batch monitoring are available in the dedicated module. '
-            '<a href="?view=module2" target="_blank" style="color:#1C8160; font-weight:700; text-decoration:underline;">'
-            'Open Full Hospital Pharmacy Analytics Dashboard &#8599;</a>'
-            '</div>',
-            unsafe_allow_html=True
-        )
     if med is None:
         st.warning("medicine_inventory_demand.csv was not found in data/simulated.")
         st.stop()
@@ -458,7 +444,7 @@ kpi(c1, len(gap_zones), "Accident zones too far from a trauma hospital",
     f"of {len(cov)} zones, over {SAFE_WINDOW} min at the worst time of day", "bad" if len(gap_zones) else "good")
 kpi(c2, n_red, "Hospitals in trouble", f"{n_amber} more need care", "bad" if n_red else "good")
 kpi(c3, med_short, "Medicines below reorder level", med_sub, "mid" if med_short else "good")
-kpi(c4, int(hosp["blood_low"].sum()), "Blood groups at high shortage risk",
+kpi(c4, int(hosp["blood_low"].sum()), "Blood groups at shortage risk",
     "across all hospitals (Module 3 forecast)" if BLOOD_REAL else "across all hospitals (sample data)", "mid")
 
 st.write("")
